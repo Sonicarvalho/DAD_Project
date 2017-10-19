@@ -5,6 +5,7 @@ Projecto de Desenvolvimento de Aplicações Distribuídas
 - GetAllClients
 - RequestMoveX (onde X = LEFT,RIGHT,UP,DOWN)
 - GetCurGameState
+- GetInitState
 
 #### Funções remotas chamadas pelo Cliente aos outros Clientes
 - BroadcastChatMessage
