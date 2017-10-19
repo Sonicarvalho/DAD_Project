@@ -23,15 +23,20 @@ namespace pacman {
         int boardBottom = 320;
         int boardLeft = 0;
         int boardTop = 40;
+
+        //TODO:Implement Server side
         //player speed
         int speed = 5;
 
+        //TODO:Implement Server side
         int score = 0; int total_coins = 61;
 
+        //TODO:Implement Server side
         //ghost speed for the one direction ghosts
         int ghost1 = 5;
         int ghost2 = 5;
-        
+
+        //TODO:Implement Server side
         //x and y directions for the bi-direccional pink ghost
         int ghost3x = 5;
         int ghost3y = 5;            
@@ -81,6 +86,7 @@ namespace pacman {
         private void timer1_Tick(object sender, EventArgs e) {
             label1.Text = "Score: " + score;
 
+            //TODO:Implement this movements Server side
             //move player
             if (goleft) {
                 if (pacman.Left > (boardLeft))
@@ -98,6 +104,8 @@ namespace pacman {
                 if (pacman.Top < (boardBottom))
                     pacman.Top += speed;
             }
+
+           
             //move ghosts
             redGhost.Left += ghost1;
             yellowGhost.Left += ghost2;
