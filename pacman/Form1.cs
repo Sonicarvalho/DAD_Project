@@ -29,7 +29,7 @@ namespace pacman {
         int speed = 5;
 
         //TODO:Implement Server side
-        int score = 0; int total_coins = 61;
+        int score = 0; int total_coins = 60;
 
         //TODO:Implement Server side
         //ghost speed for the one direction ghosts
