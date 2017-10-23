@@ -5,14 +5,18 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Tcp;
+using mw_client_server;
+using System.Collections;
+using System.Runtime.Remoting;
 
 namespace pacman {
     public partial class Form1 : Form {
-
+        
         // direction player is moving in. Only one will be true
         bool goup;
         bool godown;
@@ -40,10 +44,82 @@ namespace pacman {
         //x and y directions for the bi-direccional pink ghost
         int ghost3x = 5;
         int ghost3y = 5;            
-
+        
+        //Multiplayer Connection Objects
+        private IResponseGame obj;
+        private Thread gameClient, gameServer;
+        
         public Form1() {
             InitializeComponent();
             label2.Visible = false;
+            
+            //Starts the connection to gameServer
+            initClient();
+
+            ThreadStart ts = new ThreadStart(initClientServer);
+            
+
+
+        }
+
+        private void initClient()
+        {
+
+            TcpChannel channel = new TcpChannel();
+
+            ChannelServices.RegisterChannel(channel);
+
+            obj = (IResponseGame)
+                    Activator.GetObject(
+                            typeof(IResponseGame),
+                            "tcp://localhost:8080/myServer");
+
+        }
+
+        private void initClientServer()
+        {
+
+            IDictionary RemoteChannelProperties = new Hashtable();
+            int port = new Random().Next(8081, 15000);
+
+            RemoteChannelProperties["port"] = port;
+
+            RemoteChannelProperties["name"] = "client" + port;
+
+
+
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+
+
+            //TcpChannel channel = new TcpChannel(int.Parse(port));
+
+            ChannelServices.RegisterChannel(channel);
+
+            RequestGame mo = new RequestGame();
+            //mo.addMessage += addMessage;
+
+            RemotingServices.Marshal(mo, "ClientService",
+                    typeof(IRequestGame));
+
+        }
+        // TODO: implement
+        public class RequestGame : MarshalByRefObject, IRequestGame
+        {
+            public IEnumerable<string> GetAllClients()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool JoinGame()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool RequestMove(IEnumerable<string> directions, int round)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private void keyisdown(object sender, KeyEventArgs e) {
