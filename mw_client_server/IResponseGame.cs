@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace mw_client_server
 {
-    interface IResponseGame
+    public interface IResponseGame
     {
         GameState SendGameState();
         void StartGame();
