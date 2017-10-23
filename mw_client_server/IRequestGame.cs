@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace mw_client_server
+{
+    interface IRequestGame
+    {
+        bool JoinGame();
+
+        IEnumerable<string> GetAllClients();
+
+        //LEFT, RIGHT, UP, DOWN
+        bool RequestMove(IEnumerable<string> directions, int round);
+    }
+}
