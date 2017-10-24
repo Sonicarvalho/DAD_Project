@@ -71,7 +71,7 @@ namespace pacman {
 
             obj = (IResponseGame)
                     Activator.GetObject(
-                            typeof(IResponseGame),
+                            typeof(IRequestGame),
                             "tcp://localhost:8080/myServer");
 
         }
@@ -96,27 +96,33 @@ namespace pacman {
 
             ChannelServices.RegisterChannel(channel);
 
-            RequestGame mo = new RequestGame();
+            ResponseGame mo = new ResponseGame();
             //mo.addMessage += addMessage;
 
             RemotingServices.Marshal(mo, "ClientService",
-                    typeof(IRequestGame));
+                    typeof(IResponseGame));
 
         }
         // TODO: implement
-        public class RequestGame : MarshalByRefObject, IRequestGame
+        public class ResponseGame : MarshalByRefObject, IResponseGame
         {
-            public IEnumerable<string> GetAllClients()
+         
+            public GameState SendGameState()
             {
                 throw new NotImplementedException();
             }
 
-            public bool JoinGame()
+            public void StartGame()
             {
                 throw new NotImplementedException();
             }
 
-            public bool RequestMove(IEnumerable<string> directions, int round)
+            public void EndGame()
+            {
+                throw new NotImplementedException();
+            }
+
+            public int SendPID()
             {
                 throw new NotImplementedException();
             }
