@@ -2,16 +2,47 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace pacman_server
 {
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
+        public IList<string> players = new List<string>(); 
+
+
+        public bool Register(string url)
+        {
+            players.Add(url);
+            
+            Thread client = new Thread(() => connectClient(url));
+            client.Start();
+
+            return true;
+        }
+
+        private void connectClient(string url) {
+
+            TcpChannel channel = new TcpChannel();
+
+            ChannelServices.RegisterChannel(channel);
+
+            IResponseGame obj = (IResponseGame)
+                    Activator.GetObject(
+                            typeof(IResponseGame),
+                            url);
+
+            obj.StartGame();
+            
+        }
+
         public IEnumerable<string> GetAllClients()
         {
-            throw new NotImplementedException();
+            return players;
         }
 
         public bool JoinGame()
@@ -19,11 +50,6 @@ namespace pacman_server
             Console.WriteLine("Joined");
 
             return true;
-        }
-
-        public bool Register(string url)
-        {
-            throw new NotImplementedException();
         }
 
         public bool RequestMove(IEnumerable<string> directions, int round)
