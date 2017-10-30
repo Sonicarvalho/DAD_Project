@@ -13,6 +13,7 @@ using System.Runtime.Remoting.Channels.Tcp;
 using mw_client_server;
 using System.Collections;
 using System.Runtime.Remoting;
+using mw_pm_server;
 
 namespace pacman {
     public partial class Form1 : Form {
@@ -74,7 +75,7 @@ namespace pacman {
                             typeof(IRequestGame),
                             "tcp://localhost:8080/myGameServer");
 
-            obj.JoinGame();
+            //obj.JoinGame();
         }
 
         private void initClientServer()
@@ -104,6 +105,31 @@ namespace pacman {
                     typeof(IResponseGame));
 
         }
+
+        private static void initPMServer()
+        {
+
+            IDictionary RemoteChannelProperties = new Hashtable();
+
+            RemoteChannelProperties["port"] = "11000";
+
+            RemoteChannelProperties["name"] = "PMServer";
+
+
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+
+            //TcpChannel channel = new TcpChannel(int.Parse(port));
+
+            ChannelServices.RegisterChannel(channel);
+
+            Commands mo = new Commands();
+
+            RemotingServices.Marshal(mo, "myPMServer",
+                    typeof(ICommands));
+        }
+
+
         // TODO: implement
         public class ResponseGame : MarshalByRefObject, IResponseGame
         {
@@ -128,6 +154,27 @@ namespace pacman {
                 throw new NotImplementedException();
             }
         }
+
+        public class Commands : MarshalByRefObject, ICommands
+        {
+            public bool injectDelay(int srcID, int dstID)
+            {
+                Console.WriteLine("Puppet Master Connected");
+                return true;
+            }
+
+            public IEnumerable<LocalState> localState(int rndID)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool wait(int xMs)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
 
         private void keyisdown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Left) {

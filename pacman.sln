@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pacman", "pacman\pacman.csproj", "{ECE5A838-E181-493A-B9A2-6ADD01DE37F6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9E7994E2-BAC4-4758-9833-22EA34BB1F93} = {9E7994E2-BAC4-4758-9833-22EA34BB1F93}
@@ -18,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_pm", "mw_pm_server\mw_pm.csproj", "{23006B3C-CFCF-416C-BEF2-300960EA864F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "puppet master", "puppet master\puppet master.csproj", "{ECD76AAF-5F65-4224-97E4-879A23814966}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_client_client", "mw_client_client\mw_client_client.csproj", "{891A1F16-D4F6-47D1-82B8-49F1BB7A69C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +45,10 @@ Global
 		{ECD76AAF-5F65-4224-97E4-879A23814966}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECD76AAF-5F65-4224-97E4-879A23814966}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECD76AAF-5F65-4224-97E4-879A23814966}.Release|Any CPU.Build.0 = Release|Any CPU
+		{891A1F16-D4F6-47D1-82B8-49F1BB7A69C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{891A1F16-D4F6-47D1-82B8-49F1BB7A69C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{891A1F16-D4F6-47D1-82B8-49F1BB7A69C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{891A1F16-D4F6-47D1-82B8-49F1BB7A69C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
