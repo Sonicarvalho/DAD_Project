@@ -10,6 +10,8 @@ namespace mw_client_server
     {
         bool JoinGame();
 
+        bool Register(string url);
+
         IEnumerable<string> GetAllClients();
 
         //LEFT, RIGHT, UP, DOWN

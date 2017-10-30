@@ -31,21 +31,5 @@ namespace pacman_server
         }
     }
 
-    public class RequestGame : MarshalByRefObject, IRequestGame
-    {
-        public IEnumerable<string> GetAllClients()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool JoinGame()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool RequestMove(IEnumerable<string> directions, int round)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    
 }

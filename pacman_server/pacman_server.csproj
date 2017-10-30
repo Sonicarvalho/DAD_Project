@@ -44,6 +44,8 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequestGame.cs" />
+    <Compile Include="ResponseGame.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -52,6 +54,10 @@
     <ProjectReference Include="..\mw_client_server\mw_client_server.csproj">
       <Project>{9e7994e2-bac4-4758-9833-22ea34bb1f93}</Project>
       <Name>mw_client_server</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\mw_pm_server\mw_pm.csproj">
+      <Project>{23006b3c-cfcf-416c-bef2-300960ea864f}</Project>
+      <Name>mw_pm</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
