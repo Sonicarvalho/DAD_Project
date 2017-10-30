@@ -8,11 +8,11 @@ namespace mw_client_server
 {
     public interface IRequestGame
     {
-        bool JoinGame();
-
-        bool Register(string url);
+        bool Register(string name ,string url);
 
         IEnumerable<string> GetAllClients();
+
+        bool JoinGame(string name);
 
         //LEFT, RIGHT, UP, DOWN
         bool RequestMove(IEnumerable<string> directions, int round);

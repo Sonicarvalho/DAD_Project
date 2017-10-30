@@ -12,13 +12,16 @@ namespace pacman_server
 {
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
-        public IList<string> players = new List<string>(); 
+        public IList<Player> players = new List<Player>();
 
 
-        public bool Register(string url)
+        public bool Register(string name, string url)
         {
-            players.Add(url);
-            
+            if (players.Any(p => p.name.Equals(name) || p.url.Equals(url)))
+                return false;
+
+            players.Add(new Player(name, url));
+
             Thread client = new Thread(() => connectClient(url));
             client.Start();
 
@@ -37,24 +40,42 @@ namespace pacman_server
                             url);
 
             obj.StartGame();
-            
+
         }
 
         public IEnumerable<string> GetAllClients()
         {
-            return players;
+            return players.Select(p => p.url);
         }
 
-        public bool JoinGame()
+        public bool JoinGame(string name)
         {
-            Console.WriteLine("Joined");
+            if (players.Any(p => p.name.Equals(name))) {
 
-            return true;
+                players.Where(p => p.name.Equals(name)).FirstOrDefault().playing = true;
+
+                return true;
+            }
+
+            return false;
         }
 
         public bool RequestMove(IEnumerable<string> directions, int round)
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class Player
+    {
+        public string name { get; set; }
+        public string url { get; set; }
+        public bool playing { get; set; }
+
+        public Player(string Name, string URL) {
+            name = Name;
+            url = URL;
+        }
+
     }
 }
