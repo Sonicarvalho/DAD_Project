@@ -46,7 +46,7 @@ namespace pacman {
         int ghost3y = 5;            
         
         //Multiplayer Connection Objects
-        private IResponseGame obj;
+        private IRequestGame obj;
         private Thread gameClient, gameServer;
         
         public Form1() {
@@ -69,11 +69,12 @@ namespace pacman {
 
             ChannelServices.RegisterChannel(channel);
 
-            obj = (IResponseGame)
+            obj = (IRequestGame)
                     Activator.GetObject(
                             typeof(IRequestGame),
-                            "tcp://localhost:8080/myServer");
+                            "tcp://localhost:8080/myGameServer");
 
+            obj.JoinGame();
         }
 
         private void initClientServer()

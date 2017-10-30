@@ -16,7 +16,9 @@ namespace pacman_server
 
         public bool JoinGame()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Joined");
+
+            return true;
         }
 
         public bool Register(string url)
