@@ -14,10 +14,13 @@ using mw_client_server;
 using System.Collections;
 using System.Runtime.Remoting;
 using mw_pm_server;
+using mw_client_client;
 
 namespace pacman {
     public partial class Form1 : Form {
-        
+
+        int debugPort;
+
         // direction player is moving in. Only one will be true
         bool goup;
         bool godown;
@@ -85,14 +88,8 @@ namespace pacman {
             int port = new Random().Next(8081, 15000);
 
             RemoteChannelProperties["port"] = port;
-
             RemoteChannelProperties["name"] = "client" + port;
-
-
-
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
@@ -127,6 +124,46 @@ namespace pacman {
 
             RemotingServices.Marshal(mo, "myPMServer",
                     typeof(ICommands));
+        }
+
+        private void initChatCliServer() {
+
+            IDictionary RemoteChannelProperties = new Hashtable();
+
+            RemoteChannelProperties["port"] = debugPort;
+            RemoteChannelProperties["name"] = "client" + debugPort;
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+            //TcpChannel channel = new TcpChannel(int.Parse(port));
+
+            ChannelServices.RegisterChannel(channel);
+
+            ResponseGame mo = new ResponseGame();
+            //mo.addMessage += addMessage;
+
+            RemotingServices.Marshal(mo, "ClientService",
+                    typeof(IResponseGame));
+        
+        }
+
+        private void initChatClient() { }
+
+
+        public class CliChat : MarshalByRefObject, ICliChat {
+            public void Register(string nick, string port)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool SendMessage(string nick, string message)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void RecvMessage(string nick, string message)
+            {
+                throw new NotImplementedException();
+            }
         }
 
 
@@ -301,5 +338,12 @@ namespace pacman {
                 tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
             }
         }
+
+        private void btnPortDef_Click(object sender, EventArgs e)
+        {
+            debugPort = int.Parse(txtDebugPort.Text);
+        }
+
+       
     }
 }

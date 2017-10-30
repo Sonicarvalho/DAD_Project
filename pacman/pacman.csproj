@@ -113,6 +113,10 @@
     <None Include="Resources\yellow_guy.gif" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\mw_client_client\mw_client_client.csproj">
+      <Project>{891a1f16-d4f6-47d1-82b8-49f1bb7a69c1}</Project>
+      <Name>mw_client_client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\mw_client_server\mw_client_server.csproj">
       <Project>{9e7994e2-bac4-4758-9833-22ea34bb1f93}</Project>
       <Name>mw_client_server</Name>
