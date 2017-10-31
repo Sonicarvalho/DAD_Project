@@ -8,11 +8,11 @@ namespace mw_client_server
 {
     public interface IResponseGame
     {
-        GameState SendGameState();
+        void SendGameState(GameState state);
         void StartGame();
         void EndGame();
         //Sends PID of the player, to fix overlaping problems and etc.
-        int SendPID();
+        void SendPID(int pid);
 
     }
 
