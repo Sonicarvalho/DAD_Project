@@ -138,15 +138,18 @@ namespace pacman {
 
             ChannelServices.RegisterChannel(channel);
 
-            ResponseGame mo = new ResponseGame();
+            CliChat mo = new CliChat();
             //mo.addMessage += addMessage;
 
-            RemotingServices.Marshal(mo, "ClientService",
-                    typeof(IResponseGame));
+            RemotingServices.Marshal(mo, "chatClientServerService",
+                    typeof(CliChat));
         
         }
 
-        private void initChatClient() { }
+        private void initChatClient(string url, string port) {
+
+
+        }
 
 
         public class CliChat : MarshalByRefObject, ICliChat {
