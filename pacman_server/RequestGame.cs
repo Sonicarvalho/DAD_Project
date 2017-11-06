@@ -1,4 +1,5 @@
 ﻿using mw_client_server;
+using pacman_server.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,15 +21,13 @@ namespace pacman_server
             if (players.Any(p => p.name.Equals(name) || p.url.Equals(url)))
                 return false;
 
-            players.Add(new Player(name, url));
-
-            Thread client = new Thread(() => connectClient(url));
+            Thread client = new Thread(() => connectClient(new Player(name, url)));
             client.Start();
 
             return true;
         }
 
-        private void connectClient(string url) {
+        private void connectClient(Player player) {
 
             TcpChannel channel = new TcpChannel();
 
@@ -37,10 +36,11 @@ namespace pacman_server
             IResponseGame obj = (IResponseGame)
                     Activator.GetObject(
                             typeof(IResponseGame),
-                            url);
+                            player.url);
 
-            obj.StartGame();
+            player.obj = obj;
 
+            players.Add(player);
         }
 
         public IEnumerable<string> GetAllClients()
@@ -64,18 +64,5 @@ namespace pacman_server
         {
             throw new NotImplementedException();
         }
-    }
-
-    public class Player
-    {
-        public string name { get; set; }
-        public string url { get; set; }
-        public bool playing { get; set; }
-
-        public Player(string Name, string URL) {
-            name = Name;
-            url = URL;
-        }
-
     }
 }
