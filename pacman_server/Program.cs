@@ -1,5 +1,6 @@
 ﻿using mw_client_server;
 using mw_pm_server;
+using pacman_server.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +16,9 @@ namespace pacman_server
 {
     class Program
     {
-        private static Thread server; 
+        private static Thread server, gc; 
+
+        private IList<Player> players = new List<Player>();
 
 
         static void Main(string[] args)
@@ -36,7 +39,11 @@ namespace pacman_server
             ThreadStart pmServer = new ThreadStart(initPMServer);
             server = new Thread(pmServer);
             server.Start();
-            
+
+            ThreadStart gameCycle = new ThreadStart(initGameCycle);
+            gc = new Thread(gameCycle);
+            gc.Start();
+
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
         }
@@ -63,6 +70,11 @@ namespace pacman_server
             RemotingServices.Marshal(mo, "myPMServer",
                     typeof(ICommands));
         }
+
+        private static void initGameCycle() {
+
+        }
+
         
     }
 }
