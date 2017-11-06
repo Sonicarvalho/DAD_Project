@@ -20,9 +20,7 @@ namespace mw_pm_server
     public class LocalState {
 
         public string id { get; set; }
-
         public bool lost { get; set; }
-
         public int posX { get; set; }
         public int posy { get; set; }
 
