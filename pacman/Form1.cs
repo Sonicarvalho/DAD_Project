@@ -13,7 +13,7 @@ using System.Runtime.Remoting.Channels.Tcp;
 using mw_client_server;
 using System.Collections;
 using System.Runtime.Remoting;
-using mw_pm_server;
+using mw_pm_server_client;
 using mw_client_client;
 using Microsoft.VisualBasic;
 

@@ -1,5 +1,5 @@
 ﻿using mw_client_server;
-using mw_pm_server;
+using mw_pm_server_client;
 using pacman_server.Entities;
 using System;
 using System.Collections;
@@ -36,9 +36,9 @@ namespace pacman_server
             RemotingServices.Marshal(mo, "myGameServer",
                     typeof(IRequestGame));
 
-            ThreadStart pmServer = new ThreadStart(initPMServer);
-            server = new Thread(pmServer);
-            server.Start();
+            //ThreadStart pmServer = new ThreadStart(initPMServer);
+            //server = new Thread(pmServer);
+            // server.Start();
 
             ThreadStart gameCycle = new ThreadStart(initGameCycle);
             gc = new Thread(gameCycle);
@@ -48,7 +48,7 @@ namespace pacman_server
             System.Console.ReadLine();
         }
 
-
+        /*
         private static void initPMServer(){
 
             IDictionary RemoteChannelProperties = new Hashtable();
@@ -70,7 +70,7 @@ namespace pacman_server
             RemotingServices.Marshal(mo, "myPMServer",
                     typeof(ICommands));
         }
-
+        */
         private static void initGameCycle() {
 
         }

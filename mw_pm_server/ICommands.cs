@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace mw_pm_server
+namespace mw_pm_server_client
 {
     public interface ICommands
     {
@@ -20,9 +20,7 @@ namespace mw_pm_server
     public class LocalState {
 
         public string id { get; set; }
-
         public bool lost { get; set; }
-
         public int posX { get; set; }
         public int posy { get; set; }
 

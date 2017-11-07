@@ -1,4 +1,5 @@
-﻿using mw_pm_server;
+﻿using mw_pm_server_client;
+using mw_pm_pcs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,7 +14,9 @@ namespace puppet_master
 {
     class Program
     {
-        private static ICommands obj;
+        private static ICommands commands;
+        private static IInitializer initializer;
+        //private delegate void initDel(IInitializer init); 
 
         static void Main(string[] args)
         {
@@ -31,18 +34,19 @@ namespace puppet_master
             //        typeof(ICommands));
 
 
-
             TcpChannel channel = new TcpChannel();
 
-            ChannelServices.RegisterChannel(channel);
+            ChannelServices.RegisterChannel(channel, true);
 
-            obj = (ICommands)
+            initializer = (IInitializer)
                     Activator.GetObject(
-                            typeof(ICommands),
+                            typeof(IInitializer),
                             "tcp://localhost:11000/myPMServer");
 
-            obj.injectDelay(1, 1);
-
+            //commands.injectDelay(1, 1);
+            System.Console.WriteLine("Press <enter> to create server...");
+            System.Console.Read();
+            initializer.StartServer();
 
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
