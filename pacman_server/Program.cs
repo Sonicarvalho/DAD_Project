@@ -1,5 +1,5 @@
 ﻿using mw_client_server;
-using mw_pm_server;
+using mw_pm_server_client;
 using pacman_server.Entities;
 using pacman_server.Events;
 using System;
@@ -51,11 +51,11 @@ namespace pacman_server
 
             RemotingServices.Marshal(requestGame, "myGameServer",
                     typeof(IRequestGame));
-            
-            //Init a server to communicate with the Puppet Master
-            ThreadStart pmServer = new ThreadStart(initPMServer);
-            server = new Thread(pmServer);
-            server.Start();
+
+
+            //ThreadStart pmServer = new ThreadStart(initPMServer);
+            //server = new Thread(pmServer);
+            // server.Start();
 
 
             //Init the GameCycle
@@ -67,7 +67,7 @@ namespace pacman_server
             System.Console.ReadLine();
         }
 
-
+        /*
         private static void initPMServer(){
 
             IDictionary RemoteChannelProperties = new Hashtable();
@@ -89,7 +89,7 @@ namespace pacman_server
             RemotingServices.Marshal(mo, "myPMServer",
                     typeof(ICommands));
         }
-
+        */
         private static void initGameCycle() {
             while (true) {
                 Thread.Sleep(time_delay);

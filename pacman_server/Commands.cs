@@ -1,4 +1,4 @@
-﻿using mw_pm_server;
+﻿using mw_pm_server_client;
 using System;
 using System.Collections.Generic;
 using System.Linq;

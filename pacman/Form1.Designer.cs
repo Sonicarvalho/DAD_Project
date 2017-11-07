@@ -98,9 +98,6 @@
             this.pictureBox64 = new System.Windows.Forms.PictureBox();
             this.tbMsg = new System.Windows.Forms.TextBox();
             this.tbChat = new System.Windows.Forms.TextBox();
-            this.btnPortDef = new System.Windows.Forms.Button();
-            this.txtDebugPort = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pacman)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pinkGhost)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.yellowGhost)).BeginInit();
@@ -963,40 +960,11 @@
             this.tbChat.Size = new System.Drawing.Size(100, 255);
             this.tbChat.TabIndex = 144;
             // 
-            // btnPortDef
-            // 
-            this.btnPortDef.Location = new System.Drawing.Point(367, 13);
-            this.btnPortDef.Name = "btnPortDef";
-            this.btnPortDef.Size = new System.Drawing.Size(34, 23);
-            this.btnPortDef.TabIndex = 145;
-            this.btnPortDef.Text = "port";
-            this.btnPortDef.UseVisualStyleBackColor = true;
-            this.btnPortDef.Click += new System.EventHandler(this.btnPortDef_Click);
-            // 
-            // txtDebugPort
-            // 
-            this.txtDebugPort.Location = new System.Drawing.Point(407, 16);
-            this.txtDebugPort.Name = "txtDebugPort";
-            this.txtDebugPort.Size = new System.Drawing.Size(34, 20);
-            this.txtDebugPort.TabIndex = 146;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(447, 14);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(34, 23);
-            this.button2.TabIndex = 145;
-            this.button2.Text = "Con.";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(479, 344);
-            this.Controls.Add(this.txtDebugPort);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.btnPortDef);
             this.Controls.Add(this.tbChat);
             this.Controls.Add(this.tbMsg);
             this.Controls.Add(this.pictureBox56);
@@ -1221,9 +1189,6 @@
         private System.Windows.Forms.PictureBox pictureBox64;
         private System.Windows.Forms.TextBox tbMsg;
         private System.Windows.Forms.TextBox tbChat;
-        private System.Windows.Forms.Button btnPortDef;
-        private System.Windows.Forms.TextBox txtDebugPort;
-        private System.Windows.Forms.Button button2;
     }
 }
 

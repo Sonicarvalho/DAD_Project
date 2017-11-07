@@ -13,13 +13,14 @@ using System.Runtime.Remoting.Channels.Tcp;
 using mw_client_server;
 using System.Collections;
 using System.Runtime.Remoting;
-using mw_pm_server;
+using mw_pm_server_client;
 using mw_client_client;
+using Microsoft.VisualBasic;
 
 namespace pacman {
     public partial class Form1 : Form {
 
-        int debugPort;
+        int debugPort = 11111;
 
         // direction player is moving in. Only one will be true
         bool goup;
@@ -51,7 +52,7 @@ namespace pacman {
         
         //Multiplayer Connection Objects
         private IRequestGame obj;
-        private Thread gameClient, gameServer;
+        private Thread gameClient, gameServer, chatClientServer;
         
         public Form1() {
             InitializeComponent();
@@ -138,10 +139,10 @@ namespace pacman {
 
             ChannelServices.RegisterChannel(channel);
 
-            CliChat mo = new CliChat();
+            CliChat cco = new CliChat();
             //mo.addMessage += addMessage;
 
-            RemotingServices.Marshal(mo, "chatClientServerService",
+            RemotingServices.Marshal(cco, "chatClientServerService",
                     typeof(CliChat));
         
         }
@@ -173,8 +174,8 @@ namespace pacman {
         // TODO: implement
         public class ResponseGame : MarshalByRefObject, IResponseGame
         {
-         
-            public GameState SendGameState()
+
+            public void SendGameState(GameState state)
             {
                 throw new NotImplementedException();
             }
@@ -189,7 +190,7 @@ namespace pacman {
                 throw new NotImplementedException();
             }
 
-            public int SendPID()
+            public void SendPID(int pid)
             {
                 throw new NotImplementedException();
             }
@@ -236,6 +237,26 @@ namespace pacman {
             if (e.KeyCode == Keys.Enter) {
                     tbMsg.Enabled = true; tbMsg.Focus();
                }
+
+            if (e.KeyCode == Keys.P) //DEBUG
+            {
+                String x = Microsoft.VisualBasic.Interaction.InputBox("What's the desired port?", "DEBUG PORT", "8080");
+                try
+                {
+                    debugPort  = Int32.Parse(x);
+                }
+                catch (Exception ex) {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+
+            if (e.KeyCode == Keys.C)
+            {
+                ThreadStart ts = new ThreadStart(initChatCliServer);
+                chatClientServer = new Thread(ts);
+                chatClientServer.Start(); 
+
+            }
         }
 
         private void keyisup(object sender, KeyEventArgs e) {
@@ -341,12 +362,6 @@ namespace pacman {
                 tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
             }
         }
-
-        private void btnPortDef_Click(object sender, EventArgs e)
-        {
-            debugPort = int.Parse(txtDebugPort.Text);
-        }
-
        
     }
 }

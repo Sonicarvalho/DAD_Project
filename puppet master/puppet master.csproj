@@ -33,10 +33,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,6 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="pm_form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="pm_form.Designer.cs">
+      <DependentUpon>pm_form.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -52,10 +63,19 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\mw_pm_server\mw_pm.csproj">
-      <Project>{23006b3c-cfcf-416c-bef2-300960ea864f}</Project>
-      <Name>mw_pm</Name>
+    <ProjectReference Include="..\mw_pm_pcs\mw_pm_pcs.csproj">
+      <Project>{66cef8b8-ee5e-4756-bba9-d6a89068625b}</Project>
+      <Name>mw_pm_pcs</Name>
     </ProjectReference>
+    <ProjectReference Include="..\mw_pm_server\mw_pm_server_client.csproj">
+      <Project>{23006b3c-cfcf-416c-bef2-300960ea864f}</Project>
+      <Name>mw_pm_server_client</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="pm_form.resx">
+      <DependentUpon>pm_form.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -34,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Remoting" />
@@ -121,10 +122,13 @@
       <Project>{9e7994e2-bac4-4758-9833-22ea34bb1f93}</Project>
       <Name>mw_client_server</Name>
     </ProjectReference>
-    <ProjectReference Include="..\mw_pm_server\mw_pm.csproj">
+    <ProjectReference Include="..\mw_pm_server\mw_pm_server_client.csproj">
       <Project>{23006b3c-cfcf-416c-bef2-300960ea864f}</Project>
-      <Name>mw_pm</Name>
+      <Name>mw_pm_server_client</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Debug\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
