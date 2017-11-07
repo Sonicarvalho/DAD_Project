@@ -1,5 +1,6 @@
 ﻿using mw_client_server;
 using pacman_server.Entities;
+using pacman_server.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,12 @@ namespace pacman_server
 {
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
-        public IList<Player> players = new List<Player>();
+        //Game Speed
+        int speed = 5;
+
+        //players list
+        public SynchronizedCollection<Player> players = new SynchronizedCollection<Player>();
+        public SynchronizedCollection<MoveRequest> moveRequests = new SynchronizedCollection<MoveRequest>(); 
 
 
         public bool Register(string name, string url)
@@ -50,19 +56,60 @@ namespace pacman_server
 
         public bool JoinGame(string name)
         {
+            //that player exists?
             if (players.Any(p => p.name.Equals(name))) {
 
                 players.Where(p => p.name.Equals(name)).FirstOrDefault().playing = true;
-
+                
                 return true;
             }
 
             return false;
         }
 
-        public bool RequestMove(IEnumerable<string> directions, int round)
+        public bool RequestMove(string name, IEnumerable<string> directions, int round)
         {
-            throw new NotImplementedException();
+            moveRequests.Add(new MoveRequest(name, directions, round));
+
+            return true;
+
+            //Player player = players.Where(p => p.name.Equals(name)).FirstOrDefault();
+
+            //if (player != null)
+            //{
+            //    foreach (string direction in directions) {
+            //        switch (direction) {
+            //            case "UP":
+            //                player.posY += speed;
+            //                break;
+
+            //            case "DOWN":
+            //                player.posY -= speed;
+            //                break;
+
+            //            case "RIGHT":
+            //                player.posX += speed;
+            //                break;
+
+            //            case "LEFT":
+            //                player.posX -= speed;
+            //                break;
+
+            //            default:
+            //                //Unrecognizable direction;
+            //                return false;
+
+            //        }
+
+            //        player.faceDirection = direction;
+            //    }
+
+            //    player.round = round;
+                
+            //    return true;
+            //}
+
+            //return false;
         }
     }
 }

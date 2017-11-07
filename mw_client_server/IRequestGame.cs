@@ -15,6 +15,6 @@ namespace mw_client_server
         bool JoinGame(string name);
 
         //LEFT, RIGHT, UP, DOWN
-        bool RequestMove(IEnumerable<string> directions, int round);
+        bool RequestMove(string name, IEnumerable<string> directions, int round);
     }
 }
