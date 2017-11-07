@@ -16,6 +16,7 @@ using System.Runtime.Remoting;
 using mw_pm_server_client;
 using mw_client_client;
 using Microsoft.VisualBasic;
+using pacman.ChatResources;
 
 namespace pacman {
     public partial class Form1 : Form {
@@ -51,8 +52,19 @@ namespace pacman {
         int ghost3y = 5;            
         
         //Multiplayer Connection Objects
-        private IRequestGame obj;
+        private IRequestGame reqObj;
+        private ResponseGame mo;
+        private CliChat cco;
+        private List<CliChat> cc = new List<CliChat>();
         private Thread gameClient, gameServer, chatClientServer;
+
+
+
+
+        Hashtable Clients = new Hashtable(3);
+        
+
+
         
         public Form1() {
             InitializeComponent();
@@ -63,8 +75,9 @@ namespace pacman {
 
             ThreadStart ts = new ThreadStart(initClientServer);
             
-
-
+            Clients.Add(11111,"tcp://localhost:11111/chatClientServerService");
+            Clients.Add( 11112, "tcp://localhost:11112/chatClientServerService");
+            Clients.Add( 11113, "tcp://localhost:11113/chatClientServerService");
         }
 
         private void initClient()
@@ -74,7 +87,7 @@ namespace pacman {
 
             ChannelServices.RegisterChannel(channel);
 
-            obj = (IRequestGame)
+            reqObj = (IRequestGame)
                     Activator.GetObject(
                             typeof(IRequestGame),
                             "tcp://localhost:8080/myGameServer");
@@ -96,7 +109,7 @@ namespace pacman {
 
             ChannelServices.RegisterChannel(channel);
 
-            ResponseGame mo = new ResponseGame();
+            mo = new ResponseGame();
             //mo.addMessage += addMessage;
 
             RemotingServices.Marshal(mo, "ClientService",
@@ -139,7 +152,7 @@ namespace pacman {
 
             ChannelServices.RegisterChannel(channel);
 
-            CliChat cco = new CliChat();
+            cco = new CliChat();
             //mo.addMessage += addMessage;
 
             RemotingServices.Marshal(cco, "chatClientServerService",
@@ -148,7 +161,20 @@ namespace pacman {
         }
 
         private void initChatClient(string url, string port) {
+            TcpChannel channel = new TcpChannel();
 
+            ChannelServices.RegisterChannel(channel);
+
+           /* CliChat obj = (CliChat)
+                    Activator.GetObject(
+                            typeof(IRequestGame),
+                            "tcp://"+ url + ":"+ port +  "/chatClientServerService");*/
+
+            CliChat obj = (CliChat)
+                    Activator.GetObject(
+                            typeof(IRequestGame),
+                            "tcp://" + url + ":" + port + "/chatClientServerService");
+            cc.Add(obj);
 
         }
 
@@ -240,7 +266,7 @@ namespace pacman {
 
             if (e.KeyCode == Keys.P) //DEBUG
             {
-                String x = Microsoft.VisualBasic.Interaction.InputBox("What's the desired port?", "DEBUG PORT", "8080");
+                String x = Microsoft.VisualBasic.Interaction.InputBox("What's the desired port?", "DEBUG PORT", "11111");
                 try
                 {
                     debugPort  = Int32.Parse(x);
@@ -256,6 +282,17 @@ namespace pacman {
                 chatClientServer = new Thread(ts);
                 chatClientServer.Start(); 
 
+            }
+            if (e.KeyCode == Keys.V)
+            {
+                Clients.Remove(debugPort); // Removes ourselves from the list
+
+                ThrPool tpool = new ThrPool(Clients.Count,6);
+
+               /* foreach (int i in Clients) 
+                ThreadStart ts = new ThreadStart(initChatCliServer);
+                chatClientServer = new Thread(ts);
+                chatClientServer.Start();*/
             }
         }
 
