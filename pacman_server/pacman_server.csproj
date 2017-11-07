@@ -44,8 +44,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands.cs" />
+    <Compile Include="Entities\Coin.cs" />
+    <Compile Include="Entities\Ghost.cs" />
     <Compile Include="Entities\MoveRequest.cs" />
     <Compile Include="Entities\Player.cs" />
+    <Compile Include="Entities\Wall.cs" />
     <Compile Include="Events\PlayerEventArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

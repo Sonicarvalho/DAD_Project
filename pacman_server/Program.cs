@@ -20,8 +20,7 @@ namespace pacman_server
     {
         private static Thread server, gc;
         private static RequestGame requestGame;
-
-
+        
         private static int time_delay = 100;
 
         //Game Variables
@@ -63,11 +62,11 @@ namespace pacman_server
             gc = new Thread(gameCycle);
             gc.Start();
 
+            System.Console.WriteLine("--==SERVER==--");
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
         }
-
-        /*
+        
         private static void initPMServer(){
 
             IDictionary RemoteChannelProperties = new Hashtable();
@@ -89,19 +88,122 @@ namespace pacman_server
             RemotingServices.Marshal(mo, "myPMServer",
                     typeof(ICommands));
         }
-        */
+
         private static void initGameCycle() {
+            int round = 0;
+            IEnumerable<Coin> coins = initCoins();
+            IEnumerable<Ghost> ghosts = initGhosts();
+            IEnumerable<Wall> walls = initWalls();
+            
             while (true) {
                 Thread.Sleep(time_delay);
 
-
-
-                foreach (Player player in requestGame.players) {
-                    player.obj.SendGameState
+                //update players
+                foreach( Player player in requestGame.players{
 
                 }
+
+
+                //update coins
+
+                //update ghosts
+
+
+                round++;
+
+                foreach (Player player in requestGame.players) {
+                    //SEND GAME STATES
+
+                }
+
             }
         }
 
+
+        private static IEnumerable<Coin> initCoins() {
+            IList<Coin> coins = new List<Coin>();
+
+            //line1
+            for (int i = 40; i < 320; i = i + 40)
+            {
+                coins.Add(new Coin(8, i));
+            }
+            
+            //line 2
+            for (int i = 40; i < 320; i = i + 40)
+            {
+                coins.Add(new Coin(48, i));
+            }
+
+            //line 3
+            for (int i = 160; i < 320; i = i + 40)
+            {
+                coins.Add(new Coin(88, i));
+            }
+
+            //line 4
+            for (int i = 40; i < 200; i = i + 40)
+            {
+                coins.Add(new Coin(128, i));
+            }
+
+            //line 5
+            for (int i = 40; i < 320; i = i + 40)
+            {
+                coins.Add(new Coin(168, i));
+            }
+
+            //line 6
+            for (int i = 40; i < 320; i = i + 40)
+            {
+                coins.Add(new Coin(208, i));
+            }
+
+            //line 7
+            for (int i = 160; i < 320; i = i + 40)
+            {
+                coins.Add(new Coin(248, i));
+            }
+
+            //line 8
+            for (int i = 40; i < 200; i = i + 40)
+            {
+                coins.Add(new Coin(288, i));
+            }
+
+            //line 9
+            for (int i = 40; i < 320; i = i + 40)
+            {
+                coins.Add(new Coin(328, i));
+            }
+
+
+            return coins;
+        }
+
+        private static IEnumerable<Ghost> initGhosts() {
+
+            IList<Ghost> ghosts = new List<Ghost>();
+
+            ghosts.Add(new Ghost("red", 180, 73, 0));
+            ghosts.Add(new Ghost("yellow", 221, 273, 1));
+            ghosts.Add(new Ghost("pink", 301, 72, 2));
+
+            return ghosts;
+
+        }
+
+        private static IEnumerable<Wall> initWalls() {
+            IList<Wall> walls = new List<Wall>();
+
+            walls.Add(new Wall(88, 40));
+            walls.Add(new Wall(128, 240));
+            walls.Add(new Wall(248, 40));
+            walls.Add(new Wall(288,240));
+
+
+
+            return walls;
+        }
     }
 }

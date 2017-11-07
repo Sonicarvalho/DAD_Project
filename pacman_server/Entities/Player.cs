@@ -19,7 +19,9 @@ namespace pacman_server.Entities
 
         public int score { get; set; }
         public bool won { get; set; }
+
         public string faceDirection { get; set; }
+
         public int posX { get; set; }
         public int posY { get; set; }
 

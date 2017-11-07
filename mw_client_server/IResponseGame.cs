@@ -18,9 +18,9 @@ namespace mw_client_server
 
     public class GameState
     {
-        IEnumerable<Players> players { get; set; }
-        IEnumerable<Enemies> enemies { get; set; }
-        IEnumerable<Coins> coins { get; set; }
+        IEnumerable<DTOPlayer> players { get; set; }
+        IEnumerable<DTOGhost> enemies { get; set; }
+        IEnumerable<DTOCoin> coins { get; set; }
 
 
         public int round { get; set; }
@@ -30,7 +30,7 @@ namespace mw_client_server
 
     }
 
-    public class Players
+    public class DTOPlayer
     {
         public int id { get; set; }
         public int score { get; set; }
@@ -41,7 +41,7 @@ namespace mw_client_server
         
     }
 
-    public class Enemies {
+    public class DTOGhost {
 
         public int posX { get; set; }
         public int posY { get; set; }
@@ -49,7 +49,7 @@ namespace mw_client_server
 
     }
 
-    public class Coins
+    public class DTOCoin
     {
         public int posX { get; set; }
         public int posY { get; set; }
