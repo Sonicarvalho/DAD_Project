@@ -7,8 +7,8 @@
     <ProjectGuid>{23006B3C-CFCF-416C-BEF2-300960EA864F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>mw_pm_server</RootNamespace>
-    <AssemblyName>mw_pm_server</AssemblyName>
+    <RootNamespace>mw_pm_server_client</RootNamespace>
+    <AssemblyName>mw_pm_server_client</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ICommands.cs" />
-    <Compile Include="IInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

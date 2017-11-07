@@ -7,6 +7,7 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
 using System.Threading.Tasks;
+using mw_pm_pcs;
 
 namespace pcs
 {
@@ -14,22 +15,26 @@ namespace pcs
     {
         static void Main(string[] args)
         {
-                IDictionary RemoteChannelProperties = new Hashtable();
+            IDictionary RemoteChannelProperties = new Hashtable();
 
-                RemoteChannelProperties["port"] = "11000";
+            RemoteChannelProperties["port"] = "11000";
 
-                RemoteChannelProperties["name"] = "PMServer";
+            RemoteChannelProperties["name"] = "PMServer";
 
-                TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
-                //TcpChannel channel = new TcpChannel(int.Parse(port));
+            //TcpChannel channel = new TcpChannel(int32.Parse(port));
 
-                ChannelServices.RegisterChannel(channel);
+            ChannelServices.RegisterChannel(channel, true);
 
-                Commands mo = new Commands();
+            Initializer mo = new Initializer();
 
-                RemotingServices.Marshal(mo, "myPMServer",
-                        typeof(ICommands));
+            RemotingServices.Marshal(mo, "myPMServer",
+                    typeof(IInitializer));
+
+            Console.WriteLine("Waiting for PM...");
+ 
+            Console.Read();
         }
     }
 }

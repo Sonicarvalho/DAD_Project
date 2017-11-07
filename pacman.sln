@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pacman", "pacman\pacman.csproj", "{ECE5A838-E181-493A-B9A2-6ADD01DE37F6}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -15,13 +15,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pacman_server", "pacman_ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_client_server", "mw_client_server\mw_client_server.csproj", "{9E7994E2-BAC4-4758-9833-22EA34BB1F93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_pm", "mw_pm_server\mw_pm.csproj", "{23006B3C-CFCF-416C-BEF2-300960EA864F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_pm_server_client", "mw_pm_server\mw_pm_server_client.csproj", "{23006B3C-CFCF-416C-BEF2-300960EA864F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "puppet master", "puppet master\puppet master.csproj", "{ECD76AAF-5F65-4224-97E4-879A23814966}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_client_client", "mw_client_client\mw_client_client.csproj", "{891A1F16-D4F6-47D1-82B8-49F1BB7A69C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pcs", "pcs\pcs.csproj", "{DA9F6A95-5156-42B8-A71B-44F4C87493A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_pm_pcs", "mw_pm_pcs\mw_pm_pcs.csproj", "{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{DA9F6A95-5156-42B8-A71B-44F4C87493A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA9F6A95-5156-42B8-A71B-44F4C87493A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA9F6A95-5156-42B8-A71B-44F4C87493A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

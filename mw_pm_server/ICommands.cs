@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace mw_pm_server
+namespace mw_pm_server_client
 {
     public interface ICommands
     {
