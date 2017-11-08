@@ -20,10 +20,21 @@ namespace pacman_server
     {
         private static Thread server, gc;
         private static RequestGame requestGame;
-        
-        private static int time_delay = 100;
+
 
         //Game Variables
+        //Game Time Delay
+        private static int time_delay = 100;
+
+        //Game Speed
+        private static int speed = 5;
+
+        //Game Board Limit
+        private static int boardRight = 320;
+        private static int boardBottom = 320;
+        private static int boardLeft = 0;
+        private static int boardTop = 40;
+
         //total number of coins
         int total_coins = 60;
 
@@ -65,6 +76,7 @@ namespace pacman_server
             System.Console.WriteLine("--==SERVER==--");
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
+            
         }
         
         private static void initPMServer(){
@@ -92,21 +104,140 @@ namespace pacman_server
         private static void initGameCycle() {
             int round = 0;
             IEnumerable<Coin> coins = initCoins();
-            IEnumerable<Ghost> ghosts = initGhosts();
-            IEnumerable<Wall> walls = initWalls();
-            
+
+
+
+            Ghost red = new Ghost(false, "red", 180, 73, 0, speed, 0);
+            Ghost yellow = new Ghost(false, "yellow", 221, 273, 1, speed, 0);
+            Ghost pink = new Ghost(true, "pink", 301, 72, 2, speed, speed);
+
+            //up left
+            Wall ulWall = new Wall(88, 40);
+            //up right
+            Wall urWall = new Wall(248, 40);
+
+            //down left
+            Wall dlWall = new Wall(128, 240);
+            //down right
+            Wall drWall = new Wall(288, 240);
+
             while (true) {
                 Thread.Sleep(time_delay);
 
-                //update players
-                foreach( Player player in requestGame.players{
+                IEnumerable<MoveRequest> moveRequests = requestGame.moveRequests.Where(x => x.round == round).ToList();
 
+                //update players
+                foreach( MoveRequest mr in moveRequests){
+                    Player player = requestGame.players.Where(p => p.name.Equals(mr.name)).FirstOrDefault();
+                    if (player != null)
+                    {
+                        foreach (string direction in mr.directions)
+                        {
+                            switch (direction)
+                            {
+                                case "UP":
+                                    player.posY += speed;
+                                    break;
+
+                                case "DOWN":
+                                    player.posY -= speed;
+                                    break;
+
+                                case "RIGHT":
+                                    player.posX += speed;
+                                    break;
+
+                                case "LEFT":
+                                    player.posX -= speed;
+                                    break;
+
+                                default:
+                                    //Unrecognizable direction;
+                                    Console.WriteLine("[WARNING] Game Cycle - Unrecognizable direction");
+                                    break;
+
+
+                            }
+
+                            //player intersect a wall
+                            if (urWall.intersectPlayer(player) ||
+                                ulWall.intersectPlayer(player) ||
+                                drWall.intersectPlayer(player) ||
+                                dlWall.intersectPlayer(player))
+                            { player.dead = true; }
+
+                            //player intersect a ghost
+                            if (red.intersectPlayer(player) ||
+                                yellow.intersectPlayer(player) ||
+                                pink.intersectPlayer(player))
+                            { player.dead = true; }
+
+                            player.faceDirection = direction;
+                        }
+
+
+                        //check coins
+                        
+
+                        foreach (Coin coin in coins.Where(c => c.taken == false)) {
+                            if (coin.intersectPlayer(player)) {
+                                coin.taken = true;
+
+                                player.score++;
+                            }
+                        }
+
+                        if (coins.Where(c => c.taken == false).Count() == 60)
+                        {
+                            player.won = true;
+                            //break e tratar do fim do jogo
+                        }
+
+                    }
                 }
 
 
-                //update coins
+                red.posX += red.horizontalSpeed;
+
+                yellow.posX += yellow.horizontalSpeed;
+
+                pink.posX += pink.horizontalSpeed;
+                pink.posY += pink.verticalSpeed;
 
                 //update ghosts
+                // if the red ghost hits the picture box 4 then wereverse the speed
+                if (ulWall.intersectGhost(red))
+                    red.horizontalSpeed = -red.horizontalSpeed;
+                // if the red ghost hits the picture box 3 we reverse the speed
+                else if (urWall.intersectGhost(red))
+                    red.horizontalSpeed = -red.horizontalSpeed;
+
+                red.posX += red.horizontalSpeed;
+
+                // if the yellow ghost hits the picture box 1 then we reverse the speed
+                if (dlWall.intersectGhost(yellow))
+                    yellow.horizontalSpeed = -yellow.horizontalSpeed;
+                // if the red ghost hits the picture box 3 we reverse the speed
+                else if (drWall.intersectGhost(yellow))
+                    yellow.horizontalSpeed = -yellow.horizontalSpeed;
+
+                yellow.posX += yellow.horizontalSpeed;
+
+                if (boardLeft > pink.posX ||
+                    boardRight < pink.posX ||
+                    (ulWall.intersectGhost(pink)) ||
+                    (urWall.intersectGhost(pink)) ||
+                    (dlWall.intersectGhost(pink)) ||
+                    (drWall.intersectGhost(pink)))
+                {
+                    pink.horizontalSpeed = -pink.horizontalSpeed;
+                }
+                if (boardTop > pink.posY|| boardBottom - 2 < (pink.posY + 30))
+                {
+                    pink.verticalSpeed = -pink.verticalSpeed;
+                }
+
+
 
 
                 round++;
@@ -115,6 +246,8 @@ namespace pacman_server
                     //SEND GAME STATES
 
                 }
+
+                requestGame.moveRequests.Clear();
 
             }
         }
@@ -181,29 +314,5 @@ namespace pacman_server
             return coins;
         }
 
-        private static IEnumerable<Ghost> initGhosts() {
-
-            IList<Ghost> ghosts = new List<Ghost>();
-
-            ghosts.Add(new Ghost("red", 180, 73, 0));
-            ghosts.Add(new Ghost("yellow", 221, 273, 1));
-            ghosts.Add(new Ghost("pink", 301, 72, 2));
-
-            return ghosts;
-
-        }
-
-        private static IEnumerable<Wall> initWalls() {
-            IList<Wall> walls = new List<Wall>();
-
-            walls.Add(new Wall(88, 40));
-            walls.Add(new Wall(128, 240));
-            walls.Add(new Wall(248, 40));
-            walls.Add(new Wall(288,240));
-
-
-
-            return walls;
-        }
     }
 }

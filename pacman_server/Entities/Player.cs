@@ -15,10 +15,9 @@ namespace pacman_server.Entities
         public IResponseGame obj { get; set; }
         public bool playing { get; set; }
 
-        public int round { get; set;}
-
         public int score { get; set; }
         public bool won { get; set; }
+        public bool dead { get; set; }
 
         public string faceDirection { get; set; }
 
@@ -29,8 +28,7 @@ namespace pacman_server.Entities
         {
             name = Name;
             url = URL;
-
-            round = 0;
+            
             score = 0;
             won = false;
             faceDirection = "RIGHT";

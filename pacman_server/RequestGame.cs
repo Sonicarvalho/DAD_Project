@@ -14,8 +14,6 @@ namespace pacman_server
 {
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
-        //Game Speed
-        int speed = 5;
 
         //players list
         public SynchronizedCollection<Player> players = new SynchronizedCollection<Player>();
