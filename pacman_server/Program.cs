@@ -69,6 +69,7 @@ namespace pacman_server
             //TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //requestGame = new RequestGame();
+            //requestGame.maxPlayers = maxPlayers;
 
             //RemotingServices.Marshal(requestGame, name,
             //        typeof(IRequestGame));
@@ -84,6 +85,7 @@ namespace pacman_server
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
             
             requestGame = new RequestGame();
+            requestGame.maxPlayers = 6;
 
             RemotingServices.Marshal(requestGame, "myGameServer",
                     typeof(IRequestGame));
@@ -215,7 +217,7 @@ namespace pacman_server
 
                 player.obj.SendGameState(gameState);
                 
-                player.obj.StartGame();
+                player.obj.StartGame(requestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)));
             }
 
             #endregion
