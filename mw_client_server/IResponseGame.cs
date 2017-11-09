@@ -11,8 +11,6 @@ namespace mw_client_server
         void SendGameState(GameState state);
         void StartGame();
         void EndGame();
-        //Sends PID of the player, to fix overlaping problems and etc.
-        void SendPID(int pid);
 
     }
 

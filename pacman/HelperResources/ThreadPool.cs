@@ -42,20 +42,7 @@ namespace pacman.ChatResources
     }
 
 
-    class A
-    {
-        private int _id;
 
-        public A(int id)
-        {
-            _id = id;
-        }
-
-        public void DoWorkA()
-        {
-            Console.WriteLine("A-{0}", _id);
-        }
-    }
 
 
     class B
