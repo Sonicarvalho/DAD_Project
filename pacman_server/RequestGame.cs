@@ -49,7 +49,7 @@ namespace pacman_server
 
         public IEnumerable<string> GetAllClients()
         {
-            return players.Select(p => p.url);
+            return players.Where(c => c.playing).Select(p => p.url);
         }
 
         public bool JoinGame(string name)
