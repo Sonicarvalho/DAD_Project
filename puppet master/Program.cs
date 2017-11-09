@@ -33,6 +33,8 @@ namespace puppet_master
             string num_players;
             string url;
 
+            System.Console.WriteLine("Enter command or write <exit> to close...");
+
             while (console_command != "exit") { 
 
                 console_command =  Console.ReadLine();
@@ -95,28 +97,27 @@ namespace puppet_master
                     case "InjectDelay":
                         break;
                     case "LocalState":
+
+
                         break;
+
                     case "Wait":
+
+                        int sleep_time;
+                        if (!CheckCommand(parsed_cmd, 2)) break;
+                        if (Int32.TryParse(parsed_cmd[1], out sleep_time))
+                        {
+                            Thread.Sleep(sleep_time);
+                            break;
+                        }
+                        Console.WriteLine("Argumentos inválidos");
                         break;
+
                     default:
                         Console.WriteLine("Comando não reconhecido");
                         break;
                 }
             }
-
-            //commands.injectDelay(1, 1);
-            System.Console.WriteLine("Press <enter> to create server...");
-            System.Console.Read();
-
-            //initializer.StartServer();
-            //initializer.StartClient();
-
-            //ThreadStart pmServer = new ThreadStart(initPMServer);
-            //server = new Thread(pmServer);
-            //server.Start();
-
-            System.Console.WriteLine("Press <enter> to exit...");
-            System.Console.ReadLine();
         }
 
         private static void initPMServer()
@@ -128,7 +129,7 @@ namespace puppet_master
             commands = (ICommands)
                     Activator.GetObject(
                             typeof(ICommands),
-                            "tcp://localhost:9000/myPMServer");
+                            "tcp://localhost:11001/myPMServer");
         }
 
         //Aux functions
@@ -154,26 +155,6 @@ namespace puppet_master
                 return false;
             }
             return true;
-        }
-    }
-
-
-
-    public class Commands : MarshalByRefObject, ICommands
-    {
-        public bool injectDelay(int srcID, int dstID)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<LocalState> localState(int rndID)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool wait(int xMs)
-        {
-            throw new NotImplementedException();
         }
     }
 }
