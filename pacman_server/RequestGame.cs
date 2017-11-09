@@ -1,6 +1,7 @@
 ﻿using mw_client_server;
 using pacman_server.Entities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
@@ -22,6 +23,8 @@ namespace pacman_server
 
         public bool Register(string name, string url)
         {
+            System.Console.WriteLine("CLIENT REGISTER: " + name + " - " + url);
+
             if (players.Any(p => p.name.Equals(name) || p.url.Equals(url)))
                 return false;
 
@@ -33,7 +36,13 @@ namespace pacman_server
 
         private void connectClient(Player player) {
 
-            TcpChannel channel = new TcpChannel();
+
+            IDictionary RemoteChannelProperties = new Hashtable();
+
+            RemoteChannelProperties["name"] = player.name;
+
+
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             ChannelServices.RegisterChannel(channel);
 
@@ -49,11 +58,15 @@ namespace pacman_server
 
         public IEnumerable<string> GetAllClients()
         {
+
             return players.Where(c => c.playing).Select(p => p.url);
         }
 
         public bool JoinGame(string name)
         {
+
+            System.Console.WriteLine("CLIENT JOIN: " + name );
+
             Player player = players.Where(p => p.name.Equals(name)).FirstOrDefault();
 
             //that player exists or enough players reached?

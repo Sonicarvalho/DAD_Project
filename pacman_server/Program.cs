@@ -51,6 +51,30 @@ namespace pacman_server
 
         static void Main(string[] args)
         {
+            //string url = args.ElementAt(3);
+            //time_delay = int.Parse(args.ElementAt(4));
+            //maxPlayers = int.Parse(args.ElementAt(5));
+
+            //string[] splitURL = url.Split(new char[] { ':', '/' });
+
+            //string port = splitURL.ElementAt(4);
+            //string name = splitURL.ElementAt(5);
+
+            //IDictionary RemoteChannelProperties = new Hashtable();
+
+            //RemoteChannelProperties["port"] = port;
+
+            //RemoteChannelProperties["name"] = name;
+
+            //TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+            //requestGame = new RequestGame();
+
+            //RemotingServices.Marshal(requestGame, name,
+            //        typeof(IRequestGame));
+
+
+
             IDictionary RemoteChannelProperties = new Hashtable();
 
             RemoteChannelProperties["port"] = "8080";
@@ -87,7 +111,7 @@ namespace pacman_server
 
             IDictionary RemoteChannelProperties = new Hashtable();
 
-            RemoteChannelProperties["port"] = "11000";
+            RemoteChannelProperties["port"] = "11001";
 
             RemoteChannelProperties["name"] = "PMServer";
 
