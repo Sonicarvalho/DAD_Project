@@ -14,6 +14,7 @@ namespace pacman_server
 {
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
+        private static int maxPlayers = 6;
 
         //players list
         public SynchronizedCollection<Player> players = new SynchronizedCollection<Player>();
@@ -54,10 +55,12 @@ namespace pacman_server
 
         public bool JoinGame(string name)
         {
-            //that player exists?
-            if (players.Any(p => p.name.Equals(name))) {
+            Player player = players.Where(p => p.name.Equals(name)).FirstOrDefault();
 
-                players.Where(p => p.name.Equals(name)).FirstOrDefault().playing = true;
+            //that player exists or enough players reached?
+            if (player != null && players.Where(p => p.playing).Count() < maxPlayers) {
+
+                player.playing = true;
                 
                 return true;
             }
@@ -67,47 +70,12 @@ namespace pacman_server
 
         public bool RequestMove(string name, IEnumerable<string> directions, int round)
         {
+            if (players.Any(p => p.name.Equals(name) && (p.dead || !p.playing)))
+                return false;
+
             moveRequests.Add(new MoveRequest(name, directions, round));
 
             return true;
-
-            //Player player = players.Where(p => p.name.Equals(name)).FirstOrDefault();
-
-            //if (player != null)
-            //{
-            //    foreach (string direction in directions) {
-            //        switch (direction) {
-            //            case "UP":
-            //                player.posY += speed;
-            //                break;
-
-            //            case "DOWN":
-            //                player.posY -= speed;
-            //                break;
-
-            //            case "RIGHT":
-            //                player.posX += speed;
-            //                break;
-
-            //            case "LEFT":
-            //                player.posX -= speed;
-            //                break;
-
-            //            default:
-            //                //Unrecognizable direction;
-            //                return false;
-
-            //        }
-
-            //        player.faceDirection = direction;
-            //    }
-
-            //    player.round = round;
-                
-            //    return true;
-            //}
-
-            //return false;
         }
     }
 }

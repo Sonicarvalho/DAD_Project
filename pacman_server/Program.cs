@@ -29,6 +29,9 @@ namespace pacman_server
         //Game Speed
         private static int speed = 5;
 
+        //Game Max #Players
+        private static int maxPlayers = 5;
+
         //Game Board Limit
         private static int boardRight = 320;
         private static int boardBottom = 320;
@@ -76,6 +79,8 @@ namespace pacman_server
             System.Console.WriteLine("--==SERVER==--");
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
+
+            gc.Abort();
             
         }
         
@@ -102,9 +107,17 @@ namespace pacman_server
         }
 
         private static void initGameCycle() {
+            #region init
             int round = 0;
-            IEnumerable<Coin> coins = initCoins();
+            bool started = false;
+            bool ended = false;
 
+            GameState gameState;
+            IEnumerable<DTOCoin> outCoin;
+            IEnumerable<DTOWall> outWall;
+            IEnumerable<DTOGhost> outGhost;
+
+            IEnumerable<Coin> coins = initCoins();
 
 
             Ghost red = new Ghost(false, "red", 180, 73, 0, speed, 0);
@@ -120,7 +133,38 @@ namespace pacman_server
             Wall dlWall = new Wall(128, 240);
             //down right
             Wall drWall = new Wall(288, 240);
+            #endregion
 
+            #region waitLoop
+            DateTime wait = DateTime.Now;
+            int count = 0;
+            
+            System.Console.WriteLine("Waiting for players!!");
+            while (!started)
+            {
+                Thread.Sleep(15000);
+                count = requestGame.players.Where(p => p.playing).Count();
+                if ( count == maxPlayers || ((count > 0 )&& (wait.AddMinutes(5) > DateTime.Now)))
+                    started = !started;
+
+            }
+            #endregion
+
+
+            System.Console.WriteLine("Starting the game!!");
+            int i = 1;
+            foreach (Player player in requestGame.players.Where(p => p.playing)) {
+
+                player.posX = 8;
+                player.posY = i * 40;
+                player.posZ = i;
+
+                i++;
+
+                player.obj.StartGame();
+            }
+
+            #region gameCycle
             while (true) {
                 Thread.Sleep(time_delay);
 
@@ -128,7 +172,7 @@ namespace pacman_server
 
                 //update players
                 foreach( MoveRequest mr in moveRequests){
-                    Player player = requestGame.players.Where(p => p.name.Equals(mr.name)).FirstOrDefault();
+                    Player player = requestGame.players.Where(p => p.name.Equals(mr.name) && p.playing).FirstOrDefault();
                     if (player != null)
                     {
                         foreach (string direction in mr.directions)
@@ -177,8 +221,6 @@ namespace pacman_server
 
 
                         //check coins
-                        
-
                         foreach (Coin coin in coins.Where(c => c.taken == false)) {
                             if (coin.intersectPlayer(player)) {
                                 coin.taken = true;
@@ -191,11 +233,16 @@ namespace pacman_server
                         {
                             player.won = true;
                             //break e tratar do fim do jogo
+                            break;
                         }
 
                     }
                 }
 
+                if (!requestGame.players.Any(p => !p.dead))
+                {
+                    break;
+                }
 
                 red.posX += red.horizontalSpeed;
 
@@ -236,20 +283,93 @@ namespace pacman_server
                 {
                     pink.verticalSpeed = -pink.verticalSpeed;
                 }
-
-
-
-
+                
                 round++;
 
-                foreach (Player player in requestGame.players) {
-                    //SEND GAME STATES
+                outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY));
 
+                outWall = new DTOWall[] {
+                    new DTOWall(ulWall.posX, ulWall.posY),
+                    new DTOWall(urWall.posX, urWall.posY),
+                    new DTOWall(dlWall.posX, dlWall.posY),
+                    new DTOWall(drWall.posX, drWall.posY)
+                };
+
+                outGhost = new DTOGhost[] {
+                    new DTOGhost(red.posX, red.posY, red.posZ),
+                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ),
+                    new DTOGhost(pink.posX, pink.posY, pink.posZ)
+                };
+
+                gameState = new GameState(round, started, ended);
+
+                gameState.coins = outCoin;
+                gameState.walls = outWall;
+                gameState.ghosts = outGhost;
+
+                foreach (Player player in requestGame.players.Where(p => p.playing)) {
+                    IEnumerable<DTOPlayer> outPlayer = requestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => {
+
+                        if (p.name.Equals(player.name))
+                        {
+                            return new DTOPlayer(p.name, p.score,p.dead, p.won, p.faceDirection, p.posX, p.posY, 10);
+                        }
+                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ);
+
+                    });
+
+                    gameState.players = outPlayer;
+
+                    player.obj.SendGameState(gameState);
+                    
                 }
 
                 requestGame.moveRequests.Clear();
 
             }
+            #endregion
+
+            #region endGame
+            outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY));
+
+            outWall = new DTOWall[] {
+                    new DTOWall(ulWall.posX, ulWall.posY),
+                    new DTOWall(urWall.posX, urWall.posY),
+                    new DTOWall(dlWall.posX, dlWall.posY),
+                    new DTOWall(drWall.posX, drWall.posY)
+                };
+
+            outGhost = new DTOGhost[] {
+                    new DTOGhost(red.posX, red.posY, red.posZ),
+                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ),
+                    new DTOGhost(pink.posX, pink.posY, pink.posZ)
+                };
+
+            gameState = new GameState(round, started, ended);
+
+            gameState.coins = outCoin;
+            gameState.walls = outWall;
+            gameState.ghosts = outGhost;
+
+            foreach (Player player in requestGame.players.Where(p => p.playing))
+            {
+                IEnumerable<DTOPlayer> outPlayer = requestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => {
+
+                    if (p.name.Equals(player.name))
+                    {
+                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, 10);
+                    }
+                    return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ);
+
+                });
+
+                gameState.players = outPlayer;
+                player.obj.EndGame();
+                player.obj.SendGameState(gameState);
+
+            }
+
+            #endregion
         }
 
 
