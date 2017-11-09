@@ -19,7 +19,7 @@ namespace pcs
 
             RemoteChannelProperties["port"] = "11000";
 
-            RemoteChannelProperties["name"] = "PMServer";
+            RemoteChannelProperties["name"] = "pcs";
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
@@ -29,7 +29,7 @@ namespace pcs
 
             Initializer mo = new Initializer();
 
-            RemotingServices.Marshal(mo, "myPMServer",
+            RemotingServices.Marshal(mo, "myPCS",
                     typeof(IInitializer));
 
             Console.WriteLine("Waiting for PM...");
