@@ -239,7 +239,7 @@ namespace pacman_server
                     }
                 }
 
-                if (!requestGame.players.Any(p => !p.dead))
+                if (!requestGame.players.Any(p => !p.dead && p.playing))
                 {
                     break;
                 }
