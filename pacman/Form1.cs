@@ -91,7 +91,13 @@ namespace pacman
         private void initClient()
         {
 
-            TcpChannel channel = new TcpChannel();
+            IDictionary RemoteChannelProperties = new Hashtable();
+
+            RemoteChannelProperties["name"] = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
+
+
+
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             ChannelServices.RegisterChannel(channel);
 
@@ -107,10 +113,10 @@ namespace pacman
         {
 
             IDictionary RemoteChannelProperties = new Hashtable();
-            int port = new Random().Next(8081, 15000);
+            //int port = new Random().Next(8081, 15000);
 
-            RemoteChannelProperties["port"] = port;
-            RemoteChannelProperties["name"] = "client" + port;
+            RemoteChannelProperties["port"] = debugPort;
+            RemoteChannelProperties["name"] = "client" + debugPort;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
@@ -154,7 +160,7 @@ namespace pacman
             IDictionary RemoteChannelProperties = new Hashtable();
 
             RemoteChannelProperties["port"] = debugPort;
-            RemoteChannelProperties["name"] = "client" + debugPort;
+            RemoteChannelProperties["name"] = "chat client" + debugPort;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
@@ -295,6 +301,11 @@ namespace pacman
                 chatClientServer = new Thread(ts);
                 chatClientServer.Start();
 
+                ThreadStart ts2 = new ThreadStart(initClient);
+                gameClient = new Thread(ts2);
+                gameClient.Start();
+
+                reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://localhost:" + debugPort + "/ClientServer");
             }
             if (e.KeyCode == Keys.C)
             {
@@ -514,6 +525,11 @@ namespace pacman
                 {
                     PictureBox p = (PictureBox)this.Controls.Find("pacman" + PlayersID[player.name], true)[0];
                     p.Location = new Point(player.posX, player.posY);
+                    if (player.faceDirection == "LEFT") p.Image = Properties.Resources.Left;
+                    else if (player.faceDirection == "UP") p.Image = Properties.Resources.Up;
+                    else if (player.faceDirection == "RIGHT") p.Image = Properties.Resources.Right;
+                    else  p.Image = Properties.Resources.down;
+
                 }
 
                 for (int i = 0; i < gm.ghosts.Count(); i++) // Update Ghosts Positions
