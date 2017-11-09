@@ -14,7 +14,7 @@ namespace pacman_server
 {
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
-        private static int maxPlayers = 6;
+        public int maxPlayers { get; set; }
 
         //players list
         public SynchronizedCollection<Player> players = new SynchronizedCollection<Player>();
