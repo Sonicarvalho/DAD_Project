@@ -1,7 +1,6 @@
 ﻿using mw_client_server;
 using mw_pm_server_client;
 using pacman_server.Entities;
-using pacman_server.Events;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -107,7 +106,7 @@ namespace pacman_server
         }
 
         private static void initGameCycle() {
-            #region init
+            #region Init
             int round = 0;
             bool started = false;
             bool ended = false;
@@ -135,7 +134,7 @@ namespace pacman_server
             Wall drWall = new Wall(288, 240);
             #endregion
 
-            #region waitLoop
+            #region Lobby
             DateTime wait = DateTime.Now;
             int count = 0;
             
@@ -150,8 +149,31 @@ namespace pacman_server
             }
             #endregion
 
-
+            #region GameStart
             System.Console.WriteLine("Starting the game!!");
+            
+            outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY));
+
+            outWall = new DTOWall[] {
+                    new DTOWall(ulWall.posX, ulWall.posY),
+                    new DTOWall(urWall.posX, urWall.posY),
+                    new DTOWall(dlWall.posX, dlWall.posY),
+                    new DTOWall(drWall.posX, drWall.posY)
+                };
+
+            outGhost = new DTOGhost[] {
+                    new DTOGhost(red.posX, red.posY, red.posZ),
+                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ),
+                    new DTOGhost(pink.posX, pink.posY, pink.posZ)
+                };
+
+            gameState = new GameState(round, started, ended);
+
+            gameState.coins = outCoin;
+            gameState.walls = outWall;
+            gameState.ghosts = outGhost;
+
+
             int i = 1;
             foreach (Player player in requestGame.players.Where(p => p.playing)) {
 
@@ -161,10 +183,20 @@ namespace pacman_server
 
                 i++;
 
+                IEnumerable<DTOPlayer> outPlayer = requestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
+                    new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ)
+                );
+
+                gameState.players = outPlayer;
+
+                player.obj.SendGameState(gameState);
+                
                 player.obj.StartGame();
             }
 
-            #region gameCycle
+            #endregion
+            
+            #region GameCycle
             while (true) {
                 Thread.Sleep(time_delay);
 
@@ -308,15 +340,9 @@ namespace pacman_server
                 gameState.ghosts = outGhost;
 
                 foreach (Player player in requestGame.players.Where(p => p.playing)) {
-                    IEnumerable<DTOPlayer> outPlayer = requestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => {
-
-                        if (p.name.Equals(player.name))
-                        {
-                            return new DTOPlayer(p.name, p.score,p.dead, p.won, p.faceDirection, p.posX, p.posY, 10);
-                        }
-                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ);
-
-                    });
+                    IEnumerable<DTOPlayer> outPlayer = requestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
+                        new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ)
+                    );
 
                     gameState.players = outPlayer;
 
@@ -328,8 +354,9 @@ namespace pacman_server
 
             }
             #endregion
-
-            #region endGame
+            
+            #region EndGame
+            System.Console.WriteLine("Game has ended!");
             outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY));
 
             outWall = new DTOWall[] {
