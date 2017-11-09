@@ -29,9 +29,9 @@
             this.label2 = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.pacman1 = new System.Windows.Forms.PictureBox();
-            this.pinkGhost = new System.Windows.Forms.PictureBox();
-            this.yellowGhost = new System.Windows.Forms.PictureBox();
-            this.redGhost = new System.Windows.Forms.PictureBox();
+            this.Ghostpink = new System.Windows.Forms.PictureBox();
+            this.Ghostyellow = new System.Windows.Forms.PictureBox();
+            this.Ghostred = new System.Windows.Forms.PictureBox();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -104,9 +104,9 @@
             this.pacman5 = new System.Windows.Forms.PictureBox();
             this.pacman6 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pacman1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pinkGhost)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.yellowGhost)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.redGhost)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ghostpink)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ghostyellow)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ghostred)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -217,41 +217,41 @@
             this.pacman1.TabIndex = 4;
             this.pacman1.TabStop = false;
             // 
-            // pinkGhost
+            // Ghostpink
             // 
-            this.pinkGhost.BackColor = System.Drawing.Color.Transparent;
-            this.pinkGhost.Image = global::pacman.Properties.Resources.pink_guy;
-            this.pinkGhost.Location = new System.Drawing.Point(301, 72);
-            this.pinkGhost.Name = "pinkGhost";
-            this.pinkGhost.Size = new System.Drawing.Size(30, 30);
-            this.pinkGhost.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pinkGhost.TabIndex = 3;
-            this.pinkGhost.TabStop = false;
-            this.pinkGhost.Tag = "ghost";
+            this.Ghostpink.BackColor = System.Drawing.Color.Transparent;
+            this.Ghostpink.Image = global::pacman.Properties.Resources.pink_guy;
+            this.Ghostpink.Location = new System.Drawing.Point(301, 72);
+            this.Ghostpink.Name = "Ghostpink";
+            this.Ghostpink.Size = new System.Drawing.Size(30, 30);
+            this.Ghostpink.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.Ghostpink.TabIndex = 3;
+            this.Ghostpink.TabStop = false;
+            this.Ghostpink.Tag = "ghost";
             // 
-            // yellowGhost
+            // Ghostyellow
             // 
-            this.yellowGhost.BackColor = System.Drawing.Color.Transparent;
-            this.yellowGhost.Image = global::pacman.Properties.Resources.yellow_guy;
-            this.yellowGhost.Location = new System.Drawing.Point(221, 273);
-            this.yellowGhost.Name = "yellowGhost";
-            this.yellowGhost.Size = new System.Drawing.Size(30, 30);
-            this.yellowGhost.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.yellowGhost.TabIndex = 2;
-            this.yellowGhost.TabStop = false;
-            this.yellowGhost.Tag = "ghost";
+            this.Ghostyellow.BackColor = System.Drawing.Color.Transparent;
+            this.Ghostyellow.Image = global::pacman.Properties.Resources.yellow_guy;
+            this.Ghostyellow.Location = new System.Drawing.Point(221, 273);
+            this.Ghostyellow.Name = "Ghostyellow";
+            this.Ghostyellow.Size = new System.Drawing.Size(30, 30);
+            this.Ghostyellow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.Ghostyellow.TabIndex = 2;
+            this.Ghostyellow.TabStop = false;
+            this.Ghostyellow.Tag = "ghost";
             // 
-            // redGhost
+            // Ghostred
             // 
-            this.redGhost.BackColor = System.Drawing.Color.Transparent;
-            this.redGhost.Image = global::pacman.Properties.Resources.red_guy;
-            this.redGhost.Location = new System.Drawing.Point(180, 73);
-            this.redGhost.Name = "redGhost";
-            this.redGhost.Size = new System.Drawing.Size(30, 30);
-            this.redGhost.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.redGhost.TabIndex = 1;
-            this.redGhost.TabStop = false;
-            this.redGhost.Tag = "ghost";
+            this.Ghostred.BackColor = System.Drawing.Color.Transparent;
+            this.Ghostred.Image = global::pacman.Properties.Resources.red_guy;
+            this.Ghostred.Location = new System.Drawing.Point(180, 73);
+            this.Ghostred.Name = "Ghostred";
+            this.Ghostred.Size = new System.Drawing.Size(30, 30);
+            this.Ghostred.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.Ghostred.TabIndex = 1;
+            this.Ghostred.TabStop = false;
+            this.Ghostred.Tag = "ghost";
             // 
             // pictureBox4
             // 
@@ -1101,9 +1101,9 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pacman1);
-            this.Controls.Add(this.pinkGhost);
-            this.Controls.Add(this.yellowGhost);
-            this.Controls.Add(this.redGhost);
+            this.Controls.Add(this.Ghostpink);
+            this.Controls.Add(this.Ghostyellow);
+            this.Controls.Add(this.Ghostred);
             this.Controls.Add(this.pictureBox4);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);
@@ -1118,9 +1118,9 @@
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.keyisdown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.keyisup);
             ((System.ComponentModel.ISupportInitialize)(this.pacman1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pinkGhost)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.yellowGhost)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.redGhost)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ghostpink)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ghostyellow)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ghostred)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
@@ -1201,9 +1201,9 @@
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.PictureBox pictureBox4;
-        private System.Windows.Forms.PictureBox redGhost;
-        private System.Windows.Forms.PictureBox yellowGhost;
-        private System.Windows.Forms.PictureBox pinkGhost;
+        private System.Windows.Forms.PictureBox Ghostred;
+        private System.Windows.Forms.PictureBox Ghostyellow;
+        private System.Windows.Forms.PictureBox Ghostpink;
         private System.Windows.Forms.PictureBox pacman1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
