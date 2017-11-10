@@ -90,7 +90,7 @@ namespace pacman
                 new Thread(() => initClientServer()).Start();
                 reqObj.Register("cliente " + debugPort, "tcp://localhost:" + debugPort + "/ClientService");
 
-                reqObj.Register("cliente " + debugPort, "tcp://localhost:" + (debugPort-1) + "/ClientService");
+                reqObj.Register("cliente " + debugPort, "tcp://localhost:" + (debugPort) + "/ClientService");
 
 
             }
