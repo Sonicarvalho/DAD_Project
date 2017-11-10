@@ -41,7 +41,9 @@ namespace mw_pm_server_client
         {
             string str;
 
-            str = id + ", " + state + ", " + posx + ", " + posy;
+            string aux = (string.IsNullOrEmpty(state)) ? "" : "," + state;
+
+            str = id + aux + ", " + posx + ", " + posy;
 
             Console.WriteLine(str);
 
