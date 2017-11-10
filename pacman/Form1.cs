@@ -53,7 +53,7 @@ namespace pacman
         private IRequestGame reqObj;
         private ResponseGame mo;
         private CliChat cco;
-        private static List<CliChat> cc = new List<CliChat>();
+        private static List<Tuple<string, CliChat>> cc = new List<Tuple<string, CliChat>>();
         private Thread gameClient, gameServer, chatClientServer, mainloop;
         ThrPool tpool;
 
@@ -68,7 +68,7 @@ namespace pacman
 
         public Form1(string[] args)
         {
-            
+
             if (args.Length == 3)
             {
                 launchedWithPM = true;
@@ -81,16 +81,19 @@ namespace pacman
             label2.Visible = false;
 
             //Starts the connection to gameServer
-            initClient();
+            gameClient = new Thread(() => initClient());
+            gameClient.Start();
 
             Thread thread = new Thread(() => initPMClient(pm_port));
-            thread.Start();
-            if (launchedWithPM) {
+            //thread.Start();
+            if (launchedWithPM)
+            {
                 debugPort = new Random().Next(16000, 17000);
                 new Thread(() => initClientServer()).Start();
                 reqObj.Register("cliente " + debugPort, "tcp://localhost:" + debugPort + "/ClientService");
 
-                reqObj.Register("cliente " + debugPort, "tcp://localhost:" + (debugPort) + "/ClientService");
+                reqObj.JoinGame("cliente " + debugPort);
+
 
 
             }
@@ -124,7 +127,7 @@ namespace pacman
             //int port = new Random().Next(8081, 15000);
 
             RemoteChannelProperties["port"] = debugPort - 1;
-            RemoteChannelProperties["name"] = "client" + debugPort;
+            RemoteChannelProperties["name"] = "client" + debugPort ;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
@@ -134,6 +137,7 @@ namespace pacman
             mo = new ResponseGame();
             mo.changePacmanVisibility += changePacmanVisibility;
             mo.launch_mainloop += launch_mainloop;
+            mo.registerChatClients += registerChatClients;
             //mo.changeControlPosition += changeControlPosition;
 
             RemotingServices.Marshal(mo, "ClientService",
@@ -185,6 +189,30 @@ namespace pacman
 
         }
 
+        private void initChatClient(String url, String name)
+        {
+
+
+            IDictionary RemoteChannelProperties = new Hashtable();
+
+            RemoteChannelProperties["name"] = name;
+
+
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+            ChannelServices.RegisterChannel(channel);
+
+            CliChat obj = (CliChat)
+                    Activator.GetObject(
+                            typeof(CliChat),
+                            url);
+
+            Tuple<string, CliChat> t = new Tuple<string, CliChat>(name, obj);
+
+            cc.Add(t);
+
+
+        }
 
         public class CliChat : MarshalByRefObject, ICliChat
         {
@@ -210,21 +238,24 @@ namespace pacman
         {
             public event EventHandler<PacEventArgs> changePacmanVisibility;
             public event EventHandler<PacEventArgs> launch_mainloop;
-           // public event EventHandler<PacEventArgs> changeControlPosition;
+            public event EventHandler<PacEventArgs> registerChatClients;
 
             public void SendGameState(GameState state)
             {
                 Form1.gameStates.Enqueue(state); //add gamestate to queue
                                                  //  MessageBox.Show("gamestate");
-
-                Form1.pmc.setGhosts(state.ghosts);
-                Form1.pmc.setCoins(state.coins);
-                Form1.pmc.setWalls(state.walls);
-                Form1.pmc.setPlayer(state.players);
+                if (pmc != null)
+                {
+                    Form1.pmc.setGhosts(state.ghosts);
+                    Form1.pmc.setCoins(state.coins);
+                    Form1.pmc.setWalls(state.walls);
+                    Form1.pmc.setPlayer(state.players);
+                }
             }
 
             public void StartGame(List<DTOPlaying> players)
             {
+                //cc.Add(new CliChat())
 
                 List<DTOPlaying> pls = players.ToList();
 
@@ -349,20 +380,20 @@ namespace pacman
 
                 tpool = new ThrPool(Clients.Count, 6);
 
-                for (int i = 0; i < Clients.Count; i++)
-                {
-                    CCInitializer c = new CCInitializer((string)Clients[i], i.ToString());
-                    tpool.AssyncInvoke(new ThrWork(c.initChatClient));
-                }
-
+                /*  for (int i = 0; i < Clients.Count; i++)
+                  {
+                      CCInitializer c = new CCInitializer((string)Clients[i], i.ToString());
+                      tpool.AssyncInvoke(new ThrWork(c.initChatClient));
+                  }
+                  */
             }
 
             if (e.KeyCode == Keys.D)
             {
                 String text = "";
-                foreach (CliChat c in cc)
+                foreach (Tuple<string, CliChat> c in cc)
                 {
-                    text += c.ToString() + "\n";
+                    text += c.Item1.ToString() + "\n";
                 }
                 foreach (Control c in GetControlsByPartialName("Ghost"))
                 {
@@ -460,38 +491,36 @@ namespace pacman
             }
         }
 
-        class CCInitializer
-        {
-            private String url;
-            private String port;
+        /* class CCInitializer
+         {
+             private String url;
+             private String port;
 
-            public CCInitializer(String URL, String PORT)
-            {
-                url = URL;
-                port = PORT;
-            }
+             public CCInitializer(String URL, String PORT)
+             {
+                 url = URL;
+                 port = PORT;
+             }
 
-            public void initChatClient()
-            {
-                TcpChannel channel = new TcpChannel();
+             public void initChatClient()
+             {
+                 TcpChannel channel = new TcpChannel();
 
-                ChannelServices.RegisterChannel(channel);
+                 ChannelServices.RegisterChannel(channel);
 
-                /* CliChat obj = (CliChat)
+                 /* CliChat obj = (CliChat)
+                          Activator.GetObject(
+                                  typeof(IRequestGame),
+                                  "tcp://"+ url + ":"+ port +  "/chatClientServerService");
+
+                 CliChat obj = (CliChat)
                          Activator.GetObject(
                                  typeof(IRequestGame),
-                                 "tcp://"+ url + ":"+ port +  "/chatClientServerService");*/
+                                 "tcp://" + url + ":" + port + "/chatClientServerService");
+                 cc.Add(obj);
 
-                CliChat obj = (CliChat)
-                        Activator.GetObject(
-                                typeof(IRequestGame),
-                                "tcp://" + url + ":" + port + "/chatClientServerService");
-                cc.Add(obj);
-
-            }
-        }
-
-        private delegate void ObjectDelegate(object obj);
+             }
+         }*/
 
         private void main_loop()
         {
@@ -499,12 +528,12 @@ namespace pacman
             Boolean sent = false;
             while (true)
             {
-               if(sent) Thread.Sleep(18);
+                if (sent) Thread.Sleep(18);
                 #region Ask for input and send it to the server
 
                 if (!sent && running && (goleft || goright || goup || godown))
                 {
-                    
+
                     List<String> dirs = new List<String>();
                     if (goleft) dirs.Add("LEFT");
                     if (goright) dirs.Add("RIGHT");
@@ -513,7 +542,7 @@ namespace pacman
 
                     reqObj.RequestMove(PlayersID.FirstOrDefault(x => x.Value == 1).Key, dirs, round);
                     sent = true;
-                    
+
                 }
 
                 #endregion
@@ -559,7 +588,7 @@ namespace pacman
                     {
                         if (pl.Equals(play)) { score = pl.score; break; }
                     }
-                    changeTxtText(this, new PacEventArgs(this.Controls.Find("label1", true)[0], "Score: " +score.ToString()));
+                    changeTxtText(this, new PacEventArgs(this.Controls.Find("label1", true)[0], "Score: " + score.ToString()));
 
                     // Do something with the walls, maybe next delivery
 
@@ -574,7 +603,7 @@ namespace pacman
                             );
                         break;
                     }
-                    
+
                 }
                 #endregion
             }
@@ -638,6 +667,21 @@ namespace pacman
                 ((Label)e.cnt).Visible = true;
             });
         }
+        public void registerChatClients(object sender, PacEventArgs e)
+        {
+
+            foreach (DTOPlaying player in e.players)
+            {
+                string chatPort = player.url.Split(new Char[] { ':', '/' })[4];
+                Thread thread = new Thread(() => initChatClient(chatPort, player.name));
+                thread.Start();
+            }
+            Invoke((MethodInvoker)delegate ()
+            {
+                ((Label)e.cnt).Text = e.data;
+                ((Label)e.cnt).Visible = true;
+            });
+        }
 
 
     }
@@ -650,7 +694,7 @@ namespace pacman
         public int y { get; set; }
         public Control cnt { get; set; }
         public String data { get; set; }
-
+        public List<DTOPlaying> players { get; set; }
 
 
         public PacEventArgs(int m)
@@ -666,6 +710,11 @@ namespace pacman
         {
             this.cnt = name;
             this.data = data;
+        }
+
+        public PacEventArgs(List<DTOPlaying> players)
+        {
+            this.players = players;
         }
     }
 }
