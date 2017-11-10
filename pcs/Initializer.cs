@@ -21,7 +21,6 @@ namespace pcs
 
         public void StartServer(string url, string round_timer, string nr_players)
         {
-            //Process.Start("..\\pacman_server\\bin\\Debug\\pacman_server.exe");
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\pacman_server\\bin\\Debug\\pacman_server.exe");
             ProcessStartInfo info = new ProcessStartInfo(path);
             info.Arguments = url + " " + round_timer + " " + nr_players;
