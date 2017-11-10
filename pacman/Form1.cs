@@ -89,6 +89,7 @@ namespace pacman
                 debugPort = new Random().Next(16000, 17000);
                 new Thread(() => initClientServer()).Start();
                 reqObj.Register("cliente " + debugPort, "tcp://localhost:" + debugPort + "/ClientService");
+                reqObj.JoinGame("cliente " + debugPort);
 
             }
         }
