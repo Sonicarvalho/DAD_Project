@@ -21,6 +21,7 @@ namespace pcs
 
             RemoteChannelProperties["name"] = "pcs";
 
+
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int32.Parse(port));

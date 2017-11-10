@@ -15,6 +15,7 @@ namespace pacman_server
             return true;
         }
 
+
         public IEnumerable<LocalState> localState(int rndID)
         {
             throw new NotImplementedException();

@@ -103,6 +103,7 @@ namespace pacman_server
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
 
+
             gc.Abort();
             
         }

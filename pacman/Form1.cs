@@ -18,6 +18,7 @@ using mw_client_client;
 using Microsoft.VisualBasic;
 using pacman.ChatResources;
 
+
 namespace pacman
 {
     public partial class Form1 : Form
