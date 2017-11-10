@@ -418,7 +418,7 @@ namespace pacman_server
 
             foreach (Player player in RequestGame.players.Where(p => p.playing))
             {
-                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p =>
+                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray()./*Where(d => !d.dead && d.playing).*/Select(p =>
                 {
 
                     if (p.name.Equals(player.name))
@@ -430,8 +430,9 @@ namespace pacman_server
                 });
 
                 gameState.players = outPlayer.ToList();
-                player.obj.EndGame();
                 player.obj.SendGameState(gameState);
+                player.obj.EndGame();
+                
 
             }
 

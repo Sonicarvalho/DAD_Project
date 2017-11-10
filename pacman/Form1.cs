@@ -27,6 +27,7 @@ namespace pacman
 
         int debugPort = 11111;
         static bool running = false;
+        static bool endgame = false;
         int nmPlayers = 1;
         static int pacID = 2;
 
@@ -130,10 +131,11 @@ namespace pacman
             mo = new ResponseGame();
             mo.changePacmanVisibility += changePacmanVisibility;
             mo.launch_mainloop += launch_mainloop;
+            mo.changeControlPosition += changeControlPosition;
 
             RemotingServices.Marshal(mo, "ClientService",
                     typeof(IResponseGame));
-            
+
         }
 
         private static void initPMServer()
@@ -205,12 +207,12 @@ namespace pacman
         {
             public event EventHandler<PacEventArgs> changePacmanVisibility;
             public event EventHandler<PacEventArgs> launch_mainloop;
-            public event EventHandler<PacEventArgs> changeGhostsPosition;
+            public event EventHandler<PacEventArgs> changeControlPosition;
 
             public void SendGameState(GameState state)
             {
-                Form1.gameStates.Enqueue(state);
-              //  MessageBox.Show("gamestate");
+                Form1.gameStates.Enqueue(state); //add gamestate to queue
+                                                 //  MessageBox.Show("gamestate");
             }
 
             public void StartGame(List<DTOPlaying> players)
@@ -222,10 +224,11 @@ namespace pacman
                 {
                     if (PlayersID.FirstOrDefault(x => x.Value == 1).Key == C.name)
                     {
-                        // pls.Remove(C);
+                        // If we are ourselves, do nothing
                     }
                     else
                     {
+                        //else add respective player to players list
                         PlayersID.Add(C.name, pacID++);
                         String[] splitUrl = C.url.Split(new Char[] { ':', '/' });
                         ///  A : / / B : C / D
@@ -237,7 +240,7 @@ namespace pacman
 
                 foreach (KeyValuePair<String, int> p in PlayersID)
                 {
-                    //  this
+                    //TURNS PACMAN PLAYERS VISIBLE
                     changePacmanVisibility(this, new PacEventArgs(p.Value));
 
                 }
@@ -249,7 +252,9 @@ namespace pacman
 
             public void EndGame()
             {
-                throw new NotImplementedException();
+                running = false;
+                endgame = true;
+                //throw new NotImplementedException();
             }
 
             public void SendPID(int pid)
@@ -260,7 +265,7 @@ namespace pacman
 
         public class Commands : MarshalByRefObject, ICommands
         {
-           
+
 
             bool ICommands.InjectDelay(int srcID, int dstID)
             {
@@ -354,9 +359,9 @@ namespace pacman
                 gameServer = new Thread(tsg);
                 gameServer.Start();
 
-               /* ThreadStart ts2 = new ThreadStart(initClient);
-                gameClient = new Thread(ts2);
-                gameClient.Start();*/
+                /* ThreadStart ts2 = new ThreadStart(initClient);
+                 gameClient = new Thread(ts2);
+                 gameClient.Start();*/
 
                 reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://localhost:" + debugPort + "/ClientService");
                 reqObj.JoinGame(PlayersID.FirstOrDefault(x => x.Value == 1).Key);
@@ -418,48 +423,7 @@ namespace pacman
           {
               label1.Text = "Score: " + score;
 
-              //TODO:Implement this movements Server side
-              //move player
-              if (goleft)
-              {
-                  if (pacman1.Left > (boardLeft))
-                      pacman1.Left -= speed;
-              }
-              if (goright)
-              {
-                  if (pacman1.Left < (boardRight))
-                      pacman1.Left += speed;
-              }
-              if (goup)
-              {
-                  if (pacman1.Top > (boardTop))
-                      pacman1.Top -= speed;
-              }
-              if (godown)
-              {
-                  if (pacman1.Top < (boardBottom))
-                      pacman1.Top += speed;
-              }
-
-
-              //move ghosts
-              Ghostred.Left += ghost1;
-              Ghostyellow.Left += ghost2;
-
-              // if the red ghost hits the picture box 4 then wereverse the speed
-              if (Ghostred.Bounds.IntersectsWith(pictureBox1.Bounds))
-                  ghost1 = -ghost1;
-              // if the red ghost hits the picture box 3 we reverse the speed
-              else if (Ghostred.Bounds.IntersectsWith(pictureBox2.Bounds))
-                  ghost1 = -ghost1;
-              // if the yellow ghost hits the picture box 1 then wereverse the speed
-              if (Ghostyellow.Bounds.IntersectsWith(pictureBox3.Bounds))
-                  ghost2 = -ghost2;
-              // if the yellow chost hits the picture box 2 then wereverse the speed
-              else if (Ghostyellow.Bounds.IntersectsWith(pictureBox4.Bounds))
-                  ghost2 = -ghost2;
-              //moving ghosts and bumping with the walls end
-              //for loop to check walls, ghosts and points
+              
               foreach (Control x in this.Controls)
               {
                   // checking if the player hits the wall or the ghost, then game is over
@@ -549,12 +513,12 @@ namespace pacman
             }
         }
 
-        private delegate void ObjectDelegate(object obj);  
+        private delegate void ObjectDelegate(object obj);
 
         private void main_loop()
         {
             //MessageBox.Show(running.ToString());
-            
+
             while (true)
             {
                 Thread.Sleep(20);
@@ -562,7 +526,7 @@ namespace pacman
 
                 if (running && (goleft || goright || goup || godown))
                 {
-                   // MessageBox.Show("keys~");
+
                     List<String> dirs = new List<String>();
                     if (goleft) dirs.Add("LEFT");
                     if (goright) dirs.Add("RIGHT");
@@ -576,7 +540,7 @@ namespace pacman
 
 
                 #region update game State
-                //while (gameStates.Count <= 0) Thread.Sleep(10); //WAIT FOR UPDATES FROM THE SEVER
+                while (gameStates.Count <= 0) Thread.Sleep(1); //WAIT FOR UPDATES FROM THE SEVER
                 if (gameStates.Count > 0)
                 { //WAIT FOR UPDATES FROM THE SEVER
 
@@ -585,7 +549,7 @@ namespace pacman
                     foreach (DTOPlayer player in gm.players) //Update Players Positions
                     {
                         PictureBox p = (PictureBox)this.Controls.Find("pacman" + PlayersID[player.name], true)[0];
-                      //  p.Location = new Point(player.posX, player.posY);
+                        //  p.Location = new Point(player.posX, player.posY);
                         changeControlPosition(this, new PacEventArgs(player.posX, player.posY, p));
                         if (player.faceDirection == "LEFT") p.Image = Properties.Resources.Left;
                         else if (player.faceDirection == "UP") p.Image = Properties.Resources.Up;
@@ -594,12 +558,12 @@ namespace pacman
 
                     }
 
-                     foreach (DTOGhost ghost in gm.ghosts) // Update Ghosts Positions
+                    foreach (DTOGhost ghost in gm.ghosts) // Update Ghosts Positions
                     {
-                       
-                        PictureBox g = (PictureBox)this.Controls.Find("Ghost"+ ghost.color,true)[0];
+
+                        PictureBox g = (PictureBox)this.Controls.Find("Ghost" + ghost.color, true)[0];
                         //g.Location = new Point(ghost.posX, ghost.posY);
-                         changeControlPosition(this, new PacEventArgs(ghost.posX,ghost.posY,g));
+                        changeControlPosition(this, new PacEventArgs(ghost.posX, ghost.posY, g));
                     }
                     ;
                     foreach (DTOCoin c in gm.coins)
@@ -609,21 +573,30 @@ namespace pacman
                         //if (!c.visible) coin.Visible = false;
                     }
                     String myName = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
-                    DTOPlayer play= gm.players.FirstOrDefault(x => x.name == myName);
-                    int score=0;
-                    foreach(DTOPlayer pl in gm.players)
+                    DTOPlayer play = gm.players.FirstOrDefault(x => x.name == myName);
+                    int score = 0;
+                    foreach (DTOPlayer pl in gm.players)
                     {
-                        if (pl.Equals(play)) { score=score; score = pl.score; break; }
+                        if (pl.Equals(play)) { score = pl.score; break; }
                     }
-                    changeTxtText(this, new PacEventArgs(this.Controls.Find("label1",true)[0],score.ToString()));
+                    changeTxtText(this, new PacEventArgs(this.Controls.Find("label1", true)[0], score.ToString()));
 
                     // Do something with the walls, maybe next delivery
 
                     //update round
                     round = gm.round;
 
-                #endregion
+                    if (endgame)
+                    {
+
+                        changeTxtText(this,
+                            new PacEventArgs((this.Controls.Find("label2", true)[0]), (play.won) ? "WON" : "GAME OVER!")
+                            );
+                        break;
+                    }
+                    
                 }
+                #endregion
             }
 
 
@@ -631,7 +604,7 @@ namespace pacman
 
         Control GetControlByPos(Point x)
         {
-            
+
             foreach (Control c in this.Controls)
                 if (c.Location == x)
                     return c;
@@ -654,14 +627,14 @@ namespace pacman
 
         public void changePacmanVisibility(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate()
+            Invoke((MethodInvoker)delegate ()
             {
                 this.Controls.Find("pacman" + e.Pacman, true)[0].Visible = true;
             });
         }
         public void launch_mainloop(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate()
+            Invoke((MethodInvoker)delegate ()
             {
                 ThreadStart ts2 = new ThreadStart(main_loop);
                 mainloop = new Thread(ts2);
@@ -670,7 +643,7 @@ namespace pacman
         }
         public void changeControlPosition(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate()
+            Invoke((MethodInvoker)delegate ()
             {
                 e.cnt.Location = new Point(e.x, e.y);
             });
@@ -678,12 +651,15 @@ namespace pacman
         public void changeTxtText(object sender, PacEventArgs e)
         {
             if (!(e.cnt is Label)) return;
-             
-            Invoke((MethodInvoker)delegate()
+
+            Invoke((MethodInvoker)delegate ()
             {
-               ((Label) e.cnt).Text = e.data;
+                ((Label)e.cnt).Text = e.data;
+                ((Label)e.cnt).Visible = true;
             });
         }
+
+
     }
 
 
@@ -699,7 +675,7 @@ namespace pacman
 
         public PacEventArgs(int m)
         { Pacman = m; }
-        public PacEventArgs(int x,int y, Control name)
+        public PacEventArgs(int x, int y, Control name)
         {
             this.x = x;
             this.y = y;
