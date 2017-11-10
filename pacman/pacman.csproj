@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands.cs" />
     <Compile Include="HelperResources\CircularBuffer.cs" />
     <Compile Include="HelperResources\ThreadPool.cs" />
     <Compile Include="Form1.cs">
