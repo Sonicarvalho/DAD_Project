@@ -8,9 +8,7 @@ namespace mw_client_server
 {
     public interface IRequestGame
     {
-        bool Register(string name ,string url);
-
-        IEnumerable<string> GetAllClients();
+        bool Register(string name, string url);
 
         bool JoinGame(string name);
 
