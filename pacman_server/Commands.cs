@@ -22,9 +22,9 @@ namespace pacman_server
             return true;
         }
 
-        public IEnumerable<LocalState> localState(int rndID)
+        public List<LocalState> localState(int rndID)
         {
-            IList<LocalState> localStates = new List<LocalState>();
+            List<LocalState> localStates = new List<LocalState>();
 
             foreach (Wall wall in walls)
             {

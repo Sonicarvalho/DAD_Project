@@ -11,7 +11,7 @@ namespace mw_pm_server_client
         //return true if successful
         bool injectDelay(int srcID,int dstID);
 
-        IEnumerable<LocalState> localState(int rndID);
+        List<LocalState> localState(int rndID);
 
         bool wait(int xMs);
 
@@ -21,14 +21,27 @@ namespace mw_pm_server_client
 
         public string id { get; set; }
         public bool lost { get; set; }
-        public int posX { get; set; }
+        public int posx { get; set; }
         public int posy { get; set; }
 
         public LocalState(string i, bool l, int x, int y) {
             id = i;
             lost = l;
-            posX = x;
+            posx = x;
             posy = y;
+        }
+
+        override
+        public string ToString()
+        {
+            string str;
+
+            str = id + ", " + lost + ", " + posx + ", " + posy;
+
+            Console.WriteLine(str);
+
+            return str;
+
         }
 
     }
