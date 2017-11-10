@@ -93,6 +93,7 @@ namespace pacman
                 reqObj.Register("cliente " + debugPort, "tcp://localhost:" + debugPort + "/ClientService");
                 reqObj.JoinGame("cliente " + debugPort);
 
+
             }
         }
 
