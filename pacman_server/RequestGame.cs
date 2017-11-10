@@ -17,7 +17,8 @@ namespace pacman_server
         public int maxPlayers { get; set; }
 
         //players list
-        public SynchronizedCollection<Player> players = new SynchronizedCollection<Player>();
+        //public static IList<Player> players = new List<Player>();
+        public SynchronizedCollection<Player> players = new SynchronizedCollection<Player>(); 
         public SynchronizedCollection<MoveRequest> moveRequests = new SynchronizedCollection<MoveRequest>(); 
 
 

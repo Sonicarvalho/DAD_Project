@@ -26,6 +26,8 @@ namespace pacman
         int debugPort = 11111;
         bool running = false;
         int nmPlayers = 1;
+        static int pacID = 2;
+
         // direction player is moving in. Only one will be true
         bool goup;
         bool godown;
@@ -67,8 +69,8 @@ namespace pacman
 
         //Data Structures
         static Queue<GameState> gameStates = new Queue<GameState>();
-        Hashtable Clients = new Hashtable(3);
-        Dictionary<String, int> PlayersID = new Dictionary<string, int>();
+        static Hashtable Clients = new Hashtable(3);
+        static Dictionary<String, int> PlayersID = new Dictionary<string, int>();
 
 
 
@@ -83,9 +85,9 @@ namespace pacman
 
             ThreadStart ts = new ThreadStart(initClientServer);
 
-            Clients.Add(11111, "tcp://localhost:11111/chatClientServerService");
+         /*   Clients.Add(11111, "tcp://localhost:11111/chatClientServerService");
             Clients.Add(11112, "tcp://localhost:11112/chatClientServerService");
-            Clients.Add(11113, "tcp://localhost:11113/chatClientServerService");
+            Clients.Add(11113, "tcp://localhost:11113/chatClientServerService"); */
         }
 
         private void initClient()
@@ -198,6 +200,7 @@ namespace pacman
         // TODO: implement
         public class ResponseGame : MarshalByRefObject, IResponseGame
         {
+            public event EventHandler<PacEventArgs> changePacmanVisibility;
 
             public void SendGameState(GameState state)
             {
@@ -206,7 +209,30 @@ namespace pacman
 
             public void StartGame(IEnumerable<DTOPlaying> players)
             {
-                throw new NotImplementedException();
+
+                List<DTOPlaying> pls = players.ToList();
+               
+                foreach (DTOPlaying C in pls) {
+                    if (PlayersID.FirstOrDefault(x => x.Value == 1).Key == C.name)
+                    {
+                        pls.Remove(C);
+                    }
+                    else
+                    {
+                        PlayersID.Add(C.name, pacID++);
+                        String [] splitUrl = C.url.Split(new Char[]{':', '/'});
+                        ///  A : / / B : C / D
+                        ///  0  1 2  3   4   5
+                        Clients.Add(splitUrl[4], "tcp://" + splitUrl[3] + "/" + splitUrl[4] + "/chatClientServerService");
+                    }
+                    break;
+                }
+
+                foreach (KeyValuePair<String,int> p in PlayersID) { 
+                  //  this
+                    changePacmanVisibility(this, new PacEventArgs(p.Value));
+                }
+
             }
 
             public void EndGame()
@@ -306,6 +332,7 @@ namespace pacman
                 gameClient.Start();
 
                 reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://localhost:" + debugPort + "/ClientServer");
+                reqObj.JoinGame(PlayersID.FirstOrDefault(x => x.Value == 1).Key);
             }
             if (e.KeyCode == Keys.C)
             {
@@ -331,7 +358,7 @@ namespace pacman
                 {
                     text += c.ToString() + "\n";
                 }
-
+                
                 //text += GetControlByPos(new Point(8, 40)).ToString();
                 MessageBox.Show(text);
 
@@ -576,6 +603,24 @@ namespace pacman
         
 
         }
+
+
+        public void changePacmanVisibility(object sender, PacEventArgs e)
+        {
+            Invoke((MethodInvoker)delegate()
+            {
+                this.Controls.Find("pacman" + e.Pacman, true)[0].Visible=true;
+            });
+        }
+
     }
 
+
+    public class PacEventArgs : EventArgs
+    {
+        public int Pacman { get; set; }
+
+        public PacEventArgs(int m)
+        { Pacman = m; }
+    }
 }

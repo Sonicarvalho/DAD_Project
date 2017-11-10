@@ -29,7 +29,7 @@ namespace pacman_server
         private static int speed = 5;
 
         //Game Max #Players
-        private static int maxPlayers = 5;
+        private static int maxPlayers = 2;
 
         //Game Board Limit
         private static int boardRight = 320;
@@ -487,5 +487,8 @@ namespace pacman_server
             return coins;
         }
 
+
     }
+
+
 }
