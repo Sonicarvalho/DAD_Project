@@ -25,13 +25,13 @@ namespace mw_pm_server_client
     public class LocalState {
 
         public string id { get; set; }
-        public bool lost { get; set; }
+        public string state { get; set; }
         public int posx { get; set; }
         public int posy { get; set; }
 
-        public LocalState(string i, bool l, int x, int y) {
+        public LocalState(string i,string s, int x, int y) {
             id = i;
-            lost = l;
+            state = s;
             posx = x;
             posy = y;
         }
@@ -41,7 +41,7 @@ namespace mw_pm_server_client
         {
             string str;
 
-            str = id + ", " + lost + ", " + posx + ", " + posy;
+            str = id + ", " + state + ", " + posx + ", " + posy;
 
             Console.WriteLine(str);
 

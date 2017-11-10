@@ -60,7 +60,23 @@ namespace pacman_server
 
             foreach (Player player in players)
             {
-                localStates.Add(new LocalState(player.name, player.dead, player.posX, player.posY));
+                string state;
+
+                if (player.dead)
+                {
+                    state = "L";
+                }
+                else {
+                    if (player.playing) {
+                        state = "P";
+                    }
+                    else if(player.won){
+                        state = "W";
+                    }
+                }
+
+
+                localStates.Add(new LocalState(player.name, state, player.posX, player.posY));
             }
             return localStates;
         }
