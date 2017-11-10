@@ -93,9 +93,9 @@ namespace pacman_server
                     typeof(IRequestGame));
 
 
-            //ThreadStart pmServer = new ThreadStart(initPMServer);
-            //server = new Thread(pmServer);
-            // server.Start();
+            ThreadStart pmServer = new ThreadStart(initPMServer);
+            server = new Thread(pmServer);
+            server.Start();
 
 
             //Init the GameCycle
