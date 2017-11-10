@@ -198,7 +198,7 @@ namespace pacman
                 Form1.gameStates.Enqueue(state);
             }
 
-            public void StartGame(IEnumerable<DTOPlaying> players)
+            public void StartGame()
             {
                 throw new NotImplementedException();
             }

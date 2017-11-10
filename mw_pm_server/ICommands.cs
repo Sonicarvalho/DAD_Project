@@ -24,13 +24,6 @@ namespace mw_pm_server_client
         public int posX { get; set; }
         public int posy { get; set; }
 
-        public LocalState(string i, bool l, int x, int y) {
-            id = i;
-            lost = l;
-            posX = x;
-            posy = y;
-        }
-
     }
 
 }

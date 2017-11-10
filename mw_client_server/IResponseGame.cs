@@ -9,24 +9,12 @@ namespace mw_client_server
     public interface IResponseGame
     {
         void SendGameState(GameState state);
-        void StartGame(IEnumerable<DTOPlaying> players);
+        void StartGame();
         void EndGame();
 
     }
-    
-    public class DTOPlaying
-    {
-        public string name { get; set; }
-        public string url { get; set; }
 
-        public DTOPlaying(string n, string u)
-        {
-            name = n;
-            url = u;
-        }
-    }
-
-public class GameState
+    public class GameState
     {
         public IEnumerable<DTOPlayer> players { get; set; }
         public IEnumerable<DTOGhost> ghosts { get; set; }
@@ -119,4 +107,5 @@ public class GameState
         }
 
     }
+
 }
