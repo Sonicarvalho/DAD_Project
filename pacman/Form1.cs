@@ -18,6 +18,7 @@ using mw_client_client;
 using Microsoft.VisualBasic;
 using pacman.ChatResources;
 
+
 namespace pacman
 {
     public partial class Form1 : Form
@@ -207,7 +208,7 @@ namespace pacman
                 Form1.gameStates.Enqueue(state);
             }
 
-            public void StartGame(IEnumerable<DTOPlaying> players)
+            public void StartGame()
             {
 
                 List<DTOPlaying> pls = players.ToList();
