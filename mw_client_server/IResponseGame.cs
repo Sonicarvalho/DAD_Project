@@ -9,7 +9,7 @@ namespace mw_client_server
     public interface IResponseGame
     {
         void SendGameState(GameState state);
-        void StartGame(IEnumerable<DTOPlaying> players);
+        void StartGame(List<DTOPlaying> players);
         void EndGame();
 
     }
@@ -29,10 +29,10 @@ namespace mw_client_server
     public class GameState
     {
        
-        public IEnumerable<DTOPlayer> players { get; set; }
-        public IEnumerable<DTOGhost> ghosts { get; set; }
-        public IEnumerable<DTOCoin> coins { get; set; }
-        public IEnumerable<DTOWall> walls { get; set; }
+        public List<DTOPlayer> players { get; set; }
+        public List<DTOGhost> ghosts { get; set; }
+        public List<DTOCoin> coins { get; set; }
+        public List<DTOWall> walls { get; set; }
 
 
         public int round { get; set; }

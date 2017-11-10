@@ -118,7 +118,7 @@ namespace pacman
             IDictionary RemoteChannelProperties = new Hashtable();
             //int port = new Random().Next(8081, 15000);
 
-            RemoteChannelProperties["port"] = debugPort;
+            RemoteChannelProperties["port"] = debugPort-1;
             RemoteChannelProperties["name"] = "client" + debugPort;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
@@ -127,7 +127,7 @@ namespace pacman
             ChannelServices.RegisterChannel(channel);
 
             mo = new ResponseGame();
-            //mo.addMessage += addMessage;
+            mo.changePacmanVisibility += changePacmanVisibility;
 
             RemotingServices.Marshal(mo, "ClientService",
                     typeof(IResponseGame));
@@ -208,7 +208,7 @@ namespace pacman
                 Form1.gameStates.Enqueue(state);
             }
 
-            public void StartGame()
+            public void StartGame(List<DTOPlaying> players)
             {
 
                 List<DTOPlaying> pls = players.ToList();
@@ -216,7 +216,7 @@ namespace pacman
                 foreach (DTOPlaying C in pls) {
                     if (PlayersID.FirstOrDefault(x => x.Value == 1).Key == C.name)
                     {
-                        pls.Remove(C);
+                       // pls.Remove(C);
                     }
                     else
                     {
@@ -226,12 +226,13 @@ namespace pacman
                         ///  0  1 2  3   4   5
                         Clients.Add(splitUrl[4], "tcp://" + splitUrl[3] + "/" + splitUrl[4] + "/chatClientServerService");
                     }
-                    break;
+                    
                 }
 
                 foreach (KeyValuePair<String,int> p in PlayersID) { 
                   //  this
                     changePacmanVisibility(this, new PacEventArgs(p.Value));
+
                 }
 
             }
@@ -328,11 +329,15 @@ namespace pacman
                 chatClientServer = new Thread(ts);
                 chatClientServer.Start();
 
+                ThreadStart tsg = new ThreadStart(initClientServer);
+                gameServer = new Thread(tsg);
+                gameServer.Start();
+
                 ThreadStart ts2 = new ThreadStart(initClient);
                 gameClient = new Thread(ts2);
                 gameClient.Start();
 
-                reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://localhost:" + debugPort + "/ClientServer");
+                reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://localhost:" + debugPort + "/ClientService");
                 reqObj.JoinGame(PlayersID.FirstOrDefault(x => x.Value == 1).Key);
             }
             if (e.KeyCode == Keys.C)
