@@ -42,24 +42,13 @@ namespace pacman
         int boardLeft = 0;
         int boardTop = 40;
 
-        //TODO:Implement Server side
-        //player speed
-        int speed = 5;
-
-        //TODO:Implement Server side
-        int score = 0; int total_coins = 60;
-
-        //TODO:Implement Server side
-        //ghost speed for the one direction ghosts
-        int ghost1 = 5;
-        int ghost2 = 5;
-
-        //TODO:Implement Server side
-        //x and y directions for the bi-direccional pink ghost
-        int ghost3x = 5;
         int ghost3y = 5;
 
         int round = 0;
+
+
+        //Master of Puppets
+        private static Commands pmc;
 
         //Multiplayer Connection Objects
         private IRequestGame reqObj;
@@ -88,9 +77,6 @@ namespace pacman
 
             ThreadStart ts = new ThreadStart(initClientServer);
 
-            /*   Clients.Add(11111, "tcp://localhost:11111/chatClientServerService");
-               Clients.Add(11112, "tcp://localhost:11112/chatClientServerService");
-               Clients.Add(11113, "tcp://localhost:11113/chatClientServerService"); */
         }
 
         private void initClient()
@@ -155,9 +141,9 @@ namespace pacman
 
             ChannelServices.RegisterChannel(channel);
 
-            Commands mo = new Commands();
+            pmc = new Commands();
 
-            RemotingServices.Marshal(mo, "myPMServer",
+            RemotingServices.Marshal(pmc, "myPMServer",
                     typeof(ICommands));
         }
 
@@ -258,36 +244,6 @@ namespace pacman
             }
 
             public void SendPID(int pid)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class Commands : MarshalByRefObject, ICommands
-        {
-
-
-            bool ICommands.InjectDelay(int srcID, int dstID)
-            {
-                throw new NotImplementedException();
-            }
-
-            List<LocalState> ICommands.localState(int rndID)
-            {
-                throw new NotImplementedException();
-            }
-
-            void ICommands.Crash()
-            {
-                throw new NotImplementedException();
-            }
-
-            void ICommands.Freeze()
-            {
-                throw new NotImplementedException();
-            }
-
-            void ICommands.Unfreeze()
             {
                 throw new NotImplementedException();
             }

@@ -129,6 +129,10 @@
       <Project>{23006b3c-cfcf-416c-bef2-300960ea864f}</Project>
       <Name>mw_pm_server_client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\pacman_server\pacman_server.csproj">
+      <Project>{E446ACAC-9302-496B-9FBA-1926C5CD6AB9}</Project>
+      <Name>pacman_server</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
