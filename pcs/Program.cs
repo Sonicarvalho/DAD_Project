@@ -26,7 +26,7 @@ namespace pcs
 
             //TcpChannel channel = new TcpChannel(int32.Parse(port));
 
-            ChannelServices.RegisterChannel(channel, true);
+            ChannelServices.RegisterChannel(channel, false);
 
             Initializer mo = new Initializer();
 

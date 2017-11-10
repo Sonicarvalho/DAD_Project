@@ -553,12 +553,11 @@ namespace pacman
 
         private void main_loop()
         {
-            MessageBox.Show(running.ToString());
-            /*ResponseGame nada = new ResponseGame();
-            nada.changeGhostsPosition += changeGhostsPosition;*/
+            //MessageBox.Show(running.ToString());
+            
             while (true)
             {
-                
+                Thread.Sleep(20);
                 #region Ask for input and send it to the server
 
                 if (running && (goleft || goright || goup || godown))
@@ -587,7 +586,7 @@ namespace pacman
                     {
                         PictureBox p = (PictureBox)this.Controls.Find("pacman" + PlayersID[player.name], true)[0];
                       //  p.Location = new Point(player.posX, player.posY);
-                        changeGhostsPosition(this, new PacEventArgs(player.posX, player.posY, p));
+                        changeControlPosition(this, new PacEventArgs(player.posX, player.posY, p));
                         if (player.faceDirection == "LEFT") p.Image = Properties.Resources.Left;
                         else if (player.faceDirection == "UP") p.Image = Properties.Resources.Up;
                         else if (player.faceDirection == "RIGHT") p.Image = Properties.Resources.Right;
@@ -600,15 +599,23 @@ namespace pacman
                        
                         PictureBox g = (PictureBox)this.Controls.Find("Ghost"+ ghost.color,true)[0];
                         //g.Location = new Point(ghost.posX, ghost.posY);
-                         changeGhostsPosition(this, new PacEventArgs(ghost.posX,ghost.posY,g));
+                         changeControlPosition(this, new PacEventArgs(ghost.posX,ghost.posY,g));
                     }
-
+                    ;
                     foreach (DTOCoin c in gm.coins)
                     {           //  Update Coins Visibility
                         Point pos = new Point(c.posX, c.posY);
                         PictureBox coin = (PictureBox)GetControlByPos(pos);
                         //if (!c.visible) coin.Visible = false;
                     }
+                    String myName = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
+                    DTOPlayer play= gm.players.FirstOrDefault(x => x.name == myName);
+                    int score=0;
+                    foreach(DTOPlayer pl in gm.players)
+                    {
+                        if (pl.Equals(play)) { score=score; score = pl.score; break; }
+                    }
+                    changeTxtText(this, new PacEventArgs(this.Controls.Find("label1",true)[0],score.ToString()));
 
                     // Do something with the walls, maybe next delivery
 
@@ -661,11 +668,20 @@ namespace pacman
                 mainloop.Start();
             });
         }
-        public void changeGhostsPosition(object sender, PacEventArgs e)
+        public void changeControlPosition(object sender, PacEventArgs e)
         {
             Invoke((MethodInvoker)delegate()
             {
                 e.cnt.Location = new Point(e.x, e.y);
+            });
+        }
+        public void changeTxtText(object sender, PacEventArgs e)
+        {
+            if (!(e.cnt is Label)) return;
+             
+            Invoke((MethodInvoker)delegate()
+            {
+               ((Label) e.cnt).Text = e.data;
             });
         }
     }
@@ -677,6 +693,7 @@ namespace pacman
         public int x { get; set; }
         public int y { get; set; }
         public Control cnt { get; set; }
+        public String data { get; set; }
 
 
 
@@ -688,6 +705,11 @@ namespace pacman
             this.y = y;
             this.cnt = name;
 
+        }
+        public PacEventArgs(Control name, String data)
+        {
+            this.cnt = name;
+            this.data = data;
         }
     }
 }

@@ -249,11 +249,11 @@ namespace pacman_server
                             switch (direction)
                             {
                                 case "UP":
-                                    player.posY += speed;
+                                    player.posY -= speed;
                                     break;
 
                                 case "DOWN":
-                                    player.posY -= speed;
+                                    player.posY += speed;
                                     break;
 
                                 case "RIGHT":
