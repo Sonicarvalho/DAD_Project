@@ -15,13 +15,18 @@ namespace puppet_master
 {
     class Program
     {
-        private static ICommands commands;
-        private static IInitializer initializer;
+        private static Dictionary<string, IInitializer> pcs_init;
+        private static Dictionary<string, ICommands> pid_object;
         private static Thread server;
         private static int pcs_port = 11000;
 
+
         static void Main(string[] args)
         {
+            ICommands commands;
+            IInitializer initializer;
+            List<LocalState> ls;
+            IDictionary RemoteChannelProperties;
             TcpChannel channel;
             List<string> parsed_cmd;
             string console_command = null;
@@ -29,9 +34,14 @@ namespace puppet_master
             string pcs_url;
             string server_url;
             string client_url;
+            string s_url;
+            string c_url;
             string msec_per_round;
             string num_players;
             string url;
+
+            pcs_init = new Dictionary<string, IInitializer>();
+            pid_object = new Dictionary<string, ICommands>();
 
             System.Console.WriteLine("Enter command or write <exit> to close...");
 
@@ -52,16 +62,51 @@ namespace puppet_master
                         msec_per_round = parsed_cmd.ElementAt(4);
                         num_players = parsed_cmd.ElementAt(5);
 
-                        url = "tcp://" + pcs_url + ":" + pcs_port + "/" + pid;
+                        url = "tcp://" + pcs_url + ":" + pcs_port + "/myPCS";
+                        s_url = "tcp://" + server_url + "/myPMServer";
 
-                        channel = new TcpChannel();
-                        ChannelServices.RegisterChannel(channel, true);
-                        initializer = (IInitializer)
-                                Activator.GetObject(
-                                        typeof(IInitializer),
-                                        url);
+                        if (!pcs_init.ContainsKey(pcs_url)) {
+
+                            RemoteChannelProperties = new Hashtable();
+
+                            RemoteChannelProperties["name"] = pcs_url;
+
+                            channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+                            ChannelServices.RegisterChannel(channel, true);
+
+                            initializer = (IInitializer)
+                                    Activator.GetObject(
+                                            typeof(IInitializer),
+                                            url);
+
+                            pcs_init.Add(pcs_url, initializer);
+                        }
+                        else
+                        {
+                            initializer = pcs_init[pcs_url];
+                        }
+
+                        if (!pid_object.ContainsKey(pid))
+                        {
+                            RemoteChannelProperties = new Hashtable();
+
+                            RemoteChannelProperties["name"] = pid;
+
+                            channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+                            ChannelServices.RegisterChannel(channel, true);
+
+                            commands = (ICommands)
+                                    Activator.GetObject(
+                                            typeof(ICommands),
+                                            s_url);
+
+                            pid_object.Add(pid, commands);
+                        }
 
                         initializer.StartServer(server_url, msec_per_round, num_players);
+
                         break;
 
                     case "StartClient":
@@ -74,22 +119,68 @@ namespace puppet_master
                         msec_per_round = parsed_cmd.ElementAt(4);
                         num_players = parsed_cmd.ElementAt(5);
 
-                        url = "tcp://" + pcs_url + ":" + pcs_port + "/" + pid;
+                        url = "tcp://" + pcs_url + ":" + pcs_port + "/myPCS";
+                        c_url = "tcp://" + client_url + "/myPMClient";
 
-                        channel = new TcpChannel();
-                        ChannelServices.RegisterChannel(channel, true);
-                        initializer = (IInitializer)
-                                Activator.GetObject(
-                                        typeof(IInitializer),
-                                        url);
+                        if (!pcs_init.ContainsKey(pcs_url))
+                        {
+                            RemoteChannelProperties = new Hashtable();
+
+                            RemoteChannelProperties["name"] = pcs_url;
+
+                            channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+                            ChannelServices.RegisterChannel(channel, true);
+
+                            initializer = (IInitializer)
+                                    Activator.GetObject(
+                                            typeof(IInitializer),
+                                            url);
+
+                            pcs_init.Add(pcs_url, initializer);
+                        }
+                        else {
+                            initializer = pcs_init[pcs_url];
+                        }
+
+                        if (!pid_object.ContainsKey(pid))
+                        {
+                            RemoteChannelProperties = new Hashtable();
+
+                            RemoteChannelProperties["name"] = pid;
+
+                            channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+                            ChannelServices.RegisterChannel(channel, true);
+
+                            commands = (ICommands)
+                                    Activator.GetObject(
+                                            typeof(ICommands),
+                                            c_url);
+
+                            pid_object.Add(pid, commands);
+                        }
 
                         initializer.StartClient(client_url, msec_per_round, num_players);
+
                         break;
 
                     case "GlobalStatus":
                         break;
                     case "Crash":
+
+                        if (!CheckCommand(parsed_cmd, 2)) break;
+                        try
+                        {
+                            pid_object[parsed_cmd[1]].Crash();
+                        }
+                        catch(Exception e)                                //tratar excecao
+                        {
+
+                        }
+
                         break;
+
                     case "Freeze":
                         break;
                     case "Unfreeze":
@@ -98,6 +189,14 @@ namespace puppet_master
                         break;
                     case "LocalState":
 
+                        if (!CheckCommand(parsed_cmd, 3)) break;
+
+                        ls = pid_object[parsed_cmd[1]].localState(2);
+
+                        foreach(LocalState st in ls)
+                        {
+                            st.ToString();
+                        }
 
                         break;
 
@@ -121,21 +220,9 @@ namespace puppet_master
         }
         
 
-        private static void initPMServer()
-        {
-            TcpChannel channel = new TcpChannel();
+            //Aux functions
 
-            ChannelServices.RegisterChannel(channel, true);
-
-            commands = (ICommands)
-                    Activator.GetObject(
-                            typeof(ICommands),
-                            "tcp://localhost:11001/myPMServer");
-        }
-
-        //Aux functions
-
-        private static List<string> ProcessCommand(string command)
+            private static List<string> ProcessCommand(string command)
         {
             List<string> parsed_cmd = new List<string>();
             string[] command_parsed = command.Split(' ');

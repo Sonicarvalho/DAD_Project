@@ -2,6 +2,7 @@
 using pacman_server.Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,15 +17,31 @@ namespace pacman_server
         public static IList<Player> players = new List<Player>();
 
 
-        public bool injectDelay(int srcID, int dstID)
+        public bool InjectDelay(int srcID, int dstID)
         {
             Console.WriteLine("Puppet Master Connected");
             return true;
         }
 
-        public IEnumerable<LocalState> localState(int rndID)
+        public void Crash()
         {
-            IList<LocalState> localStates = new List<LocalState>();
+            Process myProcess = Process.GetCurrentProcess();
+            myProcess.Kill();
+        }
+
+        public void Freeze()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unfreeze()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<LocalState> localState(int rndID)
+        {
+            List<LocalState> localStates = new List<LocalState>();
 
             foreach (Wall wall in walls)
             {
@@ -45,13 +62,7 @@ namespace pacman_server
             {
                 localStates.Add(new LocalState(player.name, player.dead, player.posX, player.posY));
             }
-
             return localStates;
-        }
-
-        public bool wait(int xMs)
-        {
-            throw new NotImplementedException();
         }
 
         public void setWalls(IList<Wall> w)

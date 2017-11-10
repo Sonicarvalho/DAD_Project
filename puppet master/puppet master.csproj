@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="App1.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\mw_pm_pcs\mw_pm_pcs.csproj">

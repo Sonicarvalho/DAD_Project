@@ -125,7 +125,7 @@ namespace pacman_server
             
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
-            ChannelServices.RegisterChannel(channel);
+            ChannelServices.RegisterChannel(channel,true);
 
             commands = new Commands();
 
