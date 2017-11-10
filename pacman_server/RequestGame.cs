@@ -17,7 +17,8 @@ namespace pacman_server
         public int maxPlayers { get; set; }
 
         //players list
-        public SynchronizedCollection<Player> players = new SynchronizedCollection<Player>();
+        //public static IList<Player> players = new List<Player>();
+        public static List<Player> players = new List<Player>(); 
         public SynchronizedCollection<MoveRequest> moveRequests = new SynchronizedCollection<MoveRequest>(); 
 
 
@@ -54,6 +55,8 @@ namespace pacman_server
             player.obj = obj;
 
             players.Add(player);
+
+            
         }
 
         public IEnumerable<string> GetAllClients()
@@ -70,7 +73,7 @@ namespace pacman_server
             Player player = players.Where(p => p.name.Equals(name)).FirstOrDefault();
 
             //that player exists or enough players reached?
-            if (player != null && players.Where(p => p.playing).Count() < maxPlayers) {
+            if (player != null && players.Where(p => p.playing).Count() <= maxPlayers) {
 
                 player.playing = true;
                 

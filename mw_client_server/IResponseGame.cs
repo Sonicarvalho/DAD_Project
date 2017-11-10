@@ -9,11 +9,11 @@ namespace mw_client_server
     public interface IResponseGame
     {
         void SendGameState(GameState state);
-        void StartGame(IEnumerable<DTOPlaying> players);
+        void StartGame(List<DTOPlaying> players);
         void EndGame();
 
     }
-    
+    [Serializable]
     public class DTOPlaying
     {
         public string name { get; set; }
@@ -25,13 +25,14 @@ namespace mw_client_server
             url = u;
         }
     }
-
-public class GameState
+    [Serializable]
+    public class GameState
     {
-        public IEnumerable<DTOPlayer> players { get; set; }
-        public IEnumerable<DTOGhost> ghosts { get; set; }
-        public IEnumerable<DTOCoin> coins { get; set; }
-        public IEnumerable<DTOWall> walls { get; set; }
+       
+        public List<DTOPlayer> players { get; set; }
+        public List<DTOGhost> ghosts { get; set; }
+        public List<DTOCoin> coins { get; set; }
+        public List<DTOWall> walls { get; set; }
 
 
         public int round { get; set; }
@@ -39,7 +40,8 @@ public class GameState
         public bool started { get; set; }
         public bool ended { get; set; }
 
-        public GameState(int r, bool s, bool e) {
+        public GameState(int r, bool s, bool e)
+        {
             round = r;
 
             started = s;
@@ -47,7 +49,7 @@ public class GameState
         }
 
     }
-
+    [Serializable]
     public class DTOPlayer
     {
         public string name { get; set; }
@@ -63,7 +65,8 @@ public class GameState
         public int posY { get; set; }
         public int posZ { get; set; }
 
-        public DTOPlayer(string n, int s, bool d, bool w, string fd, int x, int y, int z) {
+        public DTOPlayer(string n, int s, bool d, bool w, string fd, int x, int y, int z)
+        {
             name = n;
 
             score = s;
@@ -77,23 +80,25 @@ public class GameState
             posY = y;
             posZ = z;
         }
-        
-    }
 
-    public class DTOGhost {
+    }
+    [Serializable]
+    public class DTOGhost
+    {
 
         public int posX { get; set; }
         public int posY { get; set; }
         public int posZ { get; set; }
 
-        public DTOGhost(int x, int y, int z){
+        public DTOGhost(int x, int y, int z)
+        {
             posX = x;
             posY = y;
             posZ = z;
         }
 
     }
-
+    [Serializable]
     public class DTOCoin
     {
         public int posX { get; set; }
@@ -107,6 +112,7 @@ public class GameState
 
     }
 
+    [Serializable]
     public class DTOWall
     {
         public int posX { get; set; }
@@ -119,4 +125,6 @@ public class GameState
         }
 
     }
+
+
 }

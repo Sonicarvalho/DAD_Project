@@ -216,6 +216,7 @@
             this.pacman1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pacman1.TabIndex = 4;
             this.pacman1.TabStop = false;
+            this.pacman1.Visible = false;
             // 
             // Ghostpink
             // 
@@ -982,6 +983,7 @@
             this.pacman2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pacman2.TabIndex = 145;
             this.pacman2.TabStop = false;
+            this.pacman2.Visible = false;
             // 
             // pacman3
             // 
@@ -994,6 +996,7 @@
             this.pacman3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pacman3.TabIndex = 145;
             this.pacman3.TabStop = false;
+            this.pacman3.Visible = false;
             // 
             // pacman4
             // 
@@ -1006,6 +1009,7 @@
             this.pacman4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pacman4.TabIndex = 145;
             this.pacman4.TabStop = false;
+            this.pacman4.Visible = false;
             // 
             // pacman5
             // 
@@ -1018,6 +1022,7 @@
             this.pacman5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pacman5.TabIndex = 145;
             this.pacman5.TabStop = false;
+            this.pacman5.Visible = false;
             // 
             // pacman6
             // 
@@ -1030,6 +1035,7 @@
             this.pacman6.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pacman6.TabIndex = 145;
             this.pacman6.TabStop = false;
+            this.pacman6.Visible = false;
             // 
             // Form1
             // 

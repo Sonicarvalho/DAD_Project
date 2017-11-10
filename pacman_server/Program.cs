@@ -31,7 +31,7 @@ namespace pacman_server
         private static int speed = 5;
 
         //Game Max #Players
-        private static int maxPlayers = 5;
+        private static int maxPlayers = 2;
 
         //Game Board Limit
         private static int boardRight = 320;
@@ -164,7 +164,7 @@ namespace pacman_server
             commands.setCoins(coins);
             commands.setGhosts(new Ghost[] { red, yellow, pink });
             commands.setWalls(new Wall[] { ulWall, urWall, dlWall, drWall });
-            commands.setPlayer(requestGame.players.Where(p => p.playing).ToList());
+            commands.setPlayer(RequestGame.players.Where(p => p.playing).ToList());
 
             #region Lobby
             DateTime wait = DateTime.Now;
@@ -174,7 +174,7 @@ namespace pacman_server
             while (!started)
             {
                 Thread.Sleep(15000);
-                count = requestGame.players.Where(p => p.playing).Count();
+                count = RequestGame.players.Where(p => p.playing).Count();
                 if ( count == maxPlayers || ((count > 0 )&& (wait.AddMinutes(5) > DateTime.Now)))
                     started = !started;
 
@@ -201,13 +201,13 @@ namespace pacman_server
 
             gameState = new GameState(round, started, ended);
 
-            gameState.coins = outCoin;
-            gameState.walls = outWall;
-            gameState.ghosts = outGhost;
+            gameState.coins = outCoin.ToList();
+            gameState.walls = outWall.ToList();
+            gameState.ghosts = outGhost.ToList();
 
 
             int i = 1;
-            foreach (Player player in requestGame.players.Where(p => p.playing)) {
+            foreach (Player player in   RequestGame.players.Where(p => p.playing)) {
 
                 player.posX = 8;
                 player.posY = i * 40;
@@ -215,15 +215,15 @@ namespace pacman_server
 
                 i++;
 
-                IEnumerable<DTOPlayer> outPlayer = requestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
+                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
                     new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ)
                 );
 
-                gameState.players = outPlayer;
+                gameState.players = outPlayer.ToList();
 
                 player.obj.SendGameState(gameState);
-                
-                player.obj.StartGame(requestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)));
+
+                player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
             }
 
             #endregion
@@ -233,7 +233,7 @@ namespace pacman_server
                 commands.setCoins(coins);
                 commands.setGhosts(new Ghost[] { red, yellow, pink });
                 commands.setWalls(new Wall[] { ulWall, urWall, dlWall, drWall });
-                commands.setPlayer(requestGame.players.Where(p => p.playing).ToList());
+                commands.setPlayer(RequestGame.players.Where(p => p.playing).ToList());
 
                 Thread.Sleep(time_delay);
 
@@ -241,7 +241,7 @@ namespace pacman_server
 
                 //update players
                 foreach( MoveRequest mr in moveRequests){
-                    Player player = requestGame.players.Where(p => p.name.Equals(mr.name) && p.playing).FirstOrDefault();
+                    Player player = RequestGame.players.Where(p => p.name.Equals(mr.name) && p.playing).FirstOrDefault();
                     if (player != null)
                     {
                         foreach (string direction in mr.directions)
@@ -308,7 +308,7 @@ namespace pacman_server
                     }
                 }
 
-                if (!requestGame.players.Any(p => !p.dead && p.playing))
+                if (!RequestGame.players.Any(p => !p.dead && p.playing))
                 {
                     break;
                 }
@@ -372,16 +372,17 @@ namespace pacman_server
 
                 gameState = new GameState(round, started, ended);
 
-                gameState.coins = outCoin;
-                gameState.walls = outWall;
-                gameState.ghosts = outGhost;
+                gameState.coins = outCoin.ToList();
+                gameState.walls = outWall.ToList();
+                gameState.ghosts = outGhost.ToList();
 
-                foreach (Player player in requestGame.players.Where(p => p.playing)) {
-                    IEnumerable<DTOPlayer> outPlayer = requestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
+                foreach (Player player in RequestGame.players.Where(p => p.playing))
+                {
+                    IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
                         new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ)
                     );
 
-                    gameState.players = outPlayer;
+                    gameState.players = outPlayer.ToList() ;
 
                     player.obj.SendGameState(gameState);
                     
@@ -411,13 +412,14 @@ namespace pacman_server
 
             gameState = new GameState(round, started, ended);
 
-            gameState.coins = outCoin;
-            gameState.walls = outWall;
-            gameState.ghosts = outGhost;
+            gameState.coins = outCoin.ToList();
+            gameState.walls = outWall.ToList();
+            gameState.ghosts = outGhost.ToList();
 
-            foreach (Player player in requestGame.players.Where(p => p.playing))
+            foreach (Player player in RequestGame.players.Where(p => p.playing))
             {
-                IEnumerable<DTOPlayer> outPlayer = requestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => {
+                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p =>
+                {
 
                     if (p.name.Equals(player.name))
                     {
@@ -427,7 +429,7 @@ namespace pacman_server
 
                 });
 
-                gameState.players = outPlayer;
+                gameState.players = outPlayer.ToList();
                 player.obj.EndGame();
                 player.obj.SendGameState(gameState);
 
@@ -498,5 +500,8 @@ namespace pacman_server
             return coins;
         }
 
+
     }
+
+
 }

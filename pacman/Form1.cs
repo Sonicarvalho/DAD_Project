@@ -27,6 +27,8 @@ namespace pacman
         int debugPort = 11111;
         bool running = false;
         int nmPlayers = 1;
+        static int pacID = 2;
+
         // direction player is moving in. Only one will be true
         bool goup;
         bool godown;
@@ -68,8 +70,8 @@ namespace pacman
 
         //Data Structures
         static Queue<GameState> gameStates = new Queue<GameState>();
-        Hashtable Clients = new Hashtable(3);
-        Dictionary<String, int> PlayersID = new Dictionary<string, int>();
+        static Hashtable Clients = new Hashtable(3);
+        static Dictionary<String, int> PlayersID = new Dictionary<string, int>();
 
 
 
@@ -84,15 +86,21 @@ namespace pacman
 
             ThreadStart ts = new ThreadStart(initClientServer);
 
-            Clients.Add(11111, "tcp://localhost:11111/chatClientServerService");
+         /*   Clients.Add(11111, "tcp://localhost:11111/chatClientServerService");
             Clients.Add(11112, "tcp://localhost:11112/chatClientServerService");
-            Clients.Add(11113, "tcp://localhost:11113/chatClientServerService");
+            Clients.Add(11113, "tcp://localhost:11113/chatClientServerService"); */
         }
 
         private void initClient()
         {
 
-            TcpChannel channel = new TcpChannel();
+            IDictionary RemoteChannelProperties = new Hashtable();
+
+            RemoteChannelProperties["name"] = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
+
+
+
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             ChannelServices.RegisterChannel(channel);
 
@@ -108,10 +116,10 @@ namespace pacman
         {
 
             IDictionary RemoteChannelProperties = new Hashtable();
-            int port = new Random().Next(8081, 15000);
+            //int port = new Random().Next(8081, 15000);
 
-            RemoteChannelProperties["port"] = port;
-            RemoteChannelProperties["name"] = "client" + port;
+            RemoteChannelProperties["port"] = debugPort-1;
+            RemoteChannelProperties["name"] = "client" + debugPort;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
@@ -119,7 +127,7 @@ namespace pacman
             ChannelServices.RegisterChannel(channel);
 
             mo = new ResponseGame();
-            //mo.addMessage += addMessage;
+            mo.changePacmanVisibility += changePacmanVisibility;
 
             RemotingServices.Marshal(mo, "ClientService",
                     typeof(IResponseGame));
@@ -155,7 +163,7 @@ namespace pacman
             IDictionary RemoteChannelProperties = new Hashtable();
 
             RemoteChannelProperties["port"] = debugPort;
-            RemoteChannelProperties["name"] = "client" + debugPort;
+            RemoteChannelProperties["name"] = "chat client" + debugPort;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
@@ -193,15 +201,40 @@ namespace pacman
         // TODO: implement
         public class ResponseGame : MarshalByRefObject, IResponseGame
         {
+            public event EventHandler<PacEventArgs> changePacmanVisibility;
 
             public void SendGameState(GameState state)
             {
                 Form1.gameStates.Enqueue(state);
             }
 
-            public void StartGame()
+            public void StartGame(List<DTOPlaying> players)
             {
-                throw new NotImplementedException();
+
+                List<DTOPlaying> pls = players.ToList();
+               
+                foreach (DTOPlaying C in pls) {
+                    if (PlayersID.FirstOrDefault(x => x.Value == 1).Key == C.name)
+                    {
+                       // pls.Remove(C);
+                    }
+                    else
+                    {
+                        PlayersID.Add(C.name, pacID++);
+                        String [] splitUrl = C.url.Split(new Char[]{':', '/'});
+                        ///  A : / / B : C / D
+                        ///  0  1 2  3   4   5
+                        Clients.Add(splitUrl[4], "tcp://" + splitUrl[3] + "/" + splitUrl[4] + "/chatClientServerService");
+                    }
+                    
+                }
+
+                foreach (KeyValuePair<String,int> p in PlayersID) { 
+                  //  this
+                    changePacmanVisibility(this, new PacEventArgs(p.Value));
+
+                }
+
             }
 
             public void EndGame()
@@ -296,6 +329,16 @@ namespace pacman
                 chatClientServer = new Thread(ts);
                 chatClientServer.Start();
 
+                ThreadStart tsg = new ThreadStart(initClientServer);
+                gameServer = new Thread(tsg);
+                gameServer.Start();
+
+                ThreadStart ts2 = new ThreadStart(initClient);
+                gameClient = new Thread(ts2);
+                gameClient.Start();
+
+                reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://localhost:" + debugPort + "/ClientService");
+                reqObj.JoinGame(PlayersID.FirstOrDefault(x => x.Value == 1).Key);
             }
             if (e.KeyCode == Keys.C)
             {
@@ -321,7 +364,7 @@ namespace pacman
                 {
                     text += c.ToString() + "\n";
                 }
-
+                
                 //text += GetControlByPos(new Point(8, 40)).ToString();
                 MessageBox.Show(text);
 
@@ -515,6 +558,11 @@ namespace pacman
                 {
                     PictureBox p = (PictureBox)this.Controls.Find("pacman" + PlayersID[player.name], true)[0];
                     p.Location = new Point(player.posX, player.posY);
+                    if (player.faceDirection == "LEFT") p.Image = Properties.Resources.Left;
+                    else if (player.faceDirection == "UP") p.Image = Properties.Resources.Up;
+                    else if (player.faceDirection == "RIGHT") p.Image = Properties.Resources.Right;
+                    else  p.Image = Properties.Resources.down;
+
                 }
 
                 for (int i = 0; i < gm.ghosts.Count(); i++) // Update Ghosts Positions
@@ -561,6 +609,24 @@ namespace pacman
         
 
         }
+
+
+        public void changePacmanVisibility(object sender, PacEventArgs e)
+        {
+            Invoke((MethodInvoker)delegate()
+            {
+                this.Controls.Find("pacman" + e.Pacman, true)[0].Visible=true;
+            });
+        }
+
     }
 
+
+    public class PacEventArgs : EventArgs
+    {
+        public int Pacman { get; set; }
+
+        public PacEventArgs(int m)
+        { Pacman = m; }
+    }
 }
