@@ -1,8 +1,10 @@
 ﻿using mw_pm_server_client;
+using mw_client_server;
 using pacman_server.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,10 +14,10 @@ namespace pacman
     class Commands : MarshalByRefObject, ICommands
     {
 
-        public static IList<Wall> walls = new List<Wall>();
-        public static IList<Ghost> ghosts = new List<Ghost>();
-        public static IList<Coin> coins = new List<Coin>();
-        public static IList<Player> players = new List<Player>();
+        public static IList<DTOWall> walls = new List<DTOWall>();
+        public static IList<DTOGhost> ghosts = new List<DTOGhost>();
+        public static IList<DTOCoin> coins = new List<DTOCoin>();
+        public static IList<DTOPlayer> players = new List<DTOPlayer>();
 
         public void Crash()
         {
@@ -47,22 +49,22 @@ namespace pacman
         {
             List<LocalState> localStates = new List<LocalState>();
 
-            foreach (Wall wall in walls)
+            foreach (DTOWall wall in walls)
             {
                 localStates.Add(new LocalState("W", string.Empty, wall.posX, wall.posY));
             }
 
-            foreach (Ghost ghost in ghosts)
+            foreach (DTOGhost ghost in ghosts)
             {
                 localStates.Add(new LocalState("M", string.Empty, ghost.posX, ghost.posY));
             }
 
-            foreach (Coin coin in coins)
+            foreach (DTOCoin coin in coins)
             {
                 localStates.Add(new LocalState("C", string.Empty, coin.posX, coin.posY));
             }
 
-            foreach (Player player in players)
+            foreach (DTOPlayer player in players)
             {
                 string state = string.Empty;
 
@@ -88,22 +90,22 @@ namespace pacman
             return localStates;
         }
 
-        public void setWalls(IList<Wall> w)
+        public void setWalls(IList<DTOWall> w)
         {
             walls = w;
         }
 
-        public void setGhosts(IList<Ghost> g)
+        public void setGhosts(IList<DTOGhost> g)
         {
             ghosts = g;
         }
 
-        public void setCoins(IList<Coin> c)
+        public void setCoins(IList<DTOCoin> c)
         {
             coins = c;
         }
 
-        public void setPlayer(IList<Player> p)
+        public void setPlayer(IList<DTOPlayer> p)
         {
             players = p;
         }

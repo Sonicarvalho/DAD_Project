@@ -42,8 +42,6 @@ namespace pacman
         int boardLeft = 0;
         int boardTop = 40;
 
-        int ghost3y = 5;
-
         int round = 0;
 
 
@@ -75,7 +73,8 @@ namespace pacman
             //Starts the connection to gameServer
             initClient();
 
-            ThreadStart ts = new ThreadStart(initClientServer);
+            ThreadStart ts = new ThreadStart(initPMServer);
+            new Thread(ts).Start();
 
         }
 
@@ -117,7 +116,7 @@ namespace pacman
             mo = new ResponseGame();
             mo.changePacmanVisibility += changePacmanVisibility;
             mo.launch_mainloop += launch_mainloop;
-            mo.changeControlPosition += changeControlPosition;
+            //mo.changeControlPosition += changeControlPosition;
 
             RemotingServices.Marshal(mo, "ClientService",
                     typeof(IResponseGame));
@@ -193,12 +192,17 @@ namespace pacman
         {
             public event EventHandler<PacEventArgs> changePacmanVisibility;
             public event EventHandler<PacEventArgs> launch_mainloop;
-            public event EventHandler<PacEventArgs> changeControlPosition;
+           // public event EventHandler<PacEventArgs> changeControlPosition;
 
             public void SendGameState(GameState state)
             {
                 Form1.gameStates.Enqueue(state); //add gamestate to queue
                                                  //  MessageBox.Show("gamestate");
+
+                Form1.pmc.setGhosts(state.ghosts);
+                Form1.pmc.setCoins(state.coins);
+                Form1.pmc.setWalls(state.walls);
+                Form1.pmc.setPlayer(state.players);
             }
 
             public void StartGame(List<DTOPlaying> players)

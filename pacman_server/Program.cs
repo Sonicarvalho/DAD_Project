@@ -216,7 +216,7 @@ namespace pacman_server
                 i++;
 
                 IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
-                    new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ)
+                    new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ,player.playing)
                 );
 
                 gameState.players = outPlayer.ToList();
@@ -379,7 +379,7 @@ namespace pacman_server
                 foreach (Player player in RequestGame.players.Where(p => p.playing))
                 {
                     IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
-                        new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ)
+                        new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ,player.playing)
                     );
 
                     gameState.players = outPlayer.ToList() ;
@@ -423,9 +423,9 @@ namespace pacman_server
 
                     if (p.name.Equals(player.name))
                     {
-                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, 10);
+                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, 10,p.playing);
                     }
-                    return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ);
+                    return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ,p.playing);
 
                 });
 

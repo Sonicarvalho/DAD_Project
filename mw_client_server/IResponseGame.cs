@@ -57,6 +57,7 @@ namespace mw_client_server
         public int score { get; set; }
 
         public bool dead { get; set; }
+        public bool playing { get; set; }
         public bool won { get; set; }
 
         public string faceDirection { get; set; }
@@ -65,10 +66,11 @@ namespace mw_client_server
         public int posY { get; set; }
         public int posZ { get; set; }
 
-        public DTOPlayer(string n, int s, bool d, bool w, string fd, int x, int y, int z)
+
+        public DTOPlayer(string n, int s, bool d, bool w, string fd, int x, int y, int z,bool playing)
         {
             name = n;
-
+            this.playing = playing;
             score = s;
 
             dead = d;
