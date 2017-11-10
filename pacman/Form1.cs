@@ -84,7 +84,7 @@ namespace pacman
             gameClient.Start();
 
             Thread thread = new Thread(() => initPMClient(pm_port));
-            thread.Start();
+            //thread.Start();
             
             if (launchedWithPM)
             {
