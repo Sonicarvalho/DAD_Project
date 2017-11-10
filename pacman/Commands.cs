@@ -32,11 +32,6 @@ namespace pacman
             throw new NotImplementedException();
         }
 
-        public List<LocalState> localState(int rndID)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Unfreeze()
         {
             throw new NotImplementedException();
