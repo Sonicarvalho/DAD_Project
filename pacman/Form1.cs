@@ -23,7 +23,7 @@ namespace pacman
 {
     public partial class Form1 : Form
     {
-        private BackgroundWorker backgroundWorker1;
+        bool launchedWithPM = false;
 
         int debugPort = 11111;
         static bool running = false;
@@ -68,13 +68,15 @@ namespace pacman
 
         public Form1(string[] args)
         {
+            
             if (args.Length == 3)
             {
+                launchedWithPM = true;
                 pm_port = args[0].Split(':')[1];
                 string round_timer = args[1];
                 string nr_players = args[2];
-            }
 
+            }
             InitializeComponent();
             label2.Visible = false;
 
@@ -83,7 +85,12 @@ namespace pacman
 
             Thread thread = new Thread(() => initPMClient(pm_port));
             thread.Start();
+            if (launchedWithPM) {
+                debugPort = new Random().Next(16000, 17000);
+                new Thread(() => initClientServer()).Start();
+                reqObj.Register("cliente " + debugPort, "tcp://localhost:" + debugPort + "/ClientService");
 
+            }
         }
 
         private void initClient()
