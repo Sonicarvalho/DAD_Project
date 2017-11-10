@@ -73,7 +73,7 @@ namespace puppet_master
 
                             channel = new TcpChannel(RemoteChannelProperties, null, null);
 
-                            ChannelServices.RegisterChannel(channel, true);
+                            ChannelServices.RegisterChannel(channel, false);
 
                             initializer = (IInitializer)
                                     Activator.GetObject(
@@ -95,7 +95,7 @@ namespace puppet_master
 
                             channel = new TcpChannel(RemoteChannelProperties, null, null);
 
-                            ChannelServices.RegisterChannel(channel, true);
+                            ChannelServices.RegisterChannel(channel, false);
 
                             commands = (ICommands)
                                     Activator.GetObject(
@@ -191,13 +191,11 @@ namespace puppet_master
 
                         if (!CheckCommand(parsed_cmd, 3)) break;
 
-                        ls = pid_object[parsed_cmd[1]].localState(2);
-
+                        ls = pid_object[parsed_cmd[1]].LocalState(2);
                         foreach(LocalState st in ls)
                         {
                             st.ToString();
                         }
-
                         break;
 
                     case "Wait":

@@ -11,7 +11,7 @@ namespace mw_pm_server_client
         //return true if successful
         bool InjectDelay(int srcID,int dstID);
 
-        List<LocalState> localState(int rndID);
+        List<LocalState> LocalState(int rndID);
 
         void Crash();
 

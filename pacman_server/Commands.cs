@@ -39,25 +39,21 @@ namespace pacman_server
             throw new NotImplementedException();
         }
 
-        public List<LocalState> localState(int rndID)
+        public List<LocalState> LocalState(int rndID)
         {
             List<LocalState> localStates = new List<LocalState>();
-
             foreach (Wall wall in walls)
             {
                 localStates.Add(new LocalState("W", string.Empty, wall.posX, wall.posY));
             }
-
             foreach (Ghost ghost in ghosts)
             {
                 localStates.Add(new LocalState("M", string.Empty, ghost.posX, ghost.posY));
             }
-
             foreach (Coin coin in coins)
             {
                 localStates.Add(new LocalState("C", string.Empty, coin.posX, coin.posY));
             }
-
             foreach (Player player in players)
             {
                 string state = string.Empty;
@@ -74,7 +70,6 @@ namespace pacman_server
                         state = "W";
                     }
                 }
-
 
                 localStates.Add(new LocalState(player.name, state, player.posX, player.posY));
             }
