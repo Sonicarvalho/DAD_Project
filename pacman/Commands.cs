@@ -1,4 +1,5 @@
 ﻿using mw_pm_server_client;
+using pacman_server.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace pacman
 {
-    class Commands : ICommands
+    class Commands : MarshalByRefObject, ICommands
     {
 
         public static IList<Wall> walls = new List<Wall>();
