@@ -68,7 +68,7 @@ namespace pacman
 
         public Form1(string[] args)
         {
-
+            Console.WriteLine(args.Length);
             if (args.Length == 3)
             {
                 launchedWithPM = true;
@@ -85,17 +85,18 @@ namespace pacman
             gameClient.Start();
 
             Thread thread = new Thread(() => initPMClient(pm_port));
-            //thread.Start();
+            thread.Start();
+            
             if (launchedWithPM)
             {
                 debugPort = new Random().Next(16000, 17000);
-                new Thread(() => initClientServer()).Start();
+                initClientServer();
                 reqObj.Register("cliente " + debugPort, "tcp://localhost:" + debugPort + "/ClientService");
 
                 reqObj.JoinGame("cliente " + debugPort);
 
-
-
+                //StartServer server1 localhost localhost:11001 11 1
+                //StartClient client1 localhost localhost:9000 11 1
             }
         }
 
