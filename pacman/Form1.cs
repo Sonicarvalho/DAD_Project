@@ -478,15 +478,15 @@ namespace pacman
         private void main_loop()
         {
             //MessageBox.Show(running.ToString());
-
+            Boolean sent = false;
             while (true)
             {
-                Thread.Sleep(20);
+               if(sent) Thread.Sleep(18);
                 #region Ask for input and send it to the server
 
-                if (running && (goleft || goright || goup || godown))
+                if (!sent && running && (goleft || goright || goup || godown))
                 {
-
+                    
                     List<String> dirs = new List<String>();
                     if (goleft) dirs.Add("LEFT");
                     if (goright) dirs.Add("RIGHT");
@@ -494,16 +494,18 @@ namespace pacman
                     if (godown) dirs.Add("DOWN");
 
                     reqObj.RequestMove(PlayersID.FirstOrDefault(x => x.Value == 1).Key, dirs, round);
+                    sent = true;
+                    
                 }
 
                 #endregion
 
 
                 #region update game State
-                while (gameStates.Count <= 0) Thread.Sleep(1); //WAIT FOR UPDATES FROM THE SEVER
+                //while (gameStates.Count <= 0) Thread.Sleep(1); //WAIT FOR UPDATES FROM THE SEVER
                 if (gameStates.Count > 0)
                 { //WAIT FOR UPDATES FROM THE SEVER
-
+                    sent = false;
                     GameState gm = gameStates.Dequeue();
 
                     foreach (DTOPlayer player in gm.players) //Update Players Positions
@@ -539,7 +541,7 @@ namespace pacman
                     {
                         if (pl.Equals(play)) { score = pl.score; break; }
                     }
-                    changeTxtText(this, new PacEventArgs(this.Controls.Find("label1", true)[0], score.ToString()));
+                    changeTxtText(this, new PacEventArgs(this.Controls.Find("label1", true)[0], "Score: " +score.ToString()));
 
                     // Do something with the walls, maybe next delivery
 
