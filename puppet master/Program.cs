@@ -168,7 +168,13 @@ namespace puppet_master
                     case "GlobalStatus":
                         break;
                     case "Crash":
+
+                        if (!CheckCommand(parsed_cmd, 2)) break;
+
+                        pid_object[parsed_cmd[1]].Crash();
+
                         break;
+
                     case "Freeze":
                         break;
                     case "Unfreeze":
@@ -176,19 +182,15 @@ namespace puppet_master
                     case "InjectDelay":
                         break;
                     case "LocalState":
-                        /*
+
                         if (!CheckCommand(parsed_cmd, 3)) break;
 
                         ls = pid_object[parsed_cmd[1]].localState(2);
 
                         foreach(LocalState st in ls)
                         {
-                            ls.ToString();
+                            st.ToString();
                         }
-                        */
-
-                        Console.WriteLine(parsed_cmd[1]);
-                        pid_object[parsed_cmd[1]].localState(1); //usar round_id
 
                         break;
 

@@ -2,6 +2,7 @@
 using pacman_server.Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,13 +46,7 @@ namespace pacman_server
             {
                 localStates.Add(new LocalState(player.name, player.dead, player.posX, player.posY));
             }
-
             return localStates;
-        }
-
-        public bool wait(int xMs)
-        {
-            throw new NotImplementedException();
         }
 
         public void setWalls(IList<Wall> w)
@@ -72,6 +67,12 @@ namespace pacman_server
         public void setPlayer(IList<Player> p)
         {
             players = p;
+        }
+
+        public void Crash()
+        {
+            Process myProcess = Process.GetCurrentProcess();
+            myProcess.Kill();
         }
     }
 }

@@ -13,10 +13,11 @@ namespace mw_pm_server_client
 
         List<LocalState> localState(int rndID);
 
-        bool wait(int xMs);
+        void Crash();
 
     }
 
+    [Serializable]
     public class LocalState {
 
         public string id { get; set; }
