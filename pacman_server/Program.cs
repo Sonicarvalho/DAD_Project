@@ -18,7 +18,9 @@ namespace pacman_server
     class Program
     {
         private static Thread server, gc;
+
         private static RequestGame requestGame;
+        private static Commands commands;
 
 
         //Game Variables
@@ -125,9 +127,9 @@ namespace pacman_server
 
             ChannelServices.RegisterChannel(channel);
 
-            Commands mo = new Commands();
+            commands = new Commands();
 
-            RemotingServices.Marshal(mo, "myPMServer",
+            RemotingServices.Marshal(commands, "myPMServer",
                     typeof(ICommands));
         }
 
@@ -142,9 +144,8 @@ namespace pacman_server
             IEnumerable<DTOWall> outWall;
             IEnumerable<DTOGhost> outGhost;
 
-            IEnumerable<Coin> coins = initCoins();
-
-
+            IList<Coin> coins = initCoins();
+            
             Ghost red = new Ghost(false, "red", 180, 73, 0, speed, 0);
             Ghost yellow = new Ghost(false, "yellow", 221, 273, 1, speed, 0);
             Ghost pink = new Ghost(true, "pink", 301, 72, 2, speed, speed);
@@ -159,6 +160,11 @@ namespace pacman_server
             //down right
             Wall drWall = new Wall(288, 240);
             #endregion
+            
+            commands.setCoins(coins);
+            commands.setGhosts(new Ghost[] { red, yellow, pink });
+            commands.setWalls(new Wall[] { ulWall, urWall, dlWall, drWall });
+            commands.setPlayer(requestGame.players.Where(p => p.playing).ToList());
 
             #region Lobby
             DateTime wait = DateTime.Now;
@@ -224,6 +230,11 @@ namespace pacman_server
             
             #region GameCycle
             while (true) {
+                commands.setCoins(coins);
+                commands.setGhosts(new Ghost[] { red, yellow, pink });
+                commands.setWalls(new Wall[] { ulWall, urWall, dlWall, drWall });
+                commands.setPlayer(requestGame.players.Where(p => p.playing).ToList());
+
                 Thread.Sleep(time_delay);
 
                 IEnumerable<MoveRequest> moveRequests = requestGame.moveRequests.Where(x => x.round == round).ToList();
@@ -426,7 +437,7 @@ namespace pacman_server
         }
 
 
-        private static IEnumerable<Coin> initCoins() {
+        private static IList<Coin> initCoins() {
             IList<Coin> coins = new List<Coin>();
 
             //line1
