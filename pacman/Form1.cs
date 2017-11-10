@@ -30,6 +30,7 @@ namespace pacman
         static bool endgame = false;
         int nmPlayers = 1;
         static int pacID = 2;
+        string pm_port = "9000";
 
         // direction player is moving in. Only one will be true
         bool goup;
@@ -65,16 +66,23 @@ namespace pacman
 
 
 
-        public Form1()
+        public Form1(string[] args)
         {
+            if (args.Length == 3)
+            {
+                pm_port = args[0].Split(':')[1];
+                string round_timer = args[1];
+                string nr_players = args[2];
+            }
+
             InitializeComponent();
             label2.Visible = false;
 
             //Starts the connection to gameServer
             initClient();
 
-            ThreadStart ts = new ThreadStart(initPMServer);
-            new Thread(ts).Start();
+            Thread thread = new Thread(() => initPMClient(pm_port));
+            thread.Start();
 
         }
 
@@ -123,14 +131,14 @@ namespace pacman
 
         }
 
-        private static void initPMServer()
+        private static void initPMClient(string port)
         {
 
             IDictionary RemoteChannelProperties = new Hashtable();
 
-            RemoteChannelProperties["port"] = "11000";
+            RemoteChannelProperties["port"] = port;
 
-            RemoteChannelProperties["name"] = "PMServer";
+            RemoteChannelProperties["name"] = "PMClient";
 
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
@@ -142,7 +150,7 @@ namespace pacman
 
             pmc = new Commands();
 
-            RemotingServices.Marshal(pmc, "myPMServer",
+            RemotingServices.Marshal(pmc, "myPMClient",
                     typeof(ICommands));
         }
 

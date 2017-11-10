@@ -130,7 +130,7 @@ namespace puppet_master
 
                             channel = new TcpChannel(RemoteChannelProperties, null, null);
 
-                            ChannelServices.RegisterChannel(channel, true);
+                            ChannelServices.RegisterChannel(channel, false);
 
                             initializer = (IInitializer)
                                     Activator.GetObject(
@@ -151,7 +151,7 @@ namespace puppet_master
 
                             channel = new TcpChannel(RemoteChannelProperties, null, null);
 
-                            ChannelServices.RegisterChannel(channel, true);
+                            ChannelServices.RegisterChannel(channel, false);
 
                             commands = (ICommands)
                                     Activator.GetObject(

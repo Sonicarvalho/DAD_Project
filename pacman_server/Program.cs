@@ -53,6 +53,13 @@ namespace pacman_server
 
         static void Main(string[] args)
         {
+            if (args.Length == 3)
+            {
+                string pm_url = args[0];
+                string round_timer = args[1];
+                string nr_players = args[2];
+            }
+
             //string url = args.ElementAt(3);
             //time_delay = int.Parse(args.ElementAt(4));
             //maxPlayers = int.Parse(args.ElementAt(5));
