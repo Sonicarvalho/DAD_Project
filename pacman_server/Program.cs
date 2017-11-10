@@ -125,7 +125,7 @@ namespace pacman_server
             
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
-            ChannelServices.RegisterChannel(channel,true);
+            ChannelServices.RegisterChannel(channel);
 
             commands = new Commands();
 
@@ -237,7 +237,7 @@ namespace pacman_server
 
                 Thread.Sleep(time_delay);
 
-                IEnumerable<MoveRequest> moveRequests = RequestGame.moveRequests.Where(x => x.round == round).ToList();
+                List<MoveRequest> moveRequests = RequestGame.moveRequests.Where(x => x.round == round).ToList();
 
                 //update players
                 foreach( MoveRequest mr in moveRequests){

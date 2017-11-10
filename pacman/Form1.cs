@@ -260,18 +260,29 @@ namespace pacman
 
         public class Commands : MarshalByRefObject, ICommands
         {
-            public bool injectDelay(int srcID, int dstID)
-            {
-                Console.WriteLine("Puppet Master Connected");
-                return true;
-            }
+           
 
-            public IEnumerable<LocalState> localState(int rndID)
+            bool ICommands.InjectDelay(int srcID, int dstID)
             {
                 throw new NotImplementedException();
             }
 
-            public bool wait(int xMs)
+            List<LocalState> ICommands.localState(int rndID)
+            {
+                throw new NotImplementedException();
+            }
+
+            void ICommands.Crash()
+            {
+                throw new NotImplementedException();
+            }
+
+            void ICommands.Freeze()
+            {
+                throw new NotImplementedException();
+            }
+
+            void ICommands.Unfreeze()
             {
                 throw new NotImplementedException();
             }
@@ -575,7 +586,8 @@ namespace pacman
                     foreach (DTOPlayer player in gm.players) //Update Players Positions
                     {
                         PictureBox p = (PictureBox)this.Controls.Find("pacman" + PlayersID[player.name], true)[0];
-                        p.Location = new Point(player.posX, player.posY);
+                      //  p.Location = new Point(player.posX, player.posY);
+                        changeGhostsPosition(this, new PacEventArgs(player.posX, player.posY, p));
                         if (player.faceDirection == "LEFT") p.Image = Properties.Resources.Left;
                         else if (player.faceDirection == "UP") p.Image = Properties.Resources.Up;
                         else if (player.faceDirection == "RIGHT") p.Image = Properties.Resources.Right;
