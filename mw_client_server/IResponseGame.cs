@@ -89,12 +89,14 @@ namespace mw_client_server
         public int posX { get; set; }
         public int posY { get; set; }
         public int posZ { get; set; }
+        public String color { get; set; }
 
-        public DTOGhost(int x, int y, int z)
+        public DTOGhost(int x, int y, int z, String c)
         {
             posX = x;
             posY = y;
             posZ = z;
+            color = c;
         }
 
     }

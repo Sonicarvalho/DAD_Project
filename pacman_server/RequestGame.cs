@@ -19,7 +19,7 @@ namespace pacman_server
         //players list
         //public static IList<Player> players = new List<Player>();
         public static List<Player> players = new List<Player>(); 
-        public SynchronizedCollection<MoveRequest> moveRequests = new SynchronizedCollection<MoveRequest>(); 
+        public static List<MoveRequest> moveRequests = new List<MoveRequest>(); 
 
 
         public bool Register(string name, string url)

@@ -31,7 +31,7 @@ namespace pacman_server
         private static int speed = 5;
 
         //Game Max #Players
-        private static int maxPlayers = 2;
+        private static int maxPlayers = 3;
 
         //Game Board Limit
         private static int boardRight = 320;
@@ -194,9 +194,9 @@ namespace pacman_server
                 };
 
             outGhost = new DTOGhost[] {
-                    new DTOGhost(red.posX, red.posY, red.posZ),
-                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ),
-                    new DTOGhost(pink.posX, pink.posY, pink.posZ)
+                    new DTOGhost(red.posX, red.posY, red.posZ, red.color),
+                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ, yellow.color   ),
+                    new DTOGhost(pink.posX, pink.posY, pink.posZ, pink.color )
                 };
 
             gameState = new GameState(round, started, ended);
@@ -237,7 +237,7 @@ namespace pacman_server
 
                 Thread.Sleep(time_delay);
 
-                IEnumerable<MoveRequest> moveRequests = requestGame.moveRequests.Where(x => x.round == round).ToList();
+                IEnumerable<MoveRequest> moveRequests = RequestGame.moveRequests.Where(x => x.round == round).ToList();
 
                 //update players
                 foreach( MoveRequest mr in moveRequests){
@@ -365,9 +365,9 @@ namespace pacman_server
                 };
 
                 outGhost = new DTOGhost[] {
-                    new DTOGhost(red.posX, red.posY, red.posZ),
-                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ),
-                    new DTOGhost(pink.posX, pink.posY, pink.posZ)
+                    new DTOGhost(red.posX, red.posY, red.posZ, red.color),
+                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ, yellow.color),
+                    new DTOGhost(pink.posX, pink.posY, pink.posZ, pink.color)
                 };
 
                 gameState = new GameState(round, started, ended);
@@ -388,7 +388,7 @@ namespace pacman_server
                     
                 }
 
-                requestGame.moveRequests.Clear();
+                RequestGame.moveRequests.Clear();
 
             }
             #endregion
@@ -405,9 +405,9 @@ namespace pacman_server
                 };
 
             outGhost = new DTOGhost[] {
-                    new DTOGhost(red.posX, red.posY, red.posZ),
-                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ),
-                    new DTOGhost(pink.posX, pink.posY, pink.posZ)
+                    new DTOGhost(red.posX, red.posY, red.posZ, red.color),
+                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ,yellow.color),
+                    new DTOGhost(pink.posX, pink.posY, pink.posZ, pink.color)
                 };
 
             gameState = new GameState(round, started, ended);
