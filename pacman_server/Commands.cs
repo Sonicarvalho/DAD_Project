@@ -17,10 +17,26 @@ namespace pacman_server
         public static IList<Player> players = new List<Player>();
 
 
-        public bool injectDelay(int srcID, int dstID)
+        public bool InjectDelay(int srcID, int dstID)
         {
             Console.WriteLine("Puppet Master Connected");
             return true;
+        }
+
+        public void Crash()
+        {
+            Process myProcess = Process.GetCurrentProcess();
+            myProcess.Kill();
+        }
+
+        public void Freeze()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unfreeze()
+        {
+            throw new NotImplementedException();
         }
 
         public List<LocalState> localState(int rndID)
@@ -67,12 +83,6 @@ namespace pacman_server
         public void setPlayer(IList<Player> p)
         {
             players = p;
-        }
-
-        public void Crash()
-        {
-            Process myProcess = Process.GetCurrentProcess();
-            myProcess.Kill();
         }
     }
 }

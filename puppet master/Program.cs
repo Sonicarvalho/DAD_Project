@@ -170,8 +170,14 @@ namespace puppet_master
                     case "Crash":
 
                         if (!CheckCommand(parsed_cmd, 2)) break;
+                        try
+                        {
+                            pid_object[parsed_cmd[1]].Crash();
+                        }
+                        catch(Exception e)                                //tratar excecao
+                        {
 
-                        pid_object[parsed_cmd[1]].Crash();
+                        }
 
                         break;
 

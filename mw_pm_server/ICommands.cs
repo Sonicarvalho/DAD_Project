@@ -9,11 +9,15 @@ namespace mw_pm_server_client
     public interface ICommands
     {
         //return true if successful
-        bool injectDelay(int srcID,int dstID);
+        bool InjectDelay(int srcID,int dstID);
 
         List<LocalState> localState(int rndID);
 
         void Crash();
+
+        void Freeze();
+
+        void Unfreeze();
 
     }
 
