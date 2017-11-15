@@ -44,7 +44,7 @@ namespace pacman
         int boardTop = 40;
 
         int round = 0;
-
+        int round_timer = 18;
 
         //Master of Puppets
         private static Commands pmc;
@@ -85,7 +85,7 @@ namespace pacman
 
             Thread thread = new Thread(() => initPMClient(pm_port));
             //thread.Start();
-            
+
             if (launchedWithPM)
             {
                 debugPort = new Random().Next(16000, 17000);
@@ -129,7 +129,7 @@ namespace pacman
             //int port = new Random().Next(8081, 15000);
 
             RemoteChannelProperties["port"] = debugPort;
-            RemoteChannelProperties["name"] = "client" + debugPort ;
+            RemoteChannelProperties["name"] = "client" + debugPort;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
@@ -158,8 +158,7 @@ namespace pacman
 
             RemoteChannelProperties["port"] = port;
 
-            RemoteChannelProperties["name"] = "PMClient";
-
+            RemoteChannelProperties["name"] = "PMClient" + port;
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
@@ -201,7 +200,7 @@ namespace pacman
 
             IDictionary RemoteChannelProperties = new Hashtable();
 
-            RemoteChannelProperties["name"] = name;
+            RemoteChannelProperties["name"] = name + url;
 
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
@@ -264,7 +263,7 @@ namespace pacman
                 //cc.Add(new CliChat())
 
                 List<DTOPlaying> pls = players.ToList();
-
+                 //registerChatClients(this, new PacEventArgs(players));
                 foreach (DTOPlaying C in pls)
                 {
                     if (PlayersID.FirstOrDefault(x => x.Value == 1).Key == C.name)
@@ -534,7 +533,7 @@ namespace pacman
             Boolean sent = false;
             while (true)
             {
-                if (sent) Thread.Sleep(18);
+                if (sent) Thread.Sleep(round_timer);
                 #region Ask for input and send it to the server
 
                 if (!sent && running && (goleft || goright || goup || godown))
@@ -678,8 +677,13 @@ namespace pacman
 
             foreach (DTOPlaying player in e.players)
             {
-                string chatPort = player.url.Split(new Char[] { ':', '/' })[4];
-                Thread thread = new Thread(() => initChatClient(chatPort, player.name));
+                string[] url = player.url.Split(new Char[] { ':', '/' });
+                string chatPort = url[4];
+                int cp = int.Parse(chatPort);
+                ///  A : / / B : C / D
+                ///  0  1 2  3   4   5
+                string chaturl = "tcp//" + url[3] + ":" + cp + "/chatClientServerService";
+                Thread thread = new Thread(() => initChatClient(cp.ToString(), player.name));
                 thread.Start();
             }
             Invoke((MethodInvoker)delegate ()
