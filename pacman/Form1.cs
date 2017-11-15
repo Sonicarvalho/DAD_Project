@@ -44,7 +44,7 @@ namespace pacman
         int boardTop = 40;
 
         int round = 0;
-        int round_timer = 18;
+
 
         //Master of Puppets
         private static Commands pmc;
@@ -90,10 +90,9 @@ namespace pacman
             {
                 debugPort = new Random().Next(16000, 17000);
                 initClientServer();
-  
+
 
                 reqObj.Register("cliente " + debugPort, "tcp://localhost:" + debugPort + "/ClientService");
-  
                 reqObj.JoinGame("cliente " + debugPort);
 
 
@@ -145,7 +144,11 @@ namespace pacman
 
             RemotingServices.Marshal(mo, "ClientService",
                     typeof(IResponseGame));
+            cco = new CliChat();
+            //mo.addMessage += addMessage;
 
+            RemotingServices.Marshal(cco, "chatClientServerService",
+                    typeof(CliChat));
         }
 
         private static void initPMClient(string port)
@@ -155,7 +158,7 @@ namespace pacman
 
             RemoteChannelProperties["port"] = port;
 
-            RemoteChannelProperties["name"] = "PMClient" + port;
+            RemoteChannelProperties["name"] = "PMClient";
 
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
@@ -176,8 +179,8 @@ namespace pacman
 
             IDictionary RemoteChannelProperties = new Hashtable();
 
-            RemoteChannelProperties["port"] = debugPort - 1000;
-            RemoteChannelProperties["name"] = "chat client" + (debugPort - 1000);
+            RemoteChannelProperties["port"] = debugPort;
+            RemoteChannelProperties["name"] = "chat client" + debugPort;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
@@ -259,9 +262,9 @@ namespace pacman
             public void StartGame(List<DTOPlaying> players)
             {
                 //cc.Add(new CliChat())
-                
+
                 List<DTOPlaying> pls = players.ToList();
-               // registerChatClients(this, new PacEventArgs(players));
+
                 foreach (DTOPlaying C in pls)
                 {
                     if (PlayersID.FirstOrDefault(x => x.Value == 1).Key == C.name)
@@ -365,7 +368,7 @@ namespace pacman
             {
                 ThreadStart ts = new ThreadStart(initChatCliServer);
                 chatClientServer = new Thread(ts);
-                chatClientServer.Start();
+                //chatClientServer.Start();
 
                 ThreadStart tsg = new ThreadStart(initClientServer);
                 gameServer = new Thread(tsg);
@@ -531,7 +534,7 @@ namespace pacman
             Boolean sent = false;
             while (true)
             {
-                if (sent) Thread.Sleep(round_timer);
+                if (sent) Thread.Sleep(18);
                 #region Ask for input and send it to the server
 
                 if (!sent && running && (goleft || goright || goup || godown))
@@ -673,20 +676,16 @@ namespace pacman
         public void registerChatClients(object sender, PacEventArgs e)
         {
 
-            
+            foreach (DTOPlaying player in e.players)
+            {
+                string chatPort = player.url.Split(new Char[] { ':', '/' })[4];
+                Thread thread = new Thread(() => initChatClient(chatPort, player.name));
+                thread.Start();
+            }
             Invoke((MethodInvoker)delegate ()
             {
-                foreach (DTOPlaying player in e.players)
-                {
-                    string[] url = player.url.Split(new Char[] { ':', '/' });
-                    string chatPort = url[4];
-                    int cp = int.Parse(chatPort) - 1000;
-                    ///  A : / / B : C / D
-                    ///  0  1 2  3   4   5
-                    string chaturl = "tcp//" + url[3] + ":" + cp + "/chatClientServerService";
-                    Thread thread = new Thread(() => initChatClient(cp.ToString(), player.name));
-                    thread.Start();
-                }
+                ((Label)e.cnt).Text = e.data;
+                ((Label)e.cnt).Visible = true;
             });
         }
 
