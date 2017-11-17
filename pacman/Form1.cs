@@ -129,7 +129,7 @@ namespace pacman
             //int port = new Random().Next(8081, 15000);
 
             RemoteChannelProperties["port"] = debugPort;
-            RemoteChannelProperties["name"] = "client" + debugPort;
+            RemoteChannelProperties["name"] = "GameClient" + debugPort;
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
@@ -140,13 +140,11 @@ namespace pacman
             mo.changePacmanVisibility += changePacmanVisibility;
             mo.launch_mainloop += launch_mainloop;
             mo.registerChatClients += registerChatClients;
-            //mo.changeControlPosition += changeControlPosition;
-
             RemotingServices.Marshal(mo, "ClientService",
                     typeof(IResponseGame));
-            cco = new CliChat();
-            //mo.addMessage += addMessage;
 
+
+            cco = new CliChat();
             RemotingServices.Marshal(cco, "chatClientServerService",
                     typeof(CliChat));
         }
@@ -248,7 +246,7 @@ namespace pacman
             public void SendGameState(GameState state)
             {
                 Form1.gameStates.Enqueue(state); //add gamestate to queue
-                                                 //  MessageBox.Show("gamestate");
+                //  MessageBox.Show("gamestate");
                 if (pmc != null)
                 {
                     Form1.pmc.setGhosts(state.ghosts);
@@ -263,12 +261,13 @@ namespace pacman
                 //cc.Add(new CliChat())
 
                 List<DTOPlaying> pls = players.ToList();
-                 //registerChatClients(this, new PacEventArgs(players));
+                DTOPlaying temp = null;
                 foreach (DTOPlaying C in pls)
                 {
                     if (PlayersID.FirstOrDefault(x => x.Value == 1).Key == C.name)
                     {
                         // If we are ourselves, do nothing
+                        temp = C;
                     }
                     else
                     {
@@ -281,7 +280,10 @@ namespace pacman
                     }
 
                 }
-
+                if(temp != null) pls.Remove(temp);
+                registerChatClients(this, new PacEventArgs(pls));
+                
+                
                 foreach (KeyValuePair<String, int> p in PlayersID)
                 {
                     //TURNS PACMAN PLAYERS VISIBLE
@@ -641,14 +643,14 @@ namespace pacman
 
         public void changePacmanVisibility(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 this.Controls.Find("pacman" + e.Pacman, true)[0].Visible = true;
             });
         }
         public void launch_mainloop(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 ThreadStart ts2 = new ThreadStart(main_loop);
                 mainloop = new Thread(ts2);
@@ -657,7 +659,7 @@ namespace pacman
         }
         public void changeControlPosition(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 e.cnt.Location = new Point(e.x, e.y);
             });
@@ -666,7 +668,7 @@ namespace pacman
         {
             if (!(e.cnt is Label)) return;
 
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 ((Label)e.cnt).Text = e.data;
                 ((Label)e.cnt).Visible = true;
@@ -675,21 +677,20 @@ namespace pacman
         public void registerChatClients(object sender, PacEventArgs e)
         {
 
-            foreach (DTOPlaying player in e.players)
+
+            Invoke((MethodInvoker)delegate()
             {
-                string[] url = player.url.Split(new Char[] { ':', '/' });
-                string chatPort = url[4];
-                int cp = int.Parse(chatPort);
-                ///  A : / / B : C / D
-                ///  0  1 2  3   4   5
-                string chaturl = "tcp//" + url[3] + ":" + cp + "/chatClientServerService";
-                Thread thread = new Thread(() => initChatClient(cp.ToString(), player.name));
-                thread.Start();
-            }
-            Invoke((MethodInvoker)delegate ()
-            {
-                ((Label)e.cnt).Text = e.data;
-                ((Label)e.cnt).Visible = true;
+                foreach (DTOPlaying player in e.players)
+                {
+                    string[] url = player.url.Split(new Char[] { ':', '/' });
+                    string chatPort = url[4];
+                    int cp = int.Parse(chatPort);
+                    ///  A : / / B : C / D
+                    ///  0  1 2  3   4   5
+                    string chaturl = "tcp//" + url[3] + ":" + cp + "/chatClientServerService";
+                    Thread thread = new Thread(() => initChatClient(chaturl, player.name));
+                    //thread.Start();
+                }
             });
         }
 
