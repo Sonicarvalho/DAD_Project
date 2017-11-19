@@ -26,7 +26,7 @@ namespace pacman_server
 
         //Game Variables
         //Game Time Delay
-        private static int time_delay = 100;
+        private static int time_delay = 50;
 
         //Game Speed
         private static int speed = 5;
@@ -344,7 +344,7 @@ namespace pacman_server
                 {
                     pink.horizontalSpeed = -pink.horizontalSpeed;
                 }
-                if (boardTop > pink.hitbox.Top|| boardBottom < (pink.hitbox.Bottom))
+                if (boardTop > pink.hitbox.Top|| (boardBottom - 20)< (pink.hitbox.Bottom))
                 {
                     pink.verticalSpeed = -pink.verticalSpeed;
                 }
