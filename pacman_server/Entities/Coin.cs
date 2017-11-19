@@ -13,9 +13,6 @@ namespace pacman_server.Entities
         
         public Rectangle hitbox { get; set; }
 
-        public int posX { get; set; }
-        public int posY { get; set; }
-
         public Coin(int x, int y) {
             taken = false;
 

@@ -52,7 +52,7 @@ namespace pacman_server
             }
             foreach (Coin coin in coins)
             {
-                localStates.Add(new LocalState("C", string.Empty, coin.posX, coin.posY));
+                localStates.Add(new LocalState("C", string.Empty, coin.hitbox.X, coin.hitbox.Y));
             }
             foreach (Player player in players)
             {

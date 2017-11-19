@@ -192,7 +192,7 @@ namespace pacman_server
             #region GameStart
             System.Console.WriteLine("Starting the game!!");
             
-            outCoin = coins.Select(c => new DTOCoin(c.posX, c.posY, c.taken));
+            outCoin = coins.Select(c => new DTOCoin(c.hitbox.X, c.hitbox.Y, c.taken));
 
             outWall = new DTOWall[] {
                     new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
@@ -305,7 +305,6 @@ namespace pacman_server
                         foreach (Coin coin in coins.Where(c => c.taken == false)) {
                             if (coin.intersectPlayer(player)) {
                                 coin.taken = true;
-
                                 player.score++;
                             }
                         }
@@ -360,7 +359,7 @@ namespace pacman_server
 
                 round++;
 
-                outCoin = coins.Select(c => new DTOCoin(c.posX, c.posY, c.taken));
+                outCoin = coins.Select(c => new DTOCoin(c.hitbox.X, c.hitbox.Y, c.taken));
 
                 outWall = new DTOWall[] {
                     new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
@@ -400,7 +399,7 @@ namespace pacman_server
             
             #region EndGame
             System.Console.WriteLine("Game has ended!");
-            outCoin = coins.Select(c => new DTOCoin(c.posX, c.posY, c.taken));
+            outCoin = coins.Select(c => new DTOCoin(c.hitbox.X, c.hitbox.Y, c.taken));
 
             outWall = new DTOWall[] {
                     new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
