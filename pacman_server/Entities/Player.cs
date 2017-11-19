@@ -1,6 +1,7 @@
 ﻿using mw_client_server;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,8 +23,7 @@ namespace pacman_server.Entities
 
         public string faceDirection { get; set; }
 
-        public int posX { get; set; }
-        public int posY { get; set; }
+        public Rectangle hitbox { get; set; }
         public int posZ { get; set; }
 
         public Player(string Name, string URL)
@@ -32,6 +32,8 @@ namespace pacman_server.Entities
             url = URL;
             
             score = 0;
+
+            hitbox = new Rectangle(0, 0, 25, 25);
 
             playing = false;
             dead = false;

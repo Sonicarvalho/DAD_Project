@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,8 +16,7 @@ namespace pacman_server.Entities
 
         public string color { get; set; }
 
-        public int posX { get; set; }
-        public int posY { get; set; }
+        public Rectangle hitbox { get; set; }
         public int posZ { get; set; }
 
         public Ghost(bool d, string c, int x, int y, int z, int h, int v) {
@@ -24,8 +24,7 @@ namespace pacman_server.Entities
 
             color = c;
 
-            posX = x;
-            posY = y;
+            hitbox = new Rectangle(x, y, 30, 30);
             posZ = z;
 
             horizontalSpeed = h;
@@ -34,10 +33,7 @@ namespace pacman_server.Entities
 
         public bool intersectPlayer(Player player)
         {
-            if (player.posY > posY && player.posY < (posY + 30) && player.posX > posX && player.posX < posX + 30)
-            { return true; }
-
-            return false;
+            return hitbox.IntersectsWith(player.hitbox);
         }
     }
 }

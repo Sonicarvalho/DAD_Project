@@ -107,11 +107,14 @@ namespace mw_client_server
     {
         public int posX { get; set; }
         public int posY { get; set; }
+        public bool taken { get; set; }
 
-        public DTOCoin(int x, int y)
+
+        public DTOCoin(int x, int y, bool t)
         {
             posX = x;
             posY = y;
+            taken = t;
         }
 
     }

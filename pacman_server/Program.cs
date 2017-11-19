@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
@@ -34,9 +35,9 @@ namespace pacman_server
         private static int maxPlayers = 3;
 
         //Game Board Limit
-        private static int boardRight = 320;
-        private static int boardBottom = 320;
-        private static int boardLeft = 0;
+        private static int boardRight = 350;
+        private static int boardBottom = 340;
+        private static int boardLeft = 10;
         private static int boardTop = 40;
 
         //total number of coins
@@ -191,19 +192,19 @@ namespace pacman_server
             #region GameStart
             System.Console.WriteLine("Starting the game!!");
             
-            outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY));
+            outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY, c.taken));
 
             outWall = new DTOWall[] {
-                    new DTOWall(ulWall.posX, ulWall.posY),
-                    new DTOWall(urWall.posX, urWall.posY),
-                    new DTOWall(dlWall.posX, dlWall.posY),
-                    new DTOWall(drWall.posX, drWall.posY)
+                    new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
+                    new DTOWall(urWall.hitbox.X, urWall.hitbox.Y),
+                    new DTOWall(dlWall.hitbox.X, dlWall.hitbox.Y),
+                    new DTOWall(drWall.hitbox.X, drWall.hitbox.Y)
                 };
 
             outGhost = new DTOGhost[] {
-                    new DTOGhost(red.posX, red.posY, red.posZ, red.color),
-                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ, yellow.color   ),
-                    new DTOGhost(pink.posX, pink.posY, pink.posZ, pink.color )
+                    new DTOGhost(red.hitbox.X, red.hitbox.Y, red.posZ, red.color),
+                    new DTOGhost(yellow.hitbox.X, yellow.hitbox.Y, yellow.posZ, yellow.color   ),
+                    new DTOGhost(pink.hitbox.X, pink.hitbox.Y, pink.posZ, pink.color )
                 };
 
             gameState = new GameState(round, started, ended);
@@ -216,14 +217,14 @@ namespace pacman_server
             int i = 1;
             foreach (Player player in   RequestGame.players.Where(p => p.playing)) {
 
-                player.posX = 8;
-                player.posY = i * 40;
+                player.hitbox = new Rectangle(8, i * 40, 25, 25);
+          
                 player.posZ = i;
 
                 i++;
 
                 IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
-                    new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ,player.playing)
+                    new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ,player.playing)
                 );
 
                 gameState.players = outPlayer.ToList();
@@ -256,19 +257,23 @@ namespace pacman_server
                             switch (direction)
                             {
                                 case "UP":
-                                    player.posY -= speed;
+                                    if(player.hitbox.Top > boardTop)
+                                        player.hitbox = new Rectangle(player.hitbox.X, player.hitbox.Y - speed, 25, 25);
                                     break;
 
                                 case "DOWN":
-                                    player.posY += speed;
+                                    if (player.hitbox.Bottom < boardBottom)
+                                        player.hitbox = new Rectangle(player.hitbox.X, player.hitbox.Y + speed, 25, 25);
                                     break;
 
                                 case "RIGHT":
-                                    player.posX += speed;
+                                    if (player.hitbox.Right < boardRight)
+                                        player.hitbox = new Rectangle(player.hitbox.X + speed, player.hitbox.Y, 25, 25);
                                     break;
 
                                 case "LEFT":
-                                    player.posX -= speed;
+                                    if (player.hitbox.Left > boardLeft)
+                                        player.hitbox = new Rectangle(player.hitbox.X - speed, player.hitbox.Y, 25, 25);
                                     break;
 
                                 default:
@@ -320,34 +325,28 @@ namespace pacman_server
                     break;
                 }
 
-                red.posX += red.horizontalSpeed;
-
-                yellow.posX += yellow.horizontalSpeed;
-
-                pink.posX += pink.horizontalSpeed;
-                pink.posY += pink.verticalSpeed;
 
                 //update ghosts
                 // if the red ghost hits the picture box 4 then wereverse the speed
-                if (ulWall.intersectGhost(red))
+                if (ulWall.intersectGhost(red) || urWall.intersectGhost(red))
                     red.horizontalSpeed = -red.horizontalSpeed;
                 // if the red ghost hits the picture box 3 we reverse the speed
-                else if (urWall.intersectGhost(red))
-                    red.horizontalSpeed = -red.horizontalSpeed;
+                //else if ()
+                //    red.horizontalSpeed = -red.horizontalSpeed;
 
-                red.posX += red.horizontalSpeed;
+                //red.posX += red.horizontalSpeed;
 
                 // if the yellow ghost hits the picture box 1 then we reverse the speed
-                if (dlWall.intersectGhost(yellow))
+                if (dlWall.intersectGhost(yellow) || drWall.intersectGhost(yellow))
                     yellow.horizontalSpeed = -yellow.horizontalSpeed;
                 // if the red ghost hits the picture box 3 we reverse the speed
-                else if (drWall.intersectGhost(yellow))
-                    yellow.horizontalSpeed = -yellow.horizontalSpeed;
+                //else if ()
+                //    yellow.horizontalSpeed = -yellow.horizontalSpeed;
 
-                yellow.posX += yellow.horizontalSpeed;
+                //yellow.posX += yellow.horizontalSpeed;
 
-                if (boardLeft > pink.posX ||
-                    boardRight < pink.posX ||
+                if (boardLeft > pink.hitbox.Left ||
+                    boardRight < pink.hitbox.Right||
                     (ulWall.intersectGhost(pink)) ||
                     (urWall.intersectGhost(pink)) ||
                     (dlWall.intersectGhost(pink)) ||
@@ -355,26 +354,35 @@ namespace pacman_server
                 {
                     pink.horizontalSpeed = -pink.horizontalSpeed;
                 }
-                if (boardTop > pink.posY|| boardBottom - 2 < (pink.posY + 30))
+                if (boardTop > pink.hitbox.Top|| boardBottom /*- 2*/ < (pink.hitbox.Bottom))
                 {
                     pink.verticalSpeed = -pink.verticalSpeed;
                 }
-                
+
+
+
+                red.hitbox = new Rectangle(red.hitbox.X + red.horizontalSpeed, red.hitbox.Y, 30, 30);
+
+                yellow.hitbox = new Rectangle(yellow.hitbox.X + yellow.horizontalSpeed, yellow.hitbox.Y, 30, 30);
+
+                pink.hitbox = new Rectangle(pink.hitbox.X + pink.horizontalSpeed, pink.hitbox.Y + pink.verticalSpeed, 30, 30);
+
+
                 round++;
 
-                outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY));
+                outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY, c.taken));
 
                 outWall = new DTOWall[] {
-                    new DTOWall(ulWall.posX, ulWall.posY),
-                    new DTOWall(urWall.posX, urWall.posY),
-                    new DTOWall(dlWall.posX, dlWall.posY),
-                    new DTOWall(drWall.posX, drWall.posY)
+                    new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
+                    new DTOWall(urWall.hitbox.X, urWall.hitbox.Y),
+                    new DTOWall(dlWall.hitbox.X, dlWall.hitbox.Y),
+                    new DTOWall(drWall.hitbox.X, drWall.hitbox.Y)
                 };
 
                 outGhost = new DTOGhost[] {
-                    new DTOGhost(red.posX, red.posY, red.posZ, red.color),
-                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ, yellow.color),
-                    new DTOGhost(pink.posX, pink.posY, pink.posZ, pink.color)
+                    new DTOGhost(red.hitbox.X, red.hitbox.Y, red.posZ, red.color),
+                    new DTOGhost(yellow.hitbox.X, yellow.hitbox.Y, yellow.posZ, yellow.color   ),
+                    new DTOGhost(pink.hitbox.X, pink.hitbox.Y, pink.posZ, pink.color )
                 };
 
                 gameState = new GameState(round, started, ended);
@@ -386,7 +394,7 @@ namespace pacman_server
                 foreach (Player player in RequestGame.players.Where(p => p.playing))
                 {
                     IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
-                        new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ,player.playing)
+                        new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ,player.playing)
                     );
 
                     gameState.players = outPlayer.ToList() ;
@@ -402,19 +410,19 @@ namespace pacman_server
             
             #region EndGame
             System.Console.WriteLine("Game has ended!");
-            outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY));
+            outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY, c.taken));
 
             outWall = new DTOWall[] {
-                    new DTOWall(ulWall.posX, ulWall.posY),
-                    new DTOWall(urWall.posX, urWall.posY),
-                    new DTOWall(dlWall.posX, dlWall.posY),
-                    new DTOWall(drWall.posX, drWall.posY)
+                    new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
+                    new DTOWall(urWall.hitbox.X, urWall.hitbox.Y),
+                    new DTOWall(dlWall.hitbox.X, dlWall.hitbox.Y),
+                    new DTOWall(drWall.hitbox.X, drWall.hitbox.Y)
                 };
 
             outGhost = new DTOGhost[] {
-                    new DTOGhost(red.posX, red.posY, red.posZ, red.color),
-                    new DTOGhost(yellow.posX, yellow.posY, yellow.posZ,yellow.color),
-                    new DTOGhost(pink.posX, pink.posY, pink.posZ, pink.color)
+                    new DTOGhost(red.hitbox.X, red.hitbox.Y, red.posZ, red.color),
+                    new DTOGhost(yellow.hitbox.X, yellow.hitbox.Y, yellow.posZ, yellow.color   ),
+                    new DTOGhost(pink.hitbox.X, pink.hitbox.Y, pink.posZ, pink.color )
                 };
 
             gameState = new GameState(round, started, ended);
@@ -430,9 +438,9 @@ namespace pacman_server
 
                     if (p.name.Equals(player.name))
                     {
-                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, 10,p.playing);
+                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, 10,p.playing);
                     }
-                    return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.posX, p.posY, player.posZ,p.playing);
+                    return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ,p.playing);
 
                 });
 

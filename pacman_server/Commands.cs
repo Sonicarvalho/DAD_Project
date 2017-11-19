@@ -44,11 +44,11 @@ namespace pacman_server
             List<LocalState> localStates = new List<LocalState>();
             foreach (Wall wall in walls)
             {
-                localStates.Add(new LocalState("W", string.Empty, wall.posX, wall.posY));
+                localStates.Add(new LocalState("W", string.Empty, wall.hitbox.X, wall.hitbox.Y));
             }
             foreach (Ghost ghost in ghosts)
             {
-                localStates.Add(new LocalState("M", string.Empty, ghost.posX, ghost.posY));
+                localStates.Add(new LocalState("M", string.Empty, ghost.hitbox.X, ghost.hitbox.Y));
             }
             foreach (Coin coin in coins)
             {
@@ -71,7 +71,7 @@ namespace pacman_server
                     }
                 }
 
-                localStates.Add(new LocalState(player.name, state, player.posX, player.posY));
+                localStates.Add(new LocalState(player.name, state, player.hitbox.X, player.hitbox.Y));
             }
             return localStates;
         }
