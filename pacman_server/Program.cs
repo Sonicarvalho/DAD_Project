@@ -192,7 +192,7 @@ namespace pacman_server
             #region GameStart
             System.Console.WriteLine("Starting the game!!");
             
-            outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY, c.taken));
+            outCoin = coins.Select(c => new DTOCoin(c.posX, c.posY, c.taken));
 
             outWall = new DTOWall[] {
                     new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
@@ -330,20 +330,10 @@ namespace pacman_server
                 // if the red ghost hits the picture box 4 then wereverse the speed
                 if (ulWall.intersectGhost(red) || urWall.intersectGhost(red))
                     red.horizontalSpeed = -red.horizontalSpeed;
-                // if the red ghost hits the picture box 3 we reverse the speed
-                //else if ()
-                //    red.horizontalSpeed = -red.horizontalSpeed;
-
-                //red.posX += red.horizontalSpeed;
 
                 // if the yellow ghost hits the picture box 1 then we reverse the speed
                 if (dlWall.intersectGhost(yellow) || drWall.intersectGhost(yellow))
                     yellow.horizontalSpeed = -yellow.horizontalSpeed;
-                // if the red ghost hits the picture box 3 we reverse the speed
-                //else if ()
-                //    yellow.horizontalSpeed = -yellow.horizontalSpeed;
-
-                //yellow.posX += yellow.horizontalSpeed;
 
                 if (boardLeft > pink.hitbox.Left ||
                     boardRight < pink.hitbox.Right||
@@ -354,7 +344,7 @@ namespace pacman_server
                 {
                     pink.horizontalSpeed = -pink.horizontalSpeed;
                 }
-                if (boardTop > pink.hitbox.Top|| boardBottom /*- 2*/ < (pink.hitbox.Bottom))
+                if (boardTop > pink.hitbox.Top|| boardBottom < (pink.hitbox.Bottom))
                 {
                     pink.verticalSpeed = -pink.verticalSpeed;
                 }
@@ -370,7 +360,7 @@ namespace pacman_server
 
                 round++;
 
-                outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY, c.taken));
+                outCoin = coins.Select(c => new DTOCoin(c.posX, c.posY, c.taken));
 
                 outWall = new DTOWall[] {
                     new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
@@ -410,7 +400,7 @@ namespace pacman_server
             
             #region EndGame
             System.Console.WriteLine("Game has ended!");
-            outCoin = coins.Where(t => !t.taken).Select(c => new DTOCoin(c.posX, c.posY, c.taken));
+            outCoin = coins.Select(c => new DTOCoin(c.posX, c.posY, c.taken));
 
             outWall = new DTOWall[] {
                     new DTOWall(ulWall.hitbox.X, ulWall.hitbox.Y),
