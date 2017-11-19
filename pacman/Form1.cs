@@ -38,11 +38,6 @@ namespace pacman
         bool goleft;
         bool goright;
 
-        int boardRight = 320;
-        int boardBottom = 320;
-        int boardLeft = 0;
-        int boardTop = 40;
-
         int round = 0;
         int round_timer = 18;
 
@@ -112,7 +107,7 @@ namespace pacman
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
-            ChannelServices.RegisterChannel(channel);
+            ChannelServices.RegisterChannel(channel,false);
 
             reqObj = (IRequestGame)
                     Activator.GetObject(
@@ -134,7 +129,7 @@ namespace pacman
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
-            ChannelServices.RegisterChannel(channel);
+            ChannelServices.RegisterChannel(channel,false);
 
             mo = new ResponseGame();
             mo.changePacmanVisibility += changePacmanVisibility;
@@ -163,7 +158,7 @@ namespace pacman
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
-            ChannelServices.RegisterChannel(channel);
+            ChannelServices.RegisterChannel(channel,false);
 
             pmc = new Commands();
 
@@ -182,7 +177,7 @@ namespace pacman
 
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
-            ChannelServices.RegisterChannel(channel);
+            ChannelServices.RegisterChannel(channel,false);
 
             cco = new CliChat();
             //mo.addMessage += addMessage;
@@ -203,7 +198,7 @@ namespace pacman
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
-            ChannelServices.RegisterChannel(channel);
+            ChannelServices.RegisterChannel(channel,false);
 
             CliChat obj = (CliChat)
                     Activator.GetObject(
@@ -498,37 +493,6 @@ namespace pacman
             }
         }
 
-        /* class CCInitializer
-         {
-             private String url;
-             private String port;
-
-             public CCInitializer(String URL, String PORT)
-             {
-                 url = URL;
-                 port = PORT;
-             }
-
-             public void initChatClient()
-             {
-                 TcpChannel channel = new TcpChannel();
-
-                 ChannelServices.RegisterChannel(channel);
-
-                 /* CliChat obj = (CliChat)
-                          Activator.GetObject(
-                                  typeof(IRequestGame),
-                                  "tcp://"+ url + ":"+ port +  "/chatClientServerService");
-
-                 CliChat obj = (CliChat)
-                         Activator.GetObject(
-                                 typeof(IRequestGame),
-                                 "tcp://" + url + ":" + port + "/chatClientServerService");
-                 cc.Add(obj);
-
-             }
-         }*/
-
         private void main_loop()
         {
             //MessageBox.Show(running.ToString());
@@ -567,10 +531,10 @@ namespace pacman
                         PictureBox p = (PictureBox)this.Controls.Find("pacman" + PlayersID[player.name], true)[0];
                         //  p.Location = new Point(player.posX, player.posY);
                         changeControlPosition(this, new PacEventArgs(player.posX, player.posY, p));
-                        if (player.faceDirection == "LEFT") p.Image = Properties.Resources.Left;
-                        else if (player.faceDirection == "UP") p.Image = Properties.Resources.Up;
+                        if      (player.faceDirection == "LEFT")  p.Image = Properties.Resources.Left;
+                        else if (player.faceDirection == "UP")    p.Image = Properties.Resources.Up;
                         else if (player.faceDirection == "RIGHT") p.Image = Properties.Resources.Right;
-                        else p.Image = Properties.Resources.down;
+                        else /* player.faceDirection == "DOWN" */  p.Image = Properties.Resources.down;
 
                     }
 
@@ -578,15 +542,18 @@ namespace pacman
                     {
 
                         PictureBox g = (PictureBox)this.Controls.Find("Ghost" + ghost.color, true)[0];
-                        //g.Location = new Point(ghost.posX, ghost.posY);
                         changeControlPosition(this, new PacEventArgs(ghost.posX, ghost.posY, g));
                     }
-                    ;
+                    
                     foreach (DTOCoin c in gm.coins)
                     {           //  Update Coins Visibility
-                        Point pos = new Point(c.posX, c.posY);
-                        PictureBox coin = (PictureBox)GetControlByPos(pos);
-                        //if (!c.visible) coin.Visible = false;
+                        if (c.taken) {
+                            //MessageBox.Show(c.posX +" "+ c.posY + " taken");
+                            Point pos = new Point(c.posX, c.posY);
+                            PictureBox coin = (PictureBox)GetControlByPosAndType(pos,new PictureBox().GetType());
+                            changeCoinVisibility(this, new PacEventArgs(coin, "Doesn't matter"));
+                            //coin.Visible = false;
+                        }
                     }
                     String myName = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
                     DTOPlayer play = gm.players.FirstOrDefault(x => x.name == myName);
@@ -604,7 +571,6 @@ namespace pacman
 
                     if (endgame)
                     {
-
                         changeTxtText(this,
                             new PacEventArgs((this.Controls.Find("label2", true)[0]), (play.won) ? "WON" : "GAME OVER!")
                             );
@@ -623,6 +589,15 @@ namespace pacman
 
             foreach (Control c in this.Controls)
                 if (c.Location == x)
+                    return c;
+
+            return null;
+        }
+        Control GetControlByPosAndType(Point x, Type type)
+        {
+
+            foreach (Control c in this.Controls)
+                if ((c.GetType() == type) && c.Location == x)
                     return c;
 
             return null;
@@ -646,6 +621,13 @@ namespace pacman
             Invoke((MethodInvoker)delegate()
             {
                 this.Controls.Find("pacman" + e.Pacman, true)[0].Visible = true;
+            });
+        }
+        public void changeCoinVisibility(object sender, PacEventArgs e)
+        {
+            Invoke((MethodInvoker)delegate()
+            {
+                e.cnt.Visible = false;
             });
         }
         public void launch_mainloop(object sender, PacEventArgs e)
