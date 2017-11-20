@@ -103,8 +103,6 @@ namespace pacman
 
             RemoteChannelProperties["name"] = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
 
-
-
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
             ChannelServices.RegisterChannel(channel,false);
@@ -155,7 +153,6 @@ namespace pacman
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
-
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
             ChannelServices.RegisterChannel(channel,false);
@@ -190,11 +187,9 @@ namespace pacman
         private void initChatClient(String url, String name)
         {
 
-
             IDictionary RemoteChannelProperties = new Hashtable();
 
             RemoteChannelProperties["name"] = name + url;
-
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
 
@@ -230,8 +225,6 @@ namespace pacman
             }
         }
 
-
-        // TODO: implement
         public class ResponseGame : MarshalByRefObject, IResponseGame
         {
             public event EventHandler<PacEventArgs> changePacmanVisibility;
@@ -287,15 +280,12 @@ namespace pacman
                 }
                 running = true;
                 launch_mainloop(this, new PacEventArgs(0));
-
-
             }
 
             public void EndGame()
             {
                 running = false;
                 endgame = true;
-                //throw new NotImplementedException();
             }
 
             public void SendPID(int pid)
@@ -401,10 +391,7 @@ namespace pacman
                 {
                     text += c.ToString() + "\n";
                 }
-
-                //text += GetControlByPos(new Point(8, 40)).ToString();
                 MessageBox.Show(text);
-
             }
             #endregion DEBUG
 
@@ -430,61 +417,6 @@ namespace pacman
             }
         }
 
-        /*  private void timer1_Tick(object sender, EventArgs e)
-          {
-              label1.Text = "Score: " + score;
-
-              
-              foreach (Control x in this.Controls)
-              {
-                  // checking if the player hits the wall or the ghost, then game is over
-                  if (x is PictureBox && x.Tag == "wall" || x.Tag == "ghost")
-                  {
-                      if (((PictureBox)x).Bounds.IntersectsWith(pacman1.Bounds))
-                      {
-                          pacman1.Left = 0;
-                          pacman1.Top = 25;
-                          label2.Text = "GAME OVER";
-                          label2.Visible = true;
-                          timer1.Stop();
-                      }
-                  }
-                  if (x is PictureBox && x.Tag == "coin")
-                  {
-                      if (((PictureBox)x).Bounds.IntersectsWith(pacman1.Bounds))
-                      {
-                          this.Controls.Remove(x);
-                          score++;
-                          //TODO check if all coins where "eaten"
-                          if (score == total_coins)
-                          {
-                              //pacman.Left = 0;
-                              //pacman.Top = 25;
-                              label2.Text = "GAME WON!";
-                              label2.Visible = true;
-                              timer1.Stop();
-                          }
-                      }
-                  }
-              }
-              Ghostpink.Left += ghost3x;
-              Ghostpink.Top += ghost3y;
-
-              if (Ghostpink.Left < boardLeft ||
-                  Ghostpink.Left > boardRight ||
-                  (Ghostpink.Bounds.IntersectsWith(pictureBox1.Bounds)) ||
-                  (Ghostpink.Bounds.IntersectsWith(pictureBox2.Bounds)) ||
-                  (Ghostpink.Bounds.IntersectsWith(pictureBox3.Bounds)) ||
-                  (Ghostpink.Bounds.IntersectsWith(pictureBox4.Bounds)))
-              {
-                  ghost3x = -ghost3x;
-              }
-              if (Ghostpink.Top < boardTop || Ghostpink.Top + Ghostpink.Height > boardBottom - 2)
-              {
-                  ghost3y = -ghost3y;
-              }
-          }
-          */
         private void tbMsg_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -515,7 +447,6 @@ namespace pacman
                     sent = true;
 
                 }
-
                 #endregion
 
 
@@ -540,13 +471,12 @@ namespace pacman
 
                     foreach (DTOGhost ghost in gm.ghosts) // Update Ghosts Positions
                     {
-
                         PictureBox g = (PictureBox)this.Controls.Find("Ghost" + ghost.color, true)[0];
                         changeControlPosition(this, new PacEventArgs(ghost.posX, ghost.posY, g));
                     }
                     
-                    foreach (DTOCoin c in gm.coins)
-                    {           //  Update Coins Visibility
+                    foreach (DTOCoin c in gm.coins)     //  Update Coins Visibility
+                    {           
                         if (c.taken) {
                             //MessageBox.Show(c.posX +" "+ c.posY + " taken");
                             Point pos = new Point(c.posX, c.posY);
@@ -611,8 +541,6 @@ namespace pacman
                     controls.Add(c);
 
             return controls;
-
-
         }
 
 
