@@ -309,11 +309,11 @@ namespace pacman_server
                             }
                         }
 
-                        if (coins.Where(c => c.taken == false).Count() == 60)
+                        if (coins.Where(c => c.taken).Count() == 60)
                         {
                             player.won = true;
                             //break e tratar do fim do jogo
-                            break;
+                            goto endGame;
                         }
 
                     }
@@ -321,7 +321,7 @@ namespace pacman_server
 
                 if (!RequestGame.players.Any(p => !p.dead && p.playing))
                 {
-                    break;
+                    goto endGame;
                 }
 
 
@@ -398,6 +398,9 @@ namespace pacman_server
             #endregion
             
             #region EndGame
+
+            endGame:
+
             System.Console.WriteLine("Game has ended!");
             outCoin = coins.Select(c => new DTOCoin(c.hitbox.X, c.hitbox.Y, c.taken));
 
