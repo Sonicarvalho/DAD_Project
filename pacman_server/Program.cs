@@ -32,7 +32,7 @@ namespace pacman_server
         private static int speed = 5;
 
         //Game Max #Players
-        private static int maxPlayers = 3;
+        private static int maxPlayers = 6;
 
         //Game Board Limit
         private static int boardRight = 350;
@@ -41,7 +41,7 @@ namespace pacman_server
         private static int boardTop = 40;
 
         //total number of coins
-        int total_coins = 60;
+        private static int total_coins = 60;
 
         //ghost speed for the one direction ghosts
         int ghost1 = 5;
@@ -183,7 +183,7 @@ namespace pacman_server
             {
                 Thread.Sleep(15000);
                 count = RequestGame.players.Where(p => p.playing).Count();
-                if ( count == maxPlayers || ((count > 0 )&& (wait.AddMinutes(5) > DateTime.Now)))
+                if ( count == maxPlayers /*|| ((count > 0 )&& (wait.AddMinutes(5) > DateTime.Now))*/)
                     started = !started;
 
             }
@@ -309,7 +309,7 @@ namespace pacman_server
                             }
                         }
 
-                        if (coins.Where(c => c.taken).Count() == 60)
+                        if (coins.Where(c => c.taken).Count() == total_coins)
                         {
                             int maxScore = RequestGame.players.Max(p => p.score);
 

@@ -29,7 +29,11 @@ namespace pacman_server
             if (players.Any(p => p.name.Equals(name) || p.url.Equals(url)))
                 return false;
 
-            Thread client = new Thread(() => connectClient(new Player(name, url)));
+            Player player = new Player(name, url);
+
+            players.Add(player);
+
+            Thread client = new Thread(() => connectClient(player));
             client.Start();
 
             return true;
@@ -54,9 +58,6 @@ namespace pacman_server
 
             player.obj = obj;
 
-            players.Add(player);
-
-            
         }
 
         public IEnumerable<string> GetAllClients()
