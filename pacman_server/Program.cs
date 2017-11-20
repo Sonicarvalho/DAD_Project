@@ -448,55 +448,55 @@ namespace pacman_server
             IList<Coin> coins = new List<Coin>();
 
             //line1
-            for (int i = 40; i < 320; i = i + 40)
+            for (int i = 40; i <= 320; i = i + 40)
             {
                 coins.Add(new Coin(8, i));
             }
             
             //line 2
-            for (int i = 40; i < 320; i = i + 40)
+            for (int i = 40; i <= 320; i = i + 40)
             {
                 coins.Add(new Coin(48, i));
             }
 
             //line 3
-            for (int i = 160; i < 320; i = i + 40)
+            for (int i = 160; i <= 320; i = i + 40)
             {
                 coins.Add(new Coin(88, i));
             }
 
             //line 4
-            for (int i = 40; i < 200; i = i + 40)
+            for (int i = 40; i <= 200; i = i + 40)
             {
                 coins.Add(new Coin(128, i));
             }
 
             //line 5
-            for (int i = 40; i < 320; i = i + 40)
+            for (int i = 40; i <= 320; i = i + 40)
             {
                 coins.Add(new Coin(168, i));
             }
 
             //line 6
-            for (int i = 40; i < 320; i = i + 40)
+            for (int i = 40; i <= 320; i = i + 40)
             {
                 coins.Add(new Coin(208, i));
             }
 
             //line 7
-            for (int i = 160; i < 320; i = i + 40)
+            for (int i = 160; i <= 320; i = i + 40)
             {
                 coins.Add(new Coin(248, i));
             }
 
             //line 8
-            for (int i = 40; i < 200; i = i + 40)
+            for (int i = 40; i <= 200; i = i + 40)
             {
                 coins.Add(new Coin(288, i));
             }
 
             //line 9
-            for (int i = 40; i < 320; i = i + 40)
+            for (int i = 40; i <= 320; i = i + 40)
             {
                 coins.Add(new Coin(328, i));
             }
