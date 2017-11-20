@@ -311,7 +311,11 @@ namespace pacman_server
 
                         if (coins.Where(c => c.taken).Count() == 60)
                         {
-                            player.won = true;
+                            int maxScore = RequestGame.players.Max(p => p.score);
+
+                            foreach (Player winner in RequestGame.players.Where(p => p.score == maxScore)) {
+                                winner.won = true;
+                            }
                             //break e tratar do fim do jogo
                             goto endGame;
                         }
