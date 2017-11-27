@@ -43,6 +43,14 @@ namespace puppet_master
             pcs_init = new Dictionary<string, IInitializer>();
             pid_object = new Dictionary<string, ICommands>();
 
+            RemoteChannelProperties = new Hashtable();
+
+            RemoteChannelProperties["name"] = "myPuppetMaster";
+
+            channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+            ChannelServices.RegisterChannel(channel, false);
+
             System.Console.WriteLine("Enter command or write <exit> to close...");
 
             while (console_command != "exit") { 
@@ -67,14 +75,6 @@ namespace puppet_master
 
                         if (!pcs_init.ContainsKey(pcs_url)) {
 
-                            RemoteChannelProperties = new Hashtable();
-
-                            RemoteChannelProperties["name"] = pcs_url;
-
-                            channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-                            ChannelServices.RegisterChannel(channel, false);
-
                             initializer = (IInitializer)
                                     Activator.GetObject(
                                             typeof(IInitializer),
@@ -89,14 +89,6 @@ namespace puppet_master
 
                         if (!pid_object.ContainsKey(pid))
                         {
-                            RemoteChannelProperties = new Hashtable();
-
-                            RemoteChannelProperties["name"] = pid;
-
-                            channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-                            ChannelServices.RegisterChannel(channel, false);
-
                             commands = (ICommands)
                                     Activator.GetObject(
                                             typeof(ICommands),
@@ -124,14 +116,6 @@ namespace puppet_master
 
                         if (!pcs_init.ContainsKey(pcs_url))
                         {
-                            RemoteChannelProperties = new Hashtable();
-
-                            RemoteChannelProperties["name"] = pcs_url;
-
-                            channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-                            ChannelServices.RegisterChannel(channel, false);
-
                             initializer = (IInitializer)
                                     Activator.GetObject(
                                             typeof(IInitializer),
@@ -145,14 +129,6 @@ namespace puppet_master
 
                         if (!pid_object.ContainsKey(pid))
                         {
-                            RemoteChannelProperties = new Hashtable();
-
-                            RemoteChannelProperties["name"] = pid;
-
-                            channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-                            ChannelServices.RegisterChannel(channel, false);
-
                             commands = (ICommands)
                                     Activator.GetObject(
                                             typeof(ICommands),
