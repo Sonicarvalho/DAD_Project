@@ -462,10 +462,8 @@ namespace pacman
                         PictureBox p = (PictureBox)this.Controls.Find("pacman" + PlayersID[player.name], true)[0];
                         //  p.Location = new Point(player.posX, player.posY);
                         changeControlPosition(this, new PacEventArgs(player.posX, player.posY, p));
-                        if      (player.faceDirection == "LEFT")  p.Image = Properties.Resources.Left;
-                        else if (player.faceDirection == "UP")    p.Image = Properties.Resources.Up;
-                        else if (player.faceDirection == "RIGHT") p.Image = Properties.Resources.Right;
-                        else /* player.faceDirection == "DOWN" */  p.Image = Properties.Resources.down;
+                        changePacDir(this, new PacEventArgs(p,player.faceDirection));
+                      
 
                     }
 
@@ -574,6 +572,21 @@ namespace pacman
                 e.cnt.Location = new Point(e.x, e.y);
             });
         }
+
+        public void changePacDir(object sender, PacEventArgs e)
+        {
+            Invoke((MethodInvoker)delegate()
+            {
+                PictureBox pac = (PictureBox) e.cnt;
+                String direction = e.data;
+                if (direction == "LEFT") pac.Image = Properties.Resources.Left;
+                else if (direction == "UP") pac.Image = Properties.Resources.Up;
+                else if (direction == "RIGHT") pac.Image = Properties.Resources.Right;
+                else /* player.faceDirection == "DOWN" */  pac.Image = Properties.Resources.down;
+            });
+        }
+
+
         public void changeTxtText(object sender, PacEventArgs e)
         {
             if (!(e.cnt is Label)) return;
