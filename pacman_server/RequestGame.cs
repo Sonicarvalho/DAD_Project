@@ -15,6 +15,8 @@ namespace pacman_server
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
         private Object moveRequestLock = new Object();
+        private Object registerUserLock = new Object();
+        private Object completeRegisterUserLock = new Object();
         
         public int maxPlayers { get; set; }
 
@@ -31,13 +33,16 @@ namespace pacman_server
             if (players.Any(p => p.name.Equals(name) || p.url.Equals(url)))
                 return false;
 
-            Player player = new Player(name, url);
+            lock (registerUserLock)
+            {
+                Player player = new Player(name, url);
 
-            players.Add(player);
+                players.Add(player);
 
-            Thread client = new Thread(() => connectClient(player));
-            client.Start();
+                Thread client = new Thread(() => connectClient(player));
+                client.Start();
 
+            }
             return true;
         }
 
@@ -58,7 +63,10 @@ namespace pacman_server
                             typeof(IResponseGame),
                             player.url);
 
-            player.obj = obj;
+            lock (completeRegisterUserLock)
+            {
+                player.obj = obj;
+            }
 
         }
 
