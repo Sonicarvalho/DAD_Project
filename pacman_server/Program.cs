@@ -32,7 +32,7 @@ namespace pacman_server
         private static int speed = 5;
 
         //Game Max #Players
-        private static int maxPlayers = 6;
+        private static int maxPlayers = 2;
 
         //Game Board Limit
         private static int boardRight = 350;

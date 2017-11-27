@@ -17,6 +17,7 @@ using mw_pm_server_client;
 using mw_client_client;
 using Microsoft.VisualBasic;
 using pacman.ChatResources;
+using System.Net;
 
 
 namespace pacman
@@ -31,7 +32,7 @@ namespace pacman
         int nmPlayers = 1;
         static int pacID = 2;
         string pm_port = "9000";
-
+        string server_host = "localhost";
         // direction player is moving in. Only one will be true
         bool goup;
         bool godown;
@@ -75,8 +76,8 @@ namespace pacman
             label2.Visible = false;
 
             //Starts the connection to gameServer
-            gameClient = new Thread(() => initClient());
-            gameClient.Start();
+            /*gameClient = new Thread(() => initClient());
+            gameClient.Start(); */
 
             Thread thread = new Thread(() => initPMClient(pm_port));
             //thread.Start();
@@ -110,7 +111,7 @@ namespace pacman
             reqObj = (IRequestGame)
                     Activator.GetObject(
                             typeof(IRequestGame),
-                            "tcp://localhost:11000/myGameServer");
+                            "tcp://"+server_host+":11000/myGameServer");
 
             //obj.JoinGame();
         }
@@ -364,13 +365,32 @@ namespace pacman
                  gameClient = new Thread(ts2);
                  gameClient.Start();*/
 
-                reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://localhost:" + debugPort + "/ClientService");
+
+
+                string myIp = new WebClient().DownloadString(@"http://icanhazip.com").Trim();
+                reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://" + myIp +":" + debugPort + "/ClientService");
                 reqObj.JoinGame(PlayersID.FirstOrDefault(x => x.Value == 1).Key);
             }
             if (e.KeyCode == Keys.C)
             {
 
-                tpool = new ThrPool(Clients.Count, 6);
+                String x = Microsoft.VisualBasic.Interaction.InputBox("What's the server address?", "NAME", server_host);
+                try
+                {
+                    server_host = x;
+                    initClient();
+                   
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+
+               
+
+
+                // tpool = new ThrPool(Clients.Count, 6);
 
                 /*  for (int i = 0; i < Clients.Count; i++)
                   {
