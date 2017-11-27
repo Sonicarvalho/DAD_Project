@@ -88,7 +88,7 @@ namespace pacman_server
 
             IDictionary RemoteChannelProperties = new Hashtable();
 
-            RemoteChannelProperties["port"] = "8080";
+            RemoteChannelProperties["port"] = "11000";
 
             RemoteChannelProperties["name"] = "GameServer";
 
@@ -100,11 +100,10 @@ namespace pacman_server
             RemotingServices.Marshal(requestGame, "myGameServer",
                     typeof(IRequestGame));
 
+            commands = new Commands();
 
-            ThreadStart pmServer = new ThreadStart(initPMServer);
-            server = new Thread(pmServer);
-            server.Start();
-
+            RemotingServices.Marshal(commands, "myPMServer",
+                    typeof(ICommands));
 
             //Init the GameCycle
             ThreadStart gameCycle = new ThreadStart(initGameCycle);
@@ -117,28 +116,6 @@ namespace pacman_server
 
             gc.Abort();
             
-        }
-        
-        private static void initPMServer(){
-
-            IDictionary RemoteChannelProperties = new Hashtable();
-
-            RemoteChannelProperties["port"] = "11001";
-
-            RemoteChannelProperties["name"] = "PMServer";
-
-            
-            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-            
-            //TcpChannel channel = new TcpChannel(int.Parse(port));
-
-            ChannelServices.RegisterChannel(channel);
-
-            commands = new Commands();
-
-            RemotingServices.Marshal(commands, "myPMServer",
-                    typeof(ICommands));
         }
 
         private static void initGameCycle() {

@@ -14,6 +14,8 @@ namespace pacman_server
 {
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
+        private Object moveRequestLock = new Object();
+        
         public int maxPlayers { get; set; }
 
         //players list
@@ -86,10 +88,14 @@ namespace pacman_server
 
         public bool RequestMove(string name, IEnumerable<string> directions, int round)
         {
-            if (players.Any(p => p.name.Equals(name) && (p.dead || !p.playing)))
+
+            lock (moveRequestLock)
+            {
+                if (players.Any(p => p.name.Equals(name) && (p.dead || !p.playing)))
                 return false;
 
-            moveRequests.Add(new MoveRequest(name, directions, round));
+                moveRequests.Add(new MoveRequest(name, directions, round));
+            }
 
             return true;
         }
