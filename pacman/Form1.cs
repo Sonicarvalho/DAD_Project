@@ -110,7 +110,7 @@ namespace pacman
             reqObj = (IRequestGame)
                     Activator.GetObject(
                             typeof(IRequestGame),
-                            "tcp://localhost:8080/myGameServer");
+                            "tcp://localhost:11000/myGameServer");
 
             //obj.JoinGame();
         }
