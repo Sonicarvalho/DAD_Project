@@ -166,7 +166,7 @@ namespace pacman
         private void initChatCliServer()
         {
 
-            IDictionary RemoteChannelProperties = new Hashtable();
+           /* IDictionary RemoteChannelProperties = new Hashtable();
 
             RemoteChannelProperties["port"] = debugPort;
             RemoteChannelProperties["name"] = "chat client" + debugPort;
@@ -175,7 +175,7 @@ namespace pacman
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
             ChannelServices.RegisterChannel(channel,false);
-
+            */
             cco = new CliChat();
             //mo.addMessage += addMessage;
 
