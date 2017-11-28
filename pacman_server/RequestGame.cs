@@ -93,5 +93,10 @@ namespace pacman_server
 
             return true;
         }
+
+        public void IAmAlive()
+        {
+            Console.WriteLine("I am alive!");
+        }
     }
 }

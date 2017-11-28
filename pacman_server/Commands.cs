@@ -76,6 +76,22 @@ namespace pacman_server
             return localStates;
         }
 
+        public void GlobalStatus()
+        {
+            foreach(Player p in players)
+            {
+                try {
+                    p.obj.IAmAlive();
+                    Console.WriteLine(p.name + "is Alive!");
+
+                }catch(Exception)
+                {
+                    Console.WriteLine(p.name + "is presumed Dead!");
+                }
+                
+            }
+        }
+
         public void setWalls(IList<Wall> w)
         {
             walls = w;

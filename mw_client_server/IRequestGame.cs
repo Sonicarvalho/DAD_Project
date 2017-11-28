@@ -14,5 +14,7 @@ namespace mw_client_server
 
         //LEFT, RIGHT, UP, DOWN
         bool RequestMove(string name, IEnumerable<string> directions, int round);
+
+        void IAmAlive();
     }
 }

@@ -223,6 +223,11 @@ namespace pacman
             {
                 throw new NotImplementedException();
             }
+
+            public void IAmAlive()
+            {
+                Console.WriteLine("I am alive!");
+            }
         }
 
         public class ResponseGame : MarshalByRefObject, IResponseGame
@@ -291,6 +296,11 @@ namespace pacman
             public void SendPID(int pid)
             {
                 throw new NotImplementedException();
+            }
+
+            public void IAmAlive()
+            {
+                Console.WriteLine("I am alive!");
             }
         }
 

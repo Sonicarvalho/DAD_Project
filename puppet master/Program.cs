@@ -17,6 +17,7 @@ namespace puppet_master
     {
         private static Dictionary<string, IInitializer> pcs_init;
         private static Dictionary<string, ICommands> pid_object;
+        private static List<string> servers_url = new List<string>();
         private static Thread server;
         private static int pcs_port = 11000;
 
@@ -46,9 +47,7 @@ namespace puppet_master
             RemoteChannelProperties = new Hashtable();
 
             RemoteChannelProperties["name"] = "myPuppetMaster";
-
             channel = new TcpChannel(RemoteChannelProperties, null, null);
-
             ChannelServices.RegisterChannel(channel, false);
 
             System.Console.WriteLine("Enter command or write <exit> to close...");
@@ -73,6 +72,7 @@ namespace puppet_master
                         url = "tcp://" + pcs_url + ":" + pcs_port + "/myPCS";
                         s_url = "tcp://" + server_url + "/myPMServer";
 
+
                         if (!pcs_init.ContainsKey(pcs_url)) {
 
                             initializer = (IInitializer)
@@ -89,6 +89,8 @@ namespace puppet_master
 
                         if (!pid_object.ContainsKey(pid))
                         {
+                            servers_url.Add(server_url);
+
                             commands = (ICommands)
                                     Activator.GetObject(
                                             typeof(ICommands),
@@ -142,6 +144,12 @@ namespace puppet_master
                         break;
 
                     case "GlobalStatus":
+
+                        foreach (KeyValuePair<string, ICommands> entry in pid_object)
+                        {
+                            entry.Value.GlobalStatus();
+                        }
+
                         break;
                     case "Crash":
 
