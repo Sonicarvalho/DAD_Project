@@ -17,6 +17,7 @@ using mw_pm_server_client;
 using mw_client_client;
 using Microsoft.VisualBasic;
 using pacman.ChatResources;
+using System.Net;
 
 
 namespace pacman
@@ -31,7 +32,7 @@ namespace pacman
         int nmPlayers = 1;
         static int pacID = 2;
         string pm_port = "9000";
-
+        string server_host = "localhost";
         // direction player is moving in. Only one will be true
         bool goup;
         bool godown;
@@ -75,8 +76,8 @@ namespace pacman
             label2.Visible = false;
 
             //Starts the connection to gameServer
-            gameClient = new Thread(() => initClient());
-            gameClient.Start();
+            /*gameClient = new Thread(() => initClient());
+            gameClient.Start(); */
 
             Thread thread = new Thread(() => initPMClient(pm_port));
             //thread.Start();
@@ -110,7 +111,7 @@ namespace pacman
             reqObj = (IRequestGame)
                     Activator.GetObject(
                             typeof(IRequestGame),
-                            "tcp://localhost:8080/myGameServer");
+                            "tcp://"+server_host+":11000/myGameServer");
 
             //obj.JoinGame();
         }
@@ -166,7 +167,7 @@ namespace pacman
         private void initChatCliServer()
         {
 
-            IDictionary RemoteChannelProperties = new Hashtable();
+           /* IDictionary RemoteChannelProperties = new Hashtable();
 
             RemoteChannelProperties["port"] = debugPort;
             RemoteChannelProperties["name"] = "chat client" + debugPort;
@@ -175,7 +176,7 @@ namespace pacman
             //TcpChannel channel = new TcpChannel(int.Parse(port));
 
             ChannelServices.RegisterChannel(channel,false);
-
+            */
             cco = new CliChat();
             //mo.addMessage += addMessage;
 
@@ -374,13 +375,32 @@ namespace pacman
                  gameClient = new Thread(ts2);
                  gameClient.Start();*/
 
-                reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://localhost:" + debugPort + "/ClientService");
+
+
+                string myIp = new WebClient().DownloadString(@"http://icanhazip.com").Trim();
+                reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://" + myIp +":" + debugPort + "/ClientService");
                 reqObj.JoinGame(PlayersID.FirstOrDefault(x => x.Value == 1).Key);
             }
             if (e.KeyCode == Keys.C)
             {
 
-                tpool = new ThrPool(Clients.Count, 6);
+                String x = Microsoft.VisualBasic.Interaction.InputBox("What's the server address?", "NAME", server_host);
+                try
+                {
+                    server_host = x;
+                    initClient();
+                   
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+
+               
+
+
+                // tpool = new ThrPool(Clients.Count, 6);
 
                 /*  for (int i = 0; i < Clients.Count; i++)
                   {
@@ -472,10 +492,8 @@ namespace pacman
                         PictureBox p = (PictureBox)this.Controls.Find("pacman" + PlayersID[player.name], true)[0];
                         //  p.Location = new Point(player.posX, player.posY);
                         changeControlPosition(this, new PacEventArgs(player.posX, player.posY, p));
-                        if      (player.faceDirection == "LEFT")  p.Image = Properties.Resources.Left;
-                        else if (player.faceDirection == "UP")    p.Image = Properties.Resources.Up;
-                        else if (player.faceDirection == "RIGHT") p.Image = Properties.Resources.Right;
-                        else /* player.faceDirection == "DOWN" */  p.Image = Properties.Resources.down;
+                        changePacDir(this, new PacEventArgs(p,player.faceDirection));
+                      
 
                     }
 
@@ -584,6 +602,21 @@ namespace pacman
                 e.cnt.Location = new Point(e.x, e.y);
             });
         }
+
+        public void changePacDir(object sender, PacEventArgs e)
+        {
+            Invoke((MethodInvoker)delegate()
+            {
+                PictureBox pac = (PictureBox) e.cnt;
+                String direction = e.data;
+                if (direction == "LEFT") pac.Image = Properties.Resources.Left;
+                else if (direction == "UP") pac.Image = Properties.Resources.Up;
+                else if (direction == "RIGHT") pac.Image = Properties.Resources.Right;
+                else /* player.faceDirection == "DOWN" */  pac.Image = Properties.Resources.down;
+            });
+        }
+
+
         public void changeTxtText(object sender, PacEventArgs e)
         {
             if (!(e.cnt is Label)) return;

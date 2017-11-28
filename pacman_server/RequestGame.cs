@@ -14,6 +14,10 @@ namespace pacman_server
 {
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
+        private Object moveRequestLock = new Object();
+        private Object registerUserLock = new Object();
+        private Object completeRegisterUserLock = new Object();
+        
         public int maxPlayers { get; set; }
 
         //players list
@@ -29,13 +33,16 @@ namespace pacman_server
             if (players.Any(p => p.name.Equals(name) || p.url.Equals(url)))
                 return false;
 
-            Player player = new Player(name, url);
+            lock (registerUserLock)
+            {
+                Player player = new Player(name, url);
 
-            players.Add(player);
+                players.Add(player);
 
-            Thread client = new Thread(() => connectClient(player));
-            client.Start();
+                Thread client = new Thread(() => connectClient(player));
+                client.Start();
 
+            }
             return true;
         }
 
@@ -56,7 +63,10 @@ namespace pacman_server
                             typeof(IResponseGame),
                             player.url);
 
-            player.obj = obj;
+            lock (completeRegisterUserLock)
+            {
+                player.obj = obj;
+            }
 
         }
 
@@ -86,10 +96,14 @@ namespace pacman_server
 
         public bool RequestMove(string name, IEnumerable<string> directions, int round)
         {
-            if (players.Any(p => p.name.Equals(name) && (p.dead || !p.playing)))
+
+            lock (moveRequestLock)
+            {
+                if (players.Any(p => p.name.Equals(name) && (p.dead || !p.playing)))
                 return false;
 
-            moveRequests.Add(new MoveRequest(name, directions, round));
+                moveRequests.Add(new MoveRequest(name, directions, round));
+            }
 
             return true;
         }

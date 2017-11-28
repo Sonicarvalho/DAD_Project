@@ -32,7 +32,7 @@ namespace pacman_server
         private static int speed = 5;
 
         //Game Max #Players
-        private static int maxPlayers = 6;
+        private static int maxPlayers = 2;
 
         //Game Board Limit
         private static int boardRight = 350;
@@ -88,7 +88,7 @@ namespace pacman_server
 
             IDictionary RemoteChannelProperties = new Hashtable();
 
-            RemoteChannelProperties["port"] = "8080";
+            RemoteChannelProperties["port"] = "11000";
 
             RemoteChannelProperties["name"] = "GameServer";
 
@@ -100,11 +100,10 @@ namespace pacman_server
             RemotingServices.Marshal(requestGame, "myGameServer",
                     typeof(IRequestGame));
 
+            commands = new Commands();
 
-            ThreadStart pmServer = new ThreadStart(initPMServer);
-            server = new Thread(pmServer);
-            server.Start();
-
+            RemotingServices.Marshal(commands, "myPMServer",
+                    typeof(ICommands));
 
             //Init the GameCycle
             ThreadStart gameCycle = new ThreadStart(initGameCycle);
@@ -118,31 +117,12 @@ namespace pacman_server
             gc.Abort();
             
         }
-        
-        private static void initPMServer(){
-
-            IDictionary RemoteChannelProperties = new Hashtable();
-
-            RemoteChannelProperties["port"] = "11001";
-
-            RemoteChannelProperties["name"] = "PMServer";
-
-            
-            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-            
-            //TcpChannel channel = new TcpChannel(int.Parse(port));
-
-            ChannelServices.RegisterChannel(channel);
-
-            commands = new Commands();
-
-            RemotingServices.Marshal(commands, "myPMServer",
-                    typeof(ICommands));
-        }
 
         private static void initGameCycle() {
             #region Init
+            
+            Object moveRequestLock = new Object();
+
             int round = 0;
             bool started = false;
             bool ended = false;
@@ -223,7 +203,7 @@ namespace pacman_server
 
                 i++;
 
-                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
+                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d =>d.playing).Select(p => 
                     new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ,player.playing)
                 );
 
@@ -244,83 +224,92 @@ namespace pacman_server
                 commands.setPlayer(RequestGame.players.Where(p => p.playing).ToList());
 
                 Thread.Sleep(time_delay);
+                lock (moveRequestLock)
+                {
+                    List<MoveRequest> moveRequests = RequestGame.moveRequests.Where(x => x.round == round).ToList();
 
-                List<MoveRequest> moveRequests = RequestGame.moveRequests.Where(x => x.round == round).ToList();
-
-                //update players
-                foreach( MoveRequest mr in moveRequests){
-                    Player player = RequestGame.players.Where(p => p.name.Equals(mr.name) && p.playing).FirstOrDefault();
-                    if (player != null)
+                    //update players
+                    foreach (MoveRequest mr in moveRequests)
                     {
-                        foreach (string direction in mr.directions)
+                        Player player = RequestGame.players.Where(p => p.name.Equals(mr.name) && p.playing).FirstOrDefault();
+                        if (player != null)
                         {
-                            switch (direction)
+                            foreach (string direction in mr.directions)
                             {
-                                case "UP":
-                                    if(player.hitbox.Top > boardTop)
-                                        player.hitbox = new Rectangle(player.hitbox.X, player.hitbox.Y - speed, 25, 25);
-                                    break;
+                                switch (direction)
+                                {
+                                    case "UP":
+                                        if (player.hitbox.Top > boardTop)
+                                            player.hitbox = new Rectangle(player.hitbox.X, player.hitbox.Y - speed, 25, 25);
+                                        break;
 
-                                case "DOWN":
-                                    if (player.hitbox.Bottom < boardBottom)
-                                        player.hitbox = new Rectangle(player.hitbox.X, player.hitbox.Y + speed, 25, 25);
-                                    break;
+                                    case "DOWN":
+                                        if (player.hitbox.Bottom < boardBottom)
+                                            player.hitbox = new Rectangle(player.hitbox.X, player.hitbox.Y + speed, 25, 25);
+                                        break;
 
-                                case "RIGHT":
-                                    if (player.hitbox.Right < boardRight)
-                                        player.hitbox = new Rectangle(player.hitbox.X + speed, player.hitbox.Y, 25, 25);
-                                    break;
+                                    case "RIGHT":
+                                        if (player.hitbox.Right < boardRight)
+                                            player.hitbox = new Rectangle(player.hitbox.X + speed, player.hitbox.Y, 25, 25);
+                                        break;
 
-                                case "LEFT":
-                                    if (player.hitbox.Left > boardLeft)
-                                        player.hitbox = new Rectangle(player.hitbox.X - speed, player.hitbox.Y, 25, 25);
-                                    break;
+                                    case "LEFT":
+                                        if (player.hitbox.Left > boardLeft)
+                                            player.hitbox = new Rectangle(player.hitbox.X - speed, player.hitbox.Y, 25, 25);
+                                        break;
 
-                                default:
-                                    //Unrecognizable direction;
-                                    Console.WriteLine("[WARNING] Game Cycle - Unrecognizable direction");
-                                    break;
+                                    default:
+                                        //Unrecognizable direction;
+                                        Console.WriteLine("[WARNING] Game Cycle - Unrecognizable direction");
+                                        break;
 
 
+                                }
+
+                                //player intersect a wall
+                                if (urWall.intersectPlayer(player) ||
+                                    ulWall.intersectPlayer(player) ||
+                                    drWall.intersectPlayer(player) ||
+                                    dlWall.intersectPlayer(player))
+                                { player.dead = true; }
+
+                                //player intersect a ghost
+                                if (red.intersectPlayer(player) ||
+                                    yellow.intersectPlayer(player) ||
+                                    pink.intersectPlayer(player))
+                                { player.dead = true; }
+
+                                player.faceDirection = direction;
                             }
 
-                            //player intersect a wall
-                            if (urWall.intersectPlayer(player) ||
-                                ulWall.intersectPlayer(player) ||
-                                drWall.intersectPlayer(player) ||
-                                dlWall.intersectPlayer(player))
-                            { player.dead = true; }
 
-                            //player intersect a ghost
-                            if (red.intersectPlayer(player) ||
-                                yellow.intersectPlayer(player) ||
-                                pink.intersectPlayer(player))
-                            { player.dead = true; }
-
-                            player.faceDirection = direction;
-                        }
-
-
-                        //check coins
-                        foreach (Coin coin in coins.Where(c => c.taken == false)) {
-                            if (coin.intersectPlayer(player)) {
-                                coin.taken = true;
-                                player.score++;
+                            //check coins
+                            foreach (Coin coin in coins.Where(c => c.taken == false))
+                            {
+                                if (coin.intersectPlayer(player))
+                                {
+                                    coin.taken = true;
+                                    player.score++;
+                                }
                             }
-                        }
 
-                        if (coins.Where(c => c.taken).Count() == total_coins)
-                        {
-                            int maxScore = RequestGame.players.Max(p => p.score);
+                            if (coins.Where(c => c.taken).Count() == total_coins)
+                            {
+                                int maxScore = RequestGame.players.Max(p => p.score);
 
-                            foreach (Player winner in RequestGame.players.Where(p => p.score == maxScore)) {
-                                winner.won = true;
+                                foreach (Player winner in RequestGame.players.Where(p => p.score == maxScore))
+                                {
+                                    winner.won = true;
+                                }
+                                //break e tratar do fim do jogo
+                                goto endGame;
                             }
-                            //break e tratar do fim do jogo
-                            goto endGame;
-                        }
 
+                        }
                     }
+
+                    
+                    RequestGame.moveRequests.Clear();
                 }
 
                 if (!RequestGame.players.Any(p => !p.dead && p.playing))
@@ -386,7 +375,7 @@ namespace pacman_server
 
                 foreach (Player player in RequestGame.players.Where(p => p.playing))
                 {
-                    IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d => !d.dead && d.playing).Select(p => 
+                    IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d =>d.playing).Select(p => 
                         new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ,player.playing)
                     );
 
@@ -396,7 +385,6 @@ namespace pacman_server
                     
                 }
 
-                RequestGame.moveRequests.Clear();
 
             }
             #endregion
@@ -429,7 +417,7 @@ namespace pacman_server
 
             foreach (Player player in RequestGame.players.Where(p => p.playing))
             {
-                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray()./*Where(d => !d.dead && d.playing).*/Select(p =>
+                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d =>d.playing).Select(p =>
                 {
 
                     if (p.name.Equals(player.name))
