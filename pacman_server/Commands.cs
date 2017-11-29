@@ -78,6 +78,7 @@ namespace pacman_server
 
         public void GlobalStatus()
         {
+            Console.WriteLine("oi");
             foreach(Player p in players)
             {
                 try {

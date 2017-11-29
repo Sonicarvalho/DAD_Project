@@ -24,8 +24,12 @@ namespace pacman
 {
     public partial class Form1 : Form
     {
-        bool launchedWithPM = false;
+        bool launchedWithPM;
 
+        string client_url;
+        string client_port;
+        string round_timer;
+        string nr_players;
         int debugPort = 11111;
         static bool running = false;
         static bool endgame = false;
@@ -40,7 +44,6 @@ namespace pacman
         bool goright;
 
         int round = 0;
-        int round_timer = 18;
 
         //Master of Puppets
         private static Commands pmc;
@@ -64,22 +67,33 @@ namespace pacman
 
         public Form1(string[] args)
         {
-            if (args.Length == 3)
-            {
-                launchedWithPM = true;
-                pm_port = args[0].Split(':')[1];
-                string round_timer = args[1];
-                string nr_players = args[2];
 
-            }
             InitializeComponent();
             label2.Visible = false;
 
-            //Starts the connection to gameServer
-            /*gameClient = new Thread(() => initClient());
-            gameClient.Start(); */
+            if (args.Length == 3)
+            {
+                string[] pm_url_parsed = args[0].Split(':');
+                client_url = pm_url_parsed[0];
+                client_port = pm_url_parsed[1];
+                round_timer = args[1];
+                nr_players = args[2];
+                launchedWithPM = true;
+            }
+            else
+            {
+                client_url = "localhost";
+                client_port = "9000";
+                round_timer = "60";
+                nr_players = "4";
+                launchedWithPM = false;
+            }
 
-            Thread thread = new Thread(() => initPMClient(pm_port));
+            //Starts the connection to gameServer
+            //gameClient = new Thread(() => initClient());
+            //gameClient.Start();
+            InitChannel(client_port);
+            Thread thread = new Thread(() => initPMClient(client_port));
             //thread.Start();
 
             if (launchedWithPM)
@@ -88,8 +102,8 @@ namespace pacman
                 initClientServer();
 
 
-                reqObj.Register("cliente " + debugPort, "tcp://localhost:" + debugPort + "/ClientService");
-                reqObj.JoinGame("cliente " + debugPort);
+                reqObj.Register("cliente " + client_port, "tcp://localhost:" + client_port + "/ClientService");
+                reqObj.JoinGame("cliente " + client_port);
 
 
                 //StartServer server1 localhost localhost:11001 11 1
@@ -99,37 +113,16 @@ namespace pacman
 
         private void initClient()
         {
-
-            IDictionary RemoteChannelProperties = new Hashtable();
-
-            RemoteChannelProperties["name"] = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
-
-            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-            ChannelServices.RegisterChannel(channel,false);
-
             reqObj = (IRequestGame)
                     Activator.GetObject(
                             typeof(IRequestGame),
-                            "tcp://"+server_host+":11000/myGameServer");
+                            "tcp://"+server_host+":8080/myGameServer");
 
             //obj.JoinGame();
         }
 
         private void initClientServer()
         {
-
-            IDictionary RemoteChannelProperties = new Hashtable();
-            //int port = new Random().Next(8081, 15000);
-
-            RemoteChannelProperties["port"] = debugPort;
-            RemoteChannelProperties["name"] = "GameClient" + debugPort;
-            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-            //TcpChannel channel = new TcpChannel(int.Parse(port));
-
-            ChannelServices.RegisterChannel(channel,false);
-
             mo = new ResponseGame();
             mo.changePacmanVisibility += changePacmanVisibility;
             mo.launch_mainloop += launch_mainloop;
@@ -145,19 +138,6 @@ namespace pacman
 
         private static void initPMClient(string port)
         {
-
-            IDictionary RemoteChannelProperties = new Hashtable();
-
-            RemoteChannelProperties["port"] = port;
-
-            RemoteChannelProperties["name"] = "PMClient" + port;
-
-            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-            //TcpChannel channel = new TcpChannel(int.Parse(port));
-
-            ChannelServices.RegisterChannel(channel,false);
-
             pmc = new Commands();
 
             RemotingServices.Marshal(pmc, "myPMClient",
@@ -187,15 +167,6 @@ namespace pacman
 
         private void initChatClient(String url, String name)
         {
-
-            IDictionary RemoteChannelProperties = new Hashtable();
-
-            RemoteChannelProperties["name"] = name + url;
-
-            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-            ChannelServices.RegisterChannel(channel,false);
-
             CliChat obj = (CliChat)
                     Activator.GetObject(
                             typeof(CliChat),
@@ -204,9 +175,21 @@ namespace pacman
             Tuple<string, CliChat> t = new Tuple<string, CliChat>(name, obj);
 
             cc.Add(t);
-
-
         }
+
+        private void InitChannel(string port)
+        {
+            IDictionary RemoteChannelProperties = new Hashtable();
+
+            RemoteChannelProperties["name"] = "myClient";
+
+            RemoteChannelProperties["port"] = port;
+
+            TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
+
+            ChannelServices.RegisterChannel(channel, false);
+        }
+
 
         public class CliChat : MarshalByRefObject, ICliChat
         {
@@ -461,7 +444,7 @@ namespace pacman
             Boolean sent = false;
             while (true)
             {
-                if (sent) Thread.Sleep(round_timer);
+                if (sent) Thread.Sleep(Int32.Parse(round_timer));
                 #region Ask for input and send it to the server
 
                 if (!sent && running && (goleft || goright || goup || godown))

@@ -148,6 +148,7 @@ namespace puppet_master
                         foreach (KeyValuePair<string, ICommands> entry in pid_object)
                         {
                             entry.Value.GlobalStatus();
+                            Console.WriteLine(entry.Key + " GlobalStatus()");
                         }
 
                         break;
