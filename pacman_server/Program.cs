@@ -54,11 +54,25 @@ namespace pacman_server
 
         static void Main(string[] args)
         {
+            string server_url;
+            string server_port;
+            string round_timer;
+            string nr_players;
+
             if (args.Length == 3)
             {
-                string pm_url = args[0];
-                string round_timer = args[1];
-                string nr_players = args[2];
+                string[] pm_url_parsed = args[0].Split(':');
+                server_url = pm_url_parsed[0];
+                server_port = pm_url_parsed[1];
+                round_timer = args[1];
+                nr_players = args[2];
+            }
+            else
+            {
+                server_url = "localhost";
+                server_port = "8080";
+                round_timer = "60";
+                nr_players = "4";
             }
 
             //string url = args.ElementAt(3);
@@ -88,7 +102,7 @@ namespace pacman_server
 
             IDictionary RemoteChannelProperties = new Hashtable();
 
-            RemoteChannelProperties["port"] = "11000";
+            RemoteChannelProperties["port"] = server_port;
 
             RemoteChannelProperties["name"] = "GameServer";
 

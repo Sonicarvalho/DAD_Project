@@ -26,6 +26,5 @@ namespace pcs
             info.Arguments = url + " " + round_timer + " " + nr_players;
             Process.Start(info);
         }
-
     }
 }
