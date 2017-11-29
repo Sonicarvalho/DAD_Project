@@ -376,6 +376,7 @@ namespace pacman
 
                 try
                 {
+                    //throw new Exception();
                     string myIp = new WebClient().DownloadString(@"http://icanhazip.com").Trim();
                     reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://" + myIp + ":" + debugPort + "/ClientService");
                 }
