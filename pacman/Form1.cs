@@ -131,15 +131,6 @@ namespace pacman
         private void initClientServer()
         {
 
-
-           // IDictionary RemoteChannelProperties = new Hashtable();
-
-           // RemoteChannelProperties["port"] = debugPort;
-           // RemoteChannelProperties["name"] = "GameClient" + debugPort;
-           // TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-           // ChannelServices.RegisterChannel(channel, false);
-
             cco = new CliChat();
             cco.addChatMessageText += addTextMessage;
 
@@ -166,21 +157,8 @@ namespace pacman
 
         private void initChatCliServer()
         {
-
-            /* IDictionary RemoteChannelProperties = new Hashtable();
-
-             RemoteChannelProperties["port"] = debugPort;
-             RemoteChannelProperties["name"] = "chat client" + debugPort;
-             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-             //TcpChannel channel = new TcpChannel(int.Parse(port));
-
-             ChannelServices.RegisterChannel(channel,false);
-             */
             cco = new CliChat();
             cco.addChatMessageText += addTextMessage;
-            //mo.addMessage += addMessage;
-
             RemotingServices.Marshal(cco, "chatClientServerService",
                     typeof(CliChat));
 
@@ -481,7 +459,7 @@ namespace pacman
                 //tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
 
                 String myName = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
-                cco.SendMessage(myName, tbMsg.Text); tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
+                if(tbMsg.Text.Length != 0) cco.SendMessage(myName, tbMsg.Text); tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
             }
         }
 
