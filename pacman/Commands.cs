@@ -110,7 +110,7 @@ namespace pacman
             {
                 try
                 {
-                    p.obj.IAmAlive();
+                    //p.obj.IAmAlive();
                     Console.WriteLine(p.name + "is Alive!");
 
                 }
