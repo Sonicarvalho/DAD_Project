@@ -26,6 +26,8 @@ namespace pacman
     {
         bool launchedWithPM;
 
+        static bool TEST_OFFLINE = true;
+
         string client_url;
         string client_port = "11111";
         string round_timer;
@@ -376,7 +378,7 @@ namespace pacman
 
                 try
                 {
-                    //throw new Exception();
+                    if(TEST_OFFLINE) throw new Exception();
                     string myIp = new WebClient().DownloadString(@"http://icanhazip.com").Trim();
                     reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://" + myIp + ":" + debugPort + "/ClientService");
                 }
