@@ -139,7 +139,7 @@ namespace puppet_master
                             pid_object.Add(pid, commands);
                         }
 
-                        initializer.StartClient(client_url, msec_per_round, num_players);
+                        initializer.StartClient(pid, client_url, msec_per_round, num_players);
 
                         break;
 

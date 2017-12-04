@@ -11,11 +11,11 @@ namespace pcs
 {
     class Initializer : MarshalByRefObject, IInitializer
     {
-        public void StartClient(string url, string round_timer, string nr_players)
+        public void StartClient(string id , string url, string round_timer, string nr_players)
         {
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\pacman\\bin\\Debug\\pacman.exe");
             ProcessStartInfo info = new ProcessStartInfo(path);
-            info.Arguments = url + " " + round_timer + " " + nr_players;
+            info.Arguments = id + " " + url + " " + round_timer + " " + nr_players;
             Process.Start(info);
         }
 

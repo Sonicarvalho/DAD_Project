@@ -1119,7 +1119,7 @@
             this.Controls.Add(this.pacman3);
             this.Controls.Add(this.pacman2);
             this.Name = "Form1";
-            this.Text = "DADman";
+            this.Text = "DADman - deb";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.keyisdown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.keyisup);
             ((System.ComponentModel.ISupportInitialize)(this.pacman1)).EndInit();

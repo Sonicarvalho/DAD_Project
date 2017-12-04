@@ -9,7 +9,7 @@ namespace mw_pm_pcs
     public interface IInitializer
     {
         void StartServer(string url, string round_timer, string nr_players);
-        void StartClient(string url, string round_timer, string nr_players);
+        void StartClient(string id, string url, string round_timer, string nr_players);
     }
 
 }

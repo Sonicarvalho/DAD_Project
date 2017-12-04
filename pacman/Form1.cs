@@ -32,6 +32,7 @@ namespace pacman
         string client_port = "11111";
         string round_timer;
         string nr_players;
+        string pid;
         int debugPort = 11111;
         static bool running = false;
         static bool endgame = false;
@@ -75,11 +76,12 @@ namespace pacman
 
             if (args.Length == 3)
             {
-                string[] pm_url_parsed = args[0].Split(':');
+                pid = args[0];
+                string[] pm_url_parsed = args[1].Split(':');
                 client_url = pm_url_parsed[0];
                 client_port = pm_url_parsed[1];
-                round_timer = args[1];
-                nr_players = args[2];
+                round_timer = args[2];
+                nr_players = args[3];
                 launchedWithPM = true;
                 initClient();
                 InitChannel(client_port);
@@ -112,10 +114,10 @@ namespace pacman
                 initClientServer();
 
 
-                reqObj.Register("cliente " + client_port, "tcp://"+client_url +":" + client_port + "/ClientService");
-                reqObj.JoinGame("cliente " + client_port);
+                reqObj.Register(pid, "tcp://"+client_url +":" + client_port + "/ClientService");
+                reqObj.JoinGame(pid);
 
-
+                this.Focus();
                 //StartServer server1 localhost localhost:11001 11 1
                 //StartClient client1 localhost localhost:9000 11 1
             }
