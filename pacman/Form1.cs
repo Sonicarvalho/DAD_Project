@@ -27,9 +27,9 @@ namespace pacman
         bool launchedWithPM;
 
         static bool TEST_OFFLINE = true;
-
+        List<string> servers_url = new List<string>() ;
         string client_url;
-        string client_port = "11111";
+        string client_port;
         string round_timer;
         string nr_players;
         string pid;
@@ -74,7 +74,7 @@ namespace pacman
             InitializeComponent();
             label2.Visible = false;
 
-            if (args.Length == 3)
+            if (args.Length >= 3)
             {
                 pid = args[0];
                 string[] pm_url_parsed = args[1].Split(':');
@@ -82,6 +82,10 @@ namespace pacman
                 client_port = pm_url_parsed[1];
                 round_timer = args[2];
                 nr_players = args[3];
+                for(int i = 4; i < args.Length; i++)
+                {
+                    servers_url.Add(args[i]);
+                }
                 launchedWithPM = true;
                 initClient();
                 InitChannel(client_port);
@@ -98,13 +102,11 @@ namespace pacman
             //Starts the connection to gameServer
 
             /*gameClient = new Thread(() => initClient());
-            gameClient.Start();
+            gameClient.Start();*/
 
-            initPMClient(pm_port);*/
+            initPMClient(client_port);
 
-            
-
-            Thread thread = new Thread(() => initPMClient(client_port));
+            //Thread thread = new Thread(() => initPMClient(client_port));
             //thread.Start();
 
 

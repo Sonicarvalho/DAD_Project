@@ -106,20 +106,7 @@ namespace pacman
 
         public void GlobalStatus()
         {
-            foreach (DTOPlayer p in players)
-            {
-                try
-                {
-                    //p.obj.IAmAlive();
-                    Console.WriteLine(p.name + "is Alive!");
-
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(p.name + "is presumed Dead!");
-                }
-
-            }
+            Console.Write("oi");
         }
     }
 }

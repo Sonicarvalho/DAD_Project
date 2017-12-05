@@ -82,7 +82,6 @@ namespace pacman_server
             foreach(Player p in players)
             {
                 try {
-                    p.obj.IAmAlive();
                     Console.WriteLine(p.name + "is Alive!");
 
                 }catch(Exception)
