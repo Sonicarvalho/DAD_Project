@@ -232,6 +232,9 @@ namespace pacman_server
             
             #region GameCycle
             while (true) {
+                while (commands.getFrozen()){
+                }
+
                 commands.setCoins(coins);
                 commands.setGhosts(new Ghost[] { red, yellow, pink });
                 commands.setWalls(new Wall[] { ulWall, urWall, dlWall, drWall });

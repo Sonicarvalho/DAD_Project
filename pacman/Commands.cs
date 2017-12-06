@@ -106,7 +106,6 @@ namespace pacman
 
         public void GlobalStatus()
         {
-            Console.Write("oi");
         }
     }
 }

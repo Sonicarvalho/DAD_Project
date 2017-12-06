@@ -147,8 +147,14 @@ namespace puppet_master
 
                         foreach (KeyValuePair<string, ICommands> entry in pid_object)
                         {
-                            entry.Value.GlobalStatus();
-                            Console.WriteLine(entry.Key + " GlobalStatus()");
+                            try
+                            {
+                                entry.Value.GlobalStatus();
+                            }catch(Exception e)
+                            {
+                                Console.Write(entry.Key + " is presumed dead!");
+                            }
+                            Console.WriteLine(entry.Key + " GlobalStatus.");
                         }
 
                         break;
@@ -167,8 +173,26 @@ namespace puppet_master
                         break;
 
                     case "Freeze":
+                        if (!CheckCommand(parsed_cmd, 2)) break;
+                        try
+                        {
+                            pid_object[parsed_cmd[1]].Freeze();
+                        }
+                        catch (Exception e)                                //tratar excecao
+                        {
+
+                        }
                         break;
                     case "Unfreeze":
+                        if (!CheckCommand(parsed_cmd, 2)) break;
+                        try
+                        {
+                            pid_object[parsed_cmd[1]].Unfreeze();
+                        }
+                        catch (Exception e)                                //tratar excecao
+                        {
+
+                        }
                         break;
                     case "InjectDelay":
                         break;

@@ -112,6 +112,7 @@ namespace pacman
 
             if (launchedWithPM)
             {
+                PlayersID.Add(pid, 1);
                 debugPort = new Random().Next(16000, 17000);
                 initClientServer();
 
@@ -473,13 +474,13 @@ namespace pacman
         private void main_loop()
         {
             //MessageBox.Show(running.ToString());
-            Boolean sent = false;
+            //Boolean sent = false;
             while (true)
             {
-                if (sent) Thread.Sleep(Int32.Parse(round_timer));
+               // if (sent) Thread.Sleep(Int32.Parse(round_timer));
                 #region Ask for input and send it to the server
 
-                if (!sent && running && (goleft || goright || goup || godown))
+                if (running && (goleft || goright || goup || godown))
                 {
 
                     List<String> dirs = new List<String>();
@@ -489,7 +490,7 @@ namespace pacman
                     if (godown) dirs.Add("DOWN");
 
                     reqObj.RequestMove(PlayersID.FirstOrDefault(x => x.Value == 1).Key, dirs, round);
-                    sent = true;
+                    //sent = false;
 
                 }
                 #endregion
