@@ -116,7 +116,7 @@ namespace pacman_server
 
             commands = new Commands();
 
-            RemotingServices.Marshal(commands, "myPMServer",
+            RemotingServices.Marshal(commands, "Server",
                     typeof(ICommands));
 
             //Init the GameCycle

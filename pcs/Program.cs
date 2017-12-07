@@ -27,7 +27,7 @@ namespace pcs
 
             Initializer mo = new Initializer();
 
-            RemotingServices.Marshal(mo, "myPCS",
+            RemotingServices.Marshal(mo, "PCS",
                     typeof(IInitializer));
 
             Console.WriteLine("Waiting for PM...");

@@ -158,7 +158,7 @@ namespace pacman
         {
             pmc = new Commands();
 
-            RemotingServices.Marshal(pmc, "myPMClient",
+            RemotingServices.Marshal(pmc, "Client",
                     typeof(ICommands));
         }
 
@@ -474,13 +474,13 @@ namespace pacman
         private void main_loop()
         {
             //MessageBox.Show(running.ToString());
-            //Boolean sent = false;
+            Boolean sent = false;
             while (true)
             {
-               // if (sent) Thread.Sleep(Int32.Parse(round_timer));
+                if (sent) Thread.Sleep(Int32.Parse(round_timer));
                 #region Ask for input and send it to the server
 
-                if (running && (goleft || goright || goup || godown))
+                if (!sent && running && (goleft || goright || goup || godown))
                 {
 
                     List<String> dirs = new List<String>();
@@ -490,7 +490,7 @@ namespace pacman
                     if (godown) dirs.Add("DOWN");
 
                     reqObj.RequestMove(PlayersID.FirstOrDefault(x => x.Value == 1).Key, dirs, round);
-                    //sent = false;
+                    sent = true;
 
                 }
                 #endregion

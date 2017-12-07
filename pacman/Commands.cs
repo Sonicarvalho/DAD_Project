@@ -29,7 +29,7 @@ namespace pacman
             throw new NotImplementedException();
         }
 
-        public bool InjectDelay(int srcID, int dstID)
+        public void InjectDelay(string dstID)
         {
             throw new NotImplementedException();
         }

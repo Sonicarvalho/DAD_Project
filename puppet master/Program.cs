@@ -10,6 +10,7 @@ using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
 
 namespace puppet_master
 {
@@ -30,6 +31,8 @@ namespace puppet_master
             IDictionary RemoteChannelProperties;
             TcpChannel channel;
             List<string> parsed_cmd;
+            Queue<string> queueCmd = new Queue<string>();
+
             string console_command = null;
             string pid;
             string pcs_url;
@@ -40,6 +43,7 @@ namespace puppet_master
             string msec_per_round;
             string num_players;
             string url;
+            bool usingScript = false;
 
             pcs_init = new Dictionary<string, IInitializer>();
             pid_object = new Dictionary<string, ICommands>();
@@ -52,15 +56,23 @@ namespace puppet_master
 
             System.Console.WriteLine("Enter command or write <exit> to close...");
 
-            while (console_command != "exit") { 
+            while (console_command != "exit") {
+                Console.Write("oi\n");
+                if (usingScript)
+                {
+                    console_command = queueCmd.Dequeue();
+                    if (queueCmd.Count == 0) usingScript = false;
+                }
+                else { console_command = Console.ReadLine(); }
 
-                console_command =  Console.ReadLine();
+                Console.Write(console_command);
                 parsed_cmd = ProcessCommand(console_command);
+
 
                 switch (parsed_cmd.ElementAt(0))
                 {
                     case "StartServer":
-
+                        Console.Write("1");
                         if (!CheckCommand(parsed_cmd, 6)) break;
 
                         pid = parsed_cmd.ElementAt(1);
@@ -69,27 +81,29 @@ namespace puppet_master
                         msec_per_round = parsed_cmd.ElementAt(4);
                         num_players = parsed_cmd.ElementAt(5);
 
-                        url = "tcp://" + pcs_url + ":" + pcs_port + "/myPCS";
-                        s_url = "tcp://" + server_url + "/myPMServer";
+                        url = pcs_url;
+                        s_url = server_url;
 
 
                         if (!pcs_init.ContainsKey(pcs_url)) {
-
+                            Console.Write("2");
                             initializer = (IInitializer)
                                     Activator.GetObject(
                                             typeof(IInitializer),
                                             url);
 
-                            pcs_init.Add(pcs_url, initializer);
+                            pcs_init.Add(url, initializer);
+                            Console.Write("3");
                         }
                         else
                         {
-                            initializer = pcs_init[pcs_url];
+                            initializer = pcs_init[url];
                         }
 
                         if (!pid_object.ContainsKey(pid))
                         {
-                            servers_url.Add(server_url);
+                            Console.Write("4");
+                            servers_url.Add(s_url);
 
                             commands = (ICommands)
                                     Activator.GetObject(
@@ -97,9 +111,11 @@ namespace puppet_master
                                             s_url);
 
                             pid_object.Add(pid, commands);
+                            Console.Write("5");
                         }
 
-                        initializer.StartServer(server_url, msec_per_round, num_players);
+                        initializer.StartServer(s_url, msec_per_round, num_players);
+                        Console.Write("6");
 
                         break;
 
@@ -113,8 +129,8 @@ namespace puppet_master
                         msec_per_round = parsed_cmd.ElementAt(4);
                         num_players = parsed_cmd.ElementAt(5);
 
-                        url = "tcp://" + pcs_url + ":" + pcs_port + "/myPCS";
-                        c_url = "tcp://" + client_url + "/myPMClient";
+                        url = pcs_url;
+                        c_url = client_url;
 
                         if (!pcs_init.ContainsKey(pcs_url))
                         {
@@ -123,10 +139,10 @@ namespace puppet_master
                                             typeof(IInitializer),
                                             url);
 
-                            pcs_init.Add(pcs_url, initializer);
+                            pcs_init.Add(url, initializer);
                         }
                         else {
-                            initializer = pcs_init[pcs_url];
+                            initializer = pcs_init[url];
                         }
 
                         if (!pid_object.ContainsKey(pid))
@@ -139,7 +155,7 @@ namespace puppet_master
                             pid_object.Add(pid, commands);
                         }
 
-                        initializer.StartClient(pid, client_url, msec_per_round, num_players, servers_url);
+                        initializer.StartClient(pid, c_url, msec_per_round, num_players, servers_url);
 
                         break;
 
@@ -161,6 +177,10 @@ namespace puppet_master
                     case "Crash":
 
                         if (!CheckCommand(parsed_cmd, 2)) break;
+                        if (!pid_object.ContainsKey(parsed_cmd[1])) {
+                            Console.Write("O pid indicado não existe.\n");
+                            break;
+                        }
                         try
                         {
                             pid_object[parsed_cmd[1]].Crash();
@@ -174,6 +194,11 @@ namespace puppet_master
 
                     case "Freeze":
                         if (!CheckCommand(parsed_cmd, 2)) break;
+                        if (!pid_object.ContainsKey(parsed_cmd[1]))
+                        {
+                            Console.Write("O pid indicado não existe.\n");
+                            break;
+                        }
                         try
                         {
                             pid_object[parsed_cmd[1]].Freeze();
@@ -185,6 +210,11 @@ namespace puppet_master
                         break;
                     case "Unfreeze":
                         if (!CheckCommand(parsed_cmd, 2)) break;
+                        if (!pid_object.ContainsKey(parsed_cmd[1]))
+                        {
+                            Console.Write("O pid indicado não existe.\n");
+                            break;
+                        }
                         try
                         {
                             pid_object[parsed_cmd[1]].Unfreeze();
@@ -194,8 +224,12 @@ namespace puppet_master
 
                         }
                         break;
+
                     case "InjectDelay":
+                        if (!CheckCommand(parsed_cmd, 3)) break;
+                        pid_object[parsed_cmd[1]].InjectDelay(parsed_cmd[2]);
                         break;
+
                     case "LocalState":
 
                         if (!CheckCommand(parsed_cmd, 3)) break;
@@ -217,6 +251,17 @@ namespace puppet_master
                             break;
                         }
                         Console.WriteLine("Argumentos inválidos");
+                        break;
+
+                    case "Script":
+                        Console.Write("script1");
+                        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\script20.txt");
+                        Console.Write("script2");
+                        string[] scriptLines = System.IO.File.ReadAllLines(path);
+                        Console.Write("script3");
+                        queueCmd = new Queue<string>(scriptLines);
+                        Console.Write("script4");
+                        usingScript = true;
                         break;
 
                     default:
