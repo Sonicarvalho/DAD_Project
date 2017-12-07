@@ -76,12 +76,11 @@ namespace pacman
 
             if (args.Length >= 3)
             {
-                pid = args[0];
-                client_url = args[1].Substring(0, args[1].Length - 6);
-                Console.Write(client_url);
                 string[] pm_url_parsed = args[1].Split(':', '/');
-                foreach(string i in pm_url_parsed) { Console.Write(i); }
+                pid = args[0];
+                client_url = args[1];
                 client_port = pm_url_parsed[4];
+                Console.Write(client_url);
                 Console.Write(client_port);
                 round_timer = args[2];
                 nr_players = args[3];
@@ -120,13 +119,12 @@ namespace pacman
                 debugPort = new Random().Next(16000, 17000);
                 initClientServer();
 
-
-                reqObj.Register(pid, client_url + "ClientService");
+                reqObj.Register(pid, client_url + "/ClientService");
                 reqObj.JoinGame(pid);
 
                 this.Focus();
-                //StartServer server1 localhost localhost:11001 11 1
-                //StartClient client1 localhost localhost:9000 11 1
+                //StartServer server1 tcp://localhost:11000/PCS tcp://localhost:8080/Server 1 1
+                //StartClient client1 tcp://localhost:11000/PCS tcp://localhost:9000/Client 1 1
             }
         }
 

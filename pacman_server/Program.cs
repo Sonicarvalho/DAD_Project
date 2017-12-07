@@ -63,6 +63,7 @@ namespace pacman_server
             {
                 string[] pm_url_parsed = args[0].Split(':','/');
                 server_port = pm_url_parsed[4];
+                Console.Write(server_port);
                 round_timer = args[1];
                 nr_players = args[2];
             }
@@ -173,7 +174,7 @@ namespace pacman_server
             System.Console.WriteLine("Waiting for players!!");
             while (!started)
             {
-                Thread.Sleep(15000);
+                while (commands.getFrozen()){}
                 count = RequestGame.players.Where(p => p.playing).Count();
                 if ( count == maxPlayers /*|| ((count > 0 )&& (wait.AddMinutes(5) > DateTime.Now))*/)
                     started = !started;

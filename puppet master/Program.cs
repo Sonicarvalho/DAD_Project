@@ -81,7 +81,7 @@ namespace puppet_master
                         num_players = parsed_cmd.ElementAt(5);
 
                         url = pcs_url;
-                        s_url = server_url;
+                        s_url = server_url.Substring(0, server_url.Length - 7);
 
 
                         if (!pcs_init.ContainsKey(pcs_url)) {
@@ -100,12 +100,12 @@ namespace puppet_master
 
                         if (!pid_object.ContainsKey(pid))
                         {
-                            servers_url.Add(s_url);
+                            servers_url.Add(server_url);
 
                             commands = (ICommands)
                                     Activator.GetObject(
                                             typeof(ICommands),
-                                            s_url);
+                                            server_url);
 
                             pid_object.Add(pid, commands);
                         }
@@ -124,7 +124,7 @@ namespace puppet_master
                         num_players = parsed_cmd.ElementAt(5);
 
                         url = pcs_url;
-                        c_url = client_url;
+                        c_url = client_url.Substring(0, client_url.Length - 7); ;
 
                         if (!pcs_init.ContainsKey(pcs_url))
                         {
@@ -144,7 +144,7 @@ namespace puppet_master
                             commands = (ICommands)
                                     Activator.GetObject(
                                             typeof(ICommands),
-                                            c_url);
+                                            client_url);
 
                             pid_object.Add(pid, commands);
                         }
