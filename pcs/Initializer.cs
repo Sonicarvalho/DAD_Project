@@ -16,7 +16,6 @@ namespace pcs
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\pacman\\bin\\Debug\\pacman.exe");
             ProcessStartInfo info = new ProcessStartInfo(path);
             string server_url_parsed = String.Join(" ", server_url);
-            Console.WriteLine(server_url_parsed);
             info.Arguments = id + " " + url + " " + round_timer + " " + nr_players + " " + server_url_parsed;
             Process.Start(info);
         }

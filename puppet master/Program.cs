@@ -57,7 +57,7 @@ namespace puppet_master
             System.Console.WriteLine("Enter command or write <exit> to close...");
 
             while (console_command != "exit") {
-                Console.Write("oi\n");
+
                 if (usingScript)
                 {
                     console_command = queueCmd.Dequeue();
@@ -65,14 +65,13 @@ namespace puppet_master
                 }
                 else { console_command = Console.ReadLine(); }
 
-                Console.Write(console_command);
                 parsed_cmd = ProcessCommand(console_command);
 
 
                 switch (parsed_cmd.ElementAt(0))
                 {
                     case "StartServer":
-                        Console.Write("1");
+
                         if (!CheckCommand(parsed_cmd, 6)) break;
 
                         pid = parsed_cmd.ElementAt(1);
@@ -86,14 +85,13 @@ namespace puppet_master
 
 
                         if (!pcs_init.ContainsKey(pcs_url)) {
-                            Console.Write("2");
+
                             initializer = (IInitializer)
                                     Activator.GetObject(
                                             typeof(IInitializer),
                                             url);
 
                             pcs_init.Add(url, initializer);
-                            Console.Write("3");
                         }
                         else
                         {
@@ -102,7 +100,6 @@ namespace puppet_master
 
                         if (!pid_object.ContainsKey(pid))
                         {
-                            Console.Write("4");
                             servers_url.Add(s_url);
 
                             commands = (ICommands)
@@ -111,12 +108,9 @@ namespace puppet_master
                                             s_url);
 
                             pid_object.Add(pid, commands);
-                            Console.Write("5");
                         }
 
                         initializer.StartServer(s_url, msec_per_round, num_players);
-                        Console.Write("6");
-
                         break;
 
                     case "StartClient":
@@ -174,6 +168,7 @@ namespace puppet_master
                         }
 
                         break;
+
                     case "Crash":
 
                         if (!CheckCommand(parsed_cmd, 2)) break;
@@ -193,6 +188,7 @@ namespace puppet_master
                         break;
 
                     case "Freeze":
+
                         if (!CheckCommand(parsed_cmd, 2)) break;
                         if (!pid_object.ContainsKey(parsed_cmd[1]))
                         {
@@ -208,7 +204,9 @@ namespace puppet_master
 
                         }
                         break;
+
                     case "Unfreeze":
+
                         if (!CheckCommand(parsed_cmd, 2)) break;
                         if (!pid_object.ContainsKey(parsed_cmd[1]))
                         {
@@ -226,6 +224,7 @@ namespace puppet_master
                         break;
 
                     case "InjectDelay":
+
                         if (!CheckCommand(parsed_cmd, 3)) break;
                         pid_object[parsed_cmd[1]].InjectDelay(parsed_cmd[2]);
                         break;
@@ -253,14 +252,13 @@ namespace puppet_master
                         Console.WriteLine("Argumentos inválidos");
                         break;
 
-                    case "Script":
-                        Console.Write("script1");
-                        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\script20.txt");
-                        Console.Write("script2");
+                    case "Run":
+
+                        if (!CheckCommand(parsed_cmd, 2)) break;
+                        string txt = parsed_cmd.ElementAt(1);
+                        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\" + txt + ".txt");
                         string[] scriptLines = System.IO.File.ReadAllLines(path);
-                        Console.Write("script3");
                         queueCmd = new Queue<string>(scriptLines);
-                        Console.Write("script4");
                         usingScript = true;
                         break;
 

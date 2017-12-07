@@ -61,15 +61,13 @@ namespace pacman_server
 
             if (args.Length == 3)
             {
-                string[] pm_url_parsed = args[0].Split(':');
-                server_url = pm_url_parsed[0];
-                server_port = pm_url_parsed[1];
+                string[] pm_url_parsed = args[0].Split(':','/');
+                server_port = pm_url_parsed[4];
                 round_timer = args[1];
                 nr_players = args[2];
             }
             else
             {
-                server_url = "localhost";
                 server_port = "8080";
                 round_timer = "60";
                 nr_players = "4";

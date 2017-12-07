@@ -77,11 +77,15 @@ namespace pacman
             if (args.Length >= 3)
             {
                 pid = args[0];
-                string[] pm_url_parsed = args[1].Split(':');
-                client_url = pm_url_parsed[0];
-                client_port = pm_url_parsed[1];
+                client_url = args[1].Substring(0, args[1].Length - 6);
+                Console.Write(client_url);
+                string[] pm_url_parsed = args[1].Split(':', '/');
+                foreach(string i in pm_url_parsed) { Console.Write(i); }
+                client_port = pm_url_parsed[4];
+                Console.Write(client_port);
                 round_timer = args[2];
                 nr_players = args[3];
+
                 for(int i = 4; i < args.Length; i++)
                 {
                     servers_url.Add(args[i]);
@@ -117,7 +121,7 @@ namespace pacman
                 initClientServer();
 
 
-                reqObj.Register(pid, "tcp://"+client_url +":" + client_port + "/ClientService");
+                reqObj.Register(pid, client_url + "ClientService");
                 reqObj.JoinGame(pid);
 
                 this.Focus();
