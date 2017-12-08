@@ -479,6 +479,12 @@ namespace pacman
             Boolean sent = false;
             while (true)
             {
+                while (pmc.getFrozen()) {
+                    while (gameStates.Count > 0)
+                    {
+                        gameStates.Dequeue();
+                    }
+                }
                 if (sent) Thread.Sleep(Int32.Parse(round_timer));
                 #region Ask for input and send it to the server
 

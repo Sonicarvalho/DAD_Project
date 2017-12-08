@@ -17,6 +17,7 @@ namespace pacman
         public static IList<DTOGhost> ghosts = new List<DTOGhost>();
         public static IList<DTOCoin> coins = new List<DTOCoin>();
         public static IList<DTOPlayer> players = new List<DTOPlayer>();
+        public bool isFrozen = false;
 
         public void Crash()
         {
@@ -26,7 +27,7 @@ namespace pacman
 
         public void Freeze()
         {
-            throw new NotImplementedException();
+            isFrozen = true;
         }
 
         public void InjectDelay(string dstID)
@@ -36,7 +37,7 @@ namespace pacman
 
         public void Unfreeze()
         {
-            throw new NotImplementedException();
+            isFrozen = false;
         }
 
         public List<LocalState> LocalState(int rndID)
@@ -117,6 +118,11 @@ namespace pacman
         public void updateServers(string url)
         {
             throw new NotImplementedException();
+        }
+
+        public bool getFrozen()
+        {
+            return isFrozen;
         }
     }
 }

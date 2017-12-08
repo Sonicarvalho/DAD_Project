@@ -66,6 +66,11 @@ namespace puppet_master
                 else { console_command = Console.ReadLine(); }
 
                 parsed_cmd = ProcessCommand(console_command);
+
+                foreach(string i in parsed_cmd)
+                {
+                    Console.Write(i+"\n");
+                }
                
                 switch (parsed_cmd.ElementAt(0))
                 {
@@ -276,6 +281,8 @@ namespace puppet_master
                     default:
                         Console.WriteLine("Comando não reconhecido");
                         break;
+                    
+             
                 }
             }
         }

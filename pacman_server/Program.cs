@@ -180,7 +180,7 @@ namespace pacman_server
             System.Console.WriteLine("Waiting for players!!");
             while (!started)
             {
-                Thread.Sleep(time_delay);
+                Thread.Sleep(1000); //customava estar time_delay
                 while (commands.getFrozen()) { }
                 lock (playersCountLock)
                 {
