@@ -66,8 +66,7 @@ namespace puppet_master
                 else { console_command = Console.ReadLine(); }
 
                 parsed_cmd = ProcessCommand(console_command);
-
-
+               
                 switch (parsed_cmd.ElementAt(0))
                 {
                     case "StartServer":
@@ -102,6 +101,18 @@ namespace puppet_master
                         {
                             servers_url.Add(server_url);
 
+                            foreach (KeyValuePair<string, ICommands> entry in pid_object)
+                            {
+                                try
+                                {
+                                    entry.Value.updateServers(server_url);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.Write(entry.Key + " is presumed dead!");
+                                }
+                            }
+
                             commands = (ICommands)
                                     Activator.GetObject(
                                             typeof(ICommands),
@@ -110,7 +121,7 @@ namespace puppet_master
                             pid_object.Add(pid, commands);
                         }
 
-                        initializer.StartServer(s_url, msec_per_round, num_players);
+                        initializer.StartServer(s_url, msec_per_round, num_players, servers_url);
                         break;
 
                     case "StartClient":

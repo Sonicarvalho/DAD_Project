@@ -70,6 +70,8 @@ namespace pacman_server
                 player.obj = obj;
             }
 
+            Thread.CurrentThread.Abort();
+
         }
 
         public IEnumerable<string> GetAllClients()

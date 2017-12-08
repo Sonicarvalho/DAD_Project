@@ -1,4 +1,5 @@
-﻿using System;
+﻿using mw_client_server;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,6 @@ namespace mw_replication_server
     {
         void ImAlive();
 
-        void replicateStates();
+        void replicate(GameState gameState);
     }
 }

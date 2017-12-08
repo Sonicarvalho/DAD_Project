@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pcs", "pcs\pcs.csproj", "{D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_pm_pcs", "mw_pm_pcs\mw_pm_pcs.csproj", "{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mw_replication_server", "mw_replication_server\mw_replication_server.csproj", "{B6317F9F-E3D0-46C9-8C5C-3DD51F67B877}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66CEF8B8-EE5E-4756-BBA9-D6A89068625B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6317F9F-E3D0-46C9-8C5C-3DD51F67B877}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6317F9F-E3D0-46C9-8C5C-3DD51F67B877}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6317F9F-E3D0-46C9-8C5C-3DD51F67B877}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6317F9F-E3D0-46C9-8C5C-3DD51F67B877}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

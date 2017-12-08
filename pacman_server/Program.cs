@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
@@ -18,10 +19,14 @@ namespace pacman_server
 {
     class Program
     {
+        private static Object removePlayerLock = new Object();
+
         private static Thread server, gc;
 
         private static RequestGame requestGame;
+        private static Replication replication;
         private static Commands commands;
+        private static List<string> serversURL;
 
 
         //Game Variables
@@ -32,7 +37,7 @@ namespace pacman_server
         private static int speed = 5;
 
         //Game Max #Players
-        private static int maxPlayers = 2;
+        private static int maxPlayers = 6;
 
         //Game Board Limit
         private static int boardRight = 350;
@@ -59,6 +64,9 @@ namespace pacman_server
             string round_timer;
             string nr_players;
 
+            replication = new Replication();
+
+
             if (args.Length == 3)
             {
                 string[] pm_url_parsed = args[0].Split(':','/');
@@ -66,6 +74,10 @@ namespace pacman_server
                 Console.Write(server_port);
                 round_timer = args[1];
                 nr_players = args[2];
+                for (int i = 3; i < args.Length; i++)
+                {
+                    serversURL.Add(args[i]);
+                }
             }
             else
             {
@@ -73,31 +85,6 @@ namespace pacman_server
                 round_timer = "60";
                 nr_players = "4";
             }
-
-            //string url = args.ElementAt(3);
-            //time_delay = int.Parse(args.ElementAt(4));
-            //maxPlayers = int.Parse(args.ElementAt(5));
-
-            //string[] splitURL = url.Split(new char[] { ':', '/' });
-
-            //string port = splitURL.ElementAt(4);
-            //string name = splitURL.ElementAt(5);
-
-            //IDictionary RemoteChannelProperties = new Hashtable();
-
-            //RemoteChannelProperties["port"] = port;
-
-            //RemoteChannelProperties["name"] = name;
-
-            //TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-            //requestGame = new RequestGame();
-            //requestGame.maxPlayers = maxPlayers;
-
-            //RemotingServices.Marshal(requestGame, name,
-            //        typeof(IRequestGame));
-
-
 
             IDictionary RemoteChannelProperties = new Hashtable();
 
@@ -122,6 +109,7 @@ namespace pacman_server
             ThreadStart gameCycle = new ThreadStart(initGameCycle);
             gc = new Thread(gameCycle);
             gc.Start();
+            
 
             System.Console.WriteLine("--==SERVER==--");
             System.Console.WriteLine("Press <enter> to exit...");
@@ -136,7 +124,6 @@ namespace pacman_server
             
             Object moveRequestLock = new Object();
             Object playersCountLock = new Object();
-            Object removePlayerLock = new Object(); 
 
             int round = 0;
             bool started = false;
@@ -176,8 +163,10 @@ namespace pacman_server
             System.Console.WriteLine("Waiting for players!!");
             while (!started)
             {
-                Thread.Sleep(time_delay);
+                Thread.Sleep(1000);
+         
                 while (commands.getFrozen()){}
+
                 lock (playersCountLock)
                 {
                     count = RequestGame.players.Where(p => p.playing).Count();
@@ -227,17 +216,10 @@ namespace pacman_server
                 );
 
                 gameState.players = outPlayer.ToList();
-                try
-                {
-                    player.obj.SendGameState(gameState);
 
-                    player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
-                }
-                catch (Exception e) {
-                    lock (removePlayerLock) {
-                        RequestGame.players.Remove(player);
-                    }
-                }
+                Thread client = new Thread(() => sendStateAndStart(player, gameState));
+                client.Start();
+                
             }
 
             #endregion
@@ -410,16 +392,8 @@ namespace pacman_server
 
                     gameState.players = outPlayer.ToList() ;
 
-                    try {
-                        player.obj.SendGameState(gameState);
-                    }
-                    catch (Exception e)
-                    {
-                        lock (removePlayerLock)
-                        {
-                            RequestGame.players.Remove(player);
-                        }
-                    }
+                    Thread client = new Thread(() => sendState(player, gameState));
+                    client.Start();
                 }
 
 
@@ -466,22 +440,74 @@ namespace pacman_server
                 });
 
                 gameState.players = outPlayer.ToList();
-                try
-                {
-                    player.obj.SendGameState(gameState);
-                    player.obj.EndGame();
-                }
-                catch (Exception e)
-                {
-                    lock (removePlayerLock)
-                    {
-                        RequestGame.players.Remove(player);
-                    }
-                }
+
+                Thread client = new Thread(() => sendStateAndEnd(player, gameState));
+                client.Start();
+               
 
             }
 
             #endregion
+        }
+
+        private static void sendState(Player player, GameState gameState)
+        {
+            try
+            {
+                if (player.obj != null)
+                    player.obj.SendGameState(gameState);
+
+            }
+            catch (Exception e)
+            {
+                lock (removePlayerLock)
+                {
+                    player.obj = null;
+                }
+            }
+
+            //Thread.CurrentThread.Abort();
+        }
+
+        private static void sendStateAndStart(Player player, GameState gameState)
+        {
+            try
+            {
+                if (player.obj != null)
+                {
+                    player.obj.SendGameState(gameState);
+
+                    player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
+                }
+            }
+            catch (Exception e)
+            {
+                lock (removePlayerLock)
+                {
+                    player.obj = null;
+                }
+            }
+            //Thread.CurrentThread.Abort();
+        }
+
+        private static void sendStateAndEnd(Player player, GameState gameState)
+        {
+            try
+            {
+                if (player.obj != null)
+                {
+                    player.obj.SendGameState(gameState);
+                    player.obj.EndGame();
+                }
+            }
+            catch (Exception e)
+            {
+                lock (removePlayerLock)
+                {
+                    player.obj = null;
+                }
+            }
+            //Thread.CurrentThread.Abort();
         }
 
 
