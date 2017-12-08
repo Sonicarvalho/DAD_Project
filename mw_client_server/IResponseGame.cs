@@ -11,7 +11,6 @@ namespace mw_client_server
         void SendGameState(GameState state);
         void StartGame(List<DTOPlaying> players);
         void EndGame();
-        void IAmAlive();
 
     }
     [Serializable]

@@ -21,16 +21,13 @@ namespace pcs
 
             RemoteChannelProperties["name"] = "pcs";
 
-
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
-
-            //TcpChannel channel = new TcpChannel(int32.Parse(port));
 
             ChannelServices.RegisterChannel(channel, false);
 
             Initializer mo = new Initializer();
 
-            RemotingServices.Marshal(mo, "myPCS",
+            RemotingServices.Marshal(mo, "PCS",
                     typeof(IInitializer));
 
             Console.WriteLine("Waiting for PM...");

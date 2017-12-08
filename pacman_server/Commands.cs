@@ -15,12 +15,14 @@ namespace pacman_server
         public static IList<Ghost> ghosts = new List<Ghost>();
         public static IList<Coin> coins = new List<Coin>();
         public static IList<Player> players = new List<Player>();
+        public bool frozen = false;
+        public bool delay = false;
 
 
-        public bool InjectDelay(int srcID, int dstID)
+        public void InjectDelay(string dstID)
         {
+            delay = true;
             Console.WriteLine("Puppet Master Connected");
-            return true;
         }
 
         public void Crash()
@@ -31,12 +33,12 @@ namespace pacman_server
 
         public void Freeze()
         {
-            throw new NotImplementedException();
+            frozen = true;
         }
 
         public void Unfreeze()
         {
-            throw new NotImplementedException();
+            frozen = false;
         }
 
         public List<LocalState> LocalState(int rndID)
@@ -78,11 +80,9 @@ namespace pacman_server
 
         public void GlobalStatus()
         {
-            Console.WriteLine("oi");
             foreach(Player p in players)
             {
                 try {
-                    p.obj.IAmAlive();
                     Console.WriteLine(p.name + "is Alive!");
 
                 }catch(Exception)
@@ -116,6 +116,16 @@ namespace pacman_server
         public void AddServer(string name, string url)
         {
             throw new NotImplementedException();
+        }
+
+        public bool getFrozen()
+        {
+            return frozen;
+        }
+
+        public bool getDelay()
+        {
+            return delay;
         }
     }
 }

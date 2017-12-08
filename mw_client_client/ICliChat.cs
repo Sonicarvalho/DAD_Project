@@ -13,7 +13,5 @@ namespace mw_client_client
         bool SendMessage(string nick, string message);
 
         void RecvMessage(string nick, string message);
-
-        void IAmAlive();
     }
 }

@@ -27,9 +27,9 @@ namespace pacman
         bool launchedWithPM;
 
         static bool TEST_OFFLINE = true;
-
+        List<string> servers_url = new List<string>() ;
         string client_url;
-        string client_port = "11111";
+        string client_port;
         string round_timer;
         string nr_players;
         string pid;
@@ -74,14 +74,21 @@ namespace pacman
             InitializeComponent();
             label2.Visible = false;
 
-            if (args.Length == 3)
+            if (args.Length >= 3)
             {
+                string[] pm_url_parsed = args[1].Split(':', '/');
                 pid = args[0];
-                string[] pm_url_parsed = args[1].Split(':');
-                client_url = pm_url_parsed[0];
-                client_port = pm_url_parsed[1];
+                client_url = args[1];
+                client_port = pm_url_parsed[4];
+                Console.Write(client_url);
+                Console.Write(client_port);
                 round_timer = args[2];
                 nr_players = args[3];
+
+                for(int i = 4; i < args.Length; i++)
+                {
+                    servers_url.Add(args[i]);
+                }
                 launchedWithPM = true;
                 initClient();
                 InitChannel(client_port);
@@ -98,28 +105,26 @@ namespace pacman
             //Starts the connection to gameServer
 
             /*gameClient = new Thread(() => initClient());
-            gameClient.Start();
+            gameClient.Start();*/
 
-            initPMClient(pm_port);*/
+            initPMClient(client_port);
 
-            
-
-            Thread thread = new Thread(() => initPMClient(client_port));
+            //Thread thread = new Thread(() => initPMClient(client_port));
             //thread.Start();
 
 
             if (launchedWithPM)
             {
+                PlayersID.Add(pid, 1);
                 debugPort = new Random().Next(16000, 17000);
                 initClientServer();
 
-
-                reqObj.Register(pid, "tcp://"+client_url +":" + client_port + "/ClientService");
+                reqObj.Register(pid, client_url + "/ClientService");
                 reqObj.JoinGame(pid);
 
                 this.Focus();
-                //StartServer server1 localhost localhost:11001 11 1
-                //StartClient client1 localhost localhost:9000 11 1
+                //StartServer server1 tcp://localhost:11000/PCS tcp://localhost:8080/Server 1 1
+                //StartClient client1 tcp://localhost:11000/PCS tcp://localhost:9000/Client 1 1
             }
         }
 
@@ -155,7 +160,7 @@ namespace pacman
         {
             pmc = new Commands();
 
-            RemotingServices.Marshal(pmc, "myPMClient",
+            RemotingServices.Marshal(pmc, "Client",
                     typeof(ICommands));
         }
 

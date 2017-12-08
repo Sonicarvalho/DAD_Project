@@ -29,7 +29,7 @@ namespace pacman
             throw new NotImplementedException();
         }
 
-        public bool InjectDelay(int srcID, int dstID)
+        public void InjectDelay(string dstID)
         {
             throw new NotImplementedException();
         }
@@ -106,20 +106,6 @@ namespace pacman
 
         public void GlobalStatus()
         {
-            foreach (DTOPlayer p in players)
-            {
-                try
-                {
-                    //p.obj.IAmAlive();
-                    Console.WriteLine(p.name + "is Alive!");
-
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(p.name + "is presumed Dead!");
-                }
-
-            }
         }
     }
 }

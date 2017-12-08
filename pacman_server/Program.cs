@@ -61,15 +61,14 @@ namespace pacman_server
 
             if (args.Length == 3)
             {
-                string[] pm_url_parsed = args[0].Split(':');
-                server_url = pm_url_parsed[0];
-                server_port = pm_url_parsed[1];
+                string[] pm_url_parsed = args[0].Split(':','/');
+                server_port = pm_url_parsed[4];
+                Console.Write(server_port);
                 round_timer = args[1];
                 nr_players = args[2];
             }
             else
             {
-                server_url = "localhost";
                 server_port = "8080";
                 round_timer = "60";
                 nr_players = "4";
@@ -116,7 +115,7 @@ namespace pacman_server
 
             commands = new Commands();
 
-            RemotingServices.Marshal(commands, "myPMServer",
+            RemotingServices.Marshal(commands, "Server",
                     typeof(ICommands));
 
             //Init the GameCycle
@@ -175,7 +174,7 @@ namespace pacman_server
             System.Console.WriteLine("Waiting for players!!");
             while (!started)
             {
-                Thread.Sleep(15000);
+                while (commands.getFrozen()){}
                 count = RequestGame.players.Where(p => p.playing).Count();
                 if ( count == maxPlayers /*|| ((count > 0 )&& (wait.AddMinutes(5) > DateTime.Now))*/)
                     started = !started;
@@ -232,6 +231,9 @@ namespace pacman_server
             
             #region GameCycle
             while (true) {
+                while (commands.getFrozen()){
+                }
+
                 commands.setCoins(coins);
                 commands.setGhosts(new Ghost[] { red, yellow, pink });
                 commands.setWalls(new Wall[] { ulWall, urWall, dlWall, drWall });
