@@ -99,6 +99,12 @@ namespace pacman
             coins = c;
         }
 
+
+        public void AddServer(string name, string url)
+        {
+            throw new NotImplementedException();
+        }
+
         public void setPlayer(IList<DTOPlayer> p)
         {
             players = p;
