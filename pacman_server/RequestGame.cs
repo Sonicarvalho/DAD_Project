@@ -15,6 +15,8 @@ namespace pacman_server
     public class RequestGame : MarshalByRefObject, IRequestGame
     {
         private Object moveRequestLock = new Object();
+        private Object getAllClientsLock = new Object();
+        private Object joinGameLock = new Object(); 
         private Object registerUserLock = new Object();
         private Object completeRegisterUserLock = new Object();
         
@@ -29,12 +31,12 @@ namespace pacman_server
         public bool Register(string name, string url)
         {
             System.Console.WriteLine("CLIENT REGISTER: " + name + " - " + url);
-
-            if (players.Any(p => p.name.Equals(name) || p.url.Equals(url)))
-                return false;
-
             lock (registerUserLock)
             {
+                if (players.Any(p => p.name.Equals(name) || p.url.Equals(url)))
+                return false;
+
+            
                 Player player = new Player(name, url);
 
                 players.Add(player);
@@ -72,23 +74,27 @@ namespace pacman_server
 
         public IEnumerable<string> GetAllClients()
         {
-
-            return players.Where(c => c.playing).Select(p => p.url);
+            lock (getAllClientsLock)
+            {
+                return players.Where(c => c.playing).Select(p => p.url);
+            }
         }
 
         public bool JoinGame(string name)
         {
 
-            System.Console.WriteLine("CLIENT JOIN: " + name );
+            System.Console.WriteLine("CLIENT JOIN: " + name);
 
-            Player player = players.Where(p => p.name.Equals(name)).FirstOrDefault();
+            lock (joinGameLock) { 
+                Player player = players.Where(p => p.name.Equals(name)).FirstOrDefault();
 
-            //that player exists or enough players reached?
-            if (player != null && players.Where(p => p.playing).Count() <= maxPlayers) {
+                //that player exists or enough players reached?
+                if (player != null && players.Where(p => p.playing).Count() <= maxPlayers) {
 
-                player.playing = true;
-                
-                return true;
+                    player.playing = true;
+
+                    return true;
+                }
             }
 
             return false;
