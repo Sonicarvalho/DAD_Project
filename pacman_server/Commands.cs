@@ -113,11 +113,6 @@ namespace pacman_server
             players = p;
         }
 
-        public void AddServer(string name, string url)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool getFrozen()
         {
             return frozen;
