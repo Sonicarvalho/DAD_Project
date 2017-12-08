@@ -113,5 +113,10 @@ namespace pacman
         public void GlobalStatus()
         {
         }
+
+        public void updateServers(string url)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

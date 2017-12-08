@@ -20,6 +20,8 @@ namespace mw_pm_server_client
         void Unfreeze();
 
         void GlobalStatus();
+
+        void updateServers(string url);
     }
 
     [Serializable]

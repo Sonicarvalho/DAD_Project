@@ -122,5 +122,10 @@ namespace pacman_server
         {
             return delay;
         }
+
+        public void updateServers(string url)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
