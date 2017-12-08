@@ -136,7 +136,8 @@ namespace pacman_server
             
             Object moveRequestLock = new Object();
             Object playersCountLock = new Object();
-            
+            Object removePlayerLock = new Object(); 
+
             int round = 0;
             bool started = false;
             bool ended = false;
@@ -175,8 +176,8 @@ namespace pacman_server
             System.Console.WriteLine("Waiting for players!!");
             while (!started)
             {
+                Thread.Sleep(time_delay);
                 while (commands.getFrozen()){}
-
                 lock (playersCountLock)
                 {
                     count = RequestGame.players.Where(p => p.playing).Count();
@@ -226,10 +227,17 @@ namespace pacman_server
                 );
 
                 gameState.players = outPlayer.ToList();
+                try
+                {
+                    player.obj.SendGameState(gameState);
 
-                player.obj.SendGameState(gameState);
-
-                player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
+                    player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
+                }
+                catch (Exception e) {
+                    lock (removePlayerLock) {
+                        RequestGame.players.Remove(player);
+                    }
+                }
             }
 
             #endregion
@@ -402,8 +410,16 @@ namespace pacman_server
 
                     gameState.players = outPlayer.ToList() ;
 
-                    player.obj.SendGameState(gameState);
-                    
+                    try {
+                        player.obj.SendGameState(gameState);
+                    }
+                    catch (Exception e)
+                    {
+                        lock (removePlayerLock)
+                        {
+                            RequestGame.players.Remove(player);
+                        }
+                    }
                 }
 
 
@@ -450,9 +466,18 @@ namespace pacman_server
                 });
 
                 gameState.players = outPlayer.ToList();
-                player.obj.SendGameState(gameState);
-                player.obj.EndGame();
-                
+                try
+                {
+                    player.obj.SendGameState(gameState);
+                    player.obj.EndGame();
+                }
+                catch (Exception e)
+                {
+                    lock (removePlayerLock)
+                    {
+                        RequestGame.players.Remove(player);
+                    }
+                }
 
             }
 
