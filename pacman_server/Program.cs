@@ -22,6 +22,7 @@ namespace pacman_server
 
         private static RequestGame requestGame;
         private static Commands commands;
+        private static List<string> serversURL;
 
 
         //Game Variables
@@ -32,7 +33,7 @@ namespace pacman_server
         private static int speed = 5;
 
         //Game Max #Players
-        private static int maxPlayers = 2;
+        private static int maxPlayers = 6;
 
         //Game Board Limit
         private static int boardRight = 350;
@@ -66,6 +67,10 @@ namespace pacman_server
                 Console.Write(server_port);
                 round_timer = args[1];
                 nr_players = args[2];
+                for (int i = 3; i < args.Length; i++)
+                {
+                    serversURL.Add(args[i]);
+                }
             }
             else
             {
@@ -175,8 +180,8 @@ namespace pacman_server
             System.Console.WriteLine("Waiting for players!!");
             while (!started)
             {
-                while (commands.getFrozen()){}
-
+                Thread.Sleep(time_delay);
+                while (commands.getFrozen()) { }
                 lock (playersCountLock)
                 {
                     count = RequestGame.players.Where(p => p.playing).Count();
