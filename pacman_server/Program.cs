@@ -163,10 +163,8 @@ namespace pacman_server
             System.Console.WriteLine("Waiting for players!!");
             while (!started)
             {
-                Thread.Sleep(1000);
-         
-                while (commands.getFrozen()){}
-
+                Thread.Sleep(1000); //customava estar time_delay
+                while (commands.getFrozen()) { }
                 lock (playersCountLock)
                 {
                     count = RequestGame.players.Where(p => p.playing).Count();
