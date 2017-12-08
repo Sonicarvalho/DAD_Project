@@ -135,7 +135,8 @@ namespace pacman_server
             #region Init
             
             Object moveRequestLock = new Object();
-
+            Object playersCountLock = new Object();
+            
             int round = 0;
             bool started = false;
             bool ended = false;
@@ -175,7 +176,11 @@ namespace pacman_server
             while (!started)
             {
                 while (commands.getFrozen()){}
-                count = RequestGame.players.Where(p => p.playing).Count();
+
+                lock (playersCountLock)
+                {
+                    count = RequestGame.players.Where(p => p.playing).Count();
+                }
                 if ( count == maxPlayers /*|| ((count > 0 )&& (wait.AddMinutes(5) > DateTime.Now))*/)
                     started = !started;
 
