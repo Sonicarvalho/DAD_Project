@@ -28,7 +28,7 @@ namespace pacman
     {
         bool launchedWithPM;
 
-        static bool TEST_OFFLINE = true;
+        static bool TEST_OFFLINE = false;
         List<string> servers_url = new List<string>();
         string client_url;
         string client_port;
@@ -36,6 +36,7 @@ namespace pacman
         string nr_players;
         string pid;
         int debugPort = 11111;
+        static int delayseconds = 0;
         static bool running = false;
         static bool endgame = false;
         int nmPlayers = 1;
@@ -51,7 +52,7 @@ namespace pacman
         int round = 0;
 
         //Master of Puppets
-        private static Commands pmc;
+        static Commands pmc;
 
         //Multiplayer Connection Objects
         private IRequestGame reqObj;
@@ -84,7 +85,7 @@ namespace pacman
             {
                 string[] pm_url_parsed = args[1].Split(':', '/');
                 pid = args[0];
-                client_url = args[1];
+                client_url = pm_url_parsed[3];
                 client_port = pm_url_parsed[4];
                 Console.Write(client_url);
                 Console.Write(client_port);
@@ -121,7 +122,9 @@ namespace pacman
                 debugPort = new Random().Next(16000, 17000);
                 initClientServer();
 
-                reqObj.Register(pid, client_url + "/ClientService");
+                MessageBox.Show(client_url);
+
+                reqObj.Register(pid, "tcp://" + client_url + ":" + client_port + "/ClientService");
                 reqObj.JoinGame(pid);
 
                 this.Focus();
@@ -420,7 +423,13 @@ namespace pacman
                 }
 
             }
+            if (e.KeyCode == Keys.C)
+            {
+                //String x = Microsoft.VisualBasic.Interaction.InputBox("What's the server address?", "NAME", server_host
+                MessageBox.Show(pmc.delay.ToString());
 
+
+            }
             if (e.KeyCode == Keys.D)
             {
                 String text = "";

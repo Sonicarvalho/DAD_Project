@@ -520,14 +520,16 @@ namespace pacman_server
                         {
                             Thread.Sleep(1000);
                         }
-                        player.obj.SendGameState(gameState);
 
                         player.send = false;
                     }
+
+                    
                     try
                     {
                         if (player.obj != null)
                         {
+
                             player.obj.SendGameState(gameState);
 
                             if (player.start)
