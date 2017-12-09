@@ -502,54 +502,54 @@ namespace pacman_server
         {
             while (true)
             {
-                while (!player.send) {
-                    Thread.Sleep(time_delay/3);
-                }
-
-                lock (playerSendLock)
+                Thread.Sleep(time_delay/4);
+                if (player.send)
                 {
-                    player.send = false;
-                }
 
-                try
-                {
-                    if (player.obj != null)
+                    lock (playerSendLock)
                     {
-                        player.obj.SendGameState(gameState);
-
-                        if (player.start)
-                        {
-                            lock (playerStartLock)
-                            {
-                                player.start = false;
-                            }
-                            player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
-                        }
-
-                        if (player.end)
-                        {
-                            lock (playerEndLock)
-                            {
-                                player.end = false;
-                            }
-                            player.obj.EndGame();
-                            goto closeSend;
-                        }
-
-
+                        player.send = false;
                     }
 
-                }
-                catch (Exception e)
-                {
-                    lock (removePlayerLock)
+                    try
                     {
-                        player.obj = null;
+                        if (player.obj != null)
+                        {
+                            player.obj.SendGameState(gameState);
+
+                            if (player.start)
+                            {
+                                lock (playerStartLock)
+                                {
+                                    player.start = false;
+                                }
+                                player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
+                            }
+
+                            if (player.end)
+                            {
+                                lock (playerEndLock)
+                                {
+                                    player.end = false;
+                                }
+                                player.obj.EndGame();
+                                goto closeSend;
+                            }
+
+
+                        }
+
                     }
+                    catch (Exception e)
+                    {
+                        lock (removePlayerLock)
+                        {
+                            player.obj = null;
+                        }
+                    }
+
+
                 }
-
-                
-
                 
             }
             closeSend:
