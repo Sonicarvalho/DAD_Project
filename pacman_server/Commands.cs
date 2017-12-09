@@ -16,7 +16,7 @@ namespace pacman_server
         public static IList<Coin> coins = new List<Coin>();
         public static IList<Player> players = new List<Player>();
         public bool frozen = false;
-        public List<string> delay;
+        public List<string> delay = new List<string>();
 
 
         public void InjectDelay(string dstID)
@@ -82,11 +82,11 @@ namespace pacman_server
             foreach(Player p in players)
             {
                 try {
-                    Console.WriteLine(p.name + "is Alive!");
+                    Console.WriteLine(p.name + " is Alive!");
 
                 }catch(Exception)
                 {
-                    Console.WriteLine(p.name + "is presumed Dead!");
+                    Console.WriteLine(p.name + " is presumed Dead!");
                 }
                 
             }

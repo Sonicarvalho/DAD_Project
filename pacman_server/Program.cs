@@ -30,7 +30,7 @@ namespace pacman_server
         private static RequestGame requestGame;
         private static Replication replication;
         private static Commands commands;
-        private static List<string> serversURL;
+        private static List<string> serversURL = new List<string>();
         private static List<string> delay;
 
         private static GameState gameState;
@@ -82,25 +82,27 @@ namespace pacman_server
             string round_timer;
             string nr_players;
             string isRep;
+            string pid;
 
-            if (args.Length == 3)
+            if (args.Length >= 1)
             {
                 string[] pm_url_parsed = args[0].Split(':','/');
                 server_port = pm_url_parsed[4];
-                Console.Write(server_port);
                 round_timer = args[1];
                 nr_players = args[2];
                 for (int i = 3; i < args.Length-1; i++)
                 {
                     serversURL.Add(args[i]);
                 }
-                isRep = args[args.Length - 1];
+                isRep = args[args.Length - 2];
+                pid = args[args.Length - 1];
             }
             else
             {
                 server_port = "8080";
                 round_timer = "60";
                 nr_players = "4";
+                pid = "primary";
             }
 
             IDictionary RemoteChannelProperties = new Hashtable();
@@ -114,6 +116,7 @@ namespace pacman_server
 
             requestGame = new RequestGame();
             requestGame.maxPlayers = 6;
+            requestGame.name = pid;
 
             RemotingServices.Marshal(requestGame, "myGameServer",
                     typeof(IRequestGame));
@@ -513,10 +516,10 @@ namespace pacman_server
 
                     lock (playerSendLock)
                     {
-                        /*if (delay.Contains(player.name))
+                        if (delay.Contains(player.name))
                         {
-                            Thread.Sleep(50);
-                        }*/
+                            Thread.Sleep(1000);
+                        }
                         player.obj.SendGameState(gameState);
 
                         player.send = false;

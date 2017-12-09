@@ -21,6 +21,8 @@ namespace pacman_server
         private Object completeRegisterUserLock = new Object();
         
         public int maxPlayers { get; set; }
+        public string name { get; set; }
+
 
         //players list
         //public static IList<Player> players = new List<Player>();
@@ -116,6 +118,11 @@ namespace pacman_server
             }
 
             return true;
+        }
+
+        public string getName()
+        {
+            return name;
         }
     }
 }

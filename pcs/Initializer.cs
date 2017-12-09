@@ -20,12 +20,12 @@ namespace pcs
             Process.Start(info);
         }
 
-        public void StartServer(string url, string round_timer, string nr_players, List<string> server_url, string isRep)
+        public void StartServer(string pid, string url, string round_timer, string nr_players, List<string> server_url, string isRep)
         {
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\pacman_server\\bin\\Debug\\pacman_server.exe");
             ProcessStartInfo info = new ProcessStartInfo(path);
             string server_url_parsed = String.Join(" ", server_url);
-            info.Arguments = url + " " + round_timer + " " + nr_players + " " + server_url_parsed + " " + isRep;
+            info.Arguments = url + " " + round_timer + " " + nr_players + " " + server_url_parsed + " " + isRep + " " + pid;
             Process.Start(info);
         }
     }

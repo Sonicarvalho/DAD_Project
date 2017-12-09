@@ -27,6 +27,7 @@ namespace pacman
         bool launchedWithPM;
 
         static bool TEST_OFFLINE = true;
+        List<string> delay = new List<string>();
         List<string> servers_url = new List<string>() ;
         string client_url;
         string client_port;
@@ -84,7 +85,6 @@ namespace pacman
                 Console.Write(client_port + "\n");
                 round_timer = args[2];
                 nr_players = args[3];
-
                 for(int i = 4; i < args.Length; i++)
                 {
                     servers_url.Add(args[i]);
@@ -479,6 +479,7 @@ namespace pacman
             Boolean sent = false;
             while (true)
             {
+                delay = pmc.getDelay();
                 while (pmc.getFrozen()) {
                     while (gameStates.Count > 0)
                     {
@@ -497,7 +498,16 @@ namespace pacman
                     if (goup) dirs.Add("UP");
                     if (godown) dirs.Add("DOWN");
 
+                  
                     reqObj.RequestMove(PlayersID.FirstOrDefault(x => x.Value == 1).Key, dirs, round);
+                    if (delay.Contains(reqObj.getName()))
+                    {
+                        Thread.Sleep(1000);
+                        while (gameStates.Count > 0)
+                        {
+                            gameStates.Dequeue();
+                        }
+                    }
                     sent = true;
 
                 }

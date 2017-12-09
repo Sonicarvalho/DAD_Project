@@ -17,6 +17,7 @@ namespace pacman
         public static IList<DTOGhost> ghosts = new List<DTOGhost>();
         public static IList<DTOCoin> coins = new List<DTOCoin>();
         public static IList<DTOPlayer> players = new List<DTOPlayer>();
+        public List<string> delay = new List<string>();
         public bool isFrozen = false;
 
         public void Crash()
@@ -32,7 +33,7 @@ namespace pacman
 
         public void InjectDelay(string dstID)
         {
-            throw new NotImplementedException();
+            delay.Add(dstID);
         }
 
         public void Unfreeze()
@@ -123,6 +124,11 @@ namespace pacman
         public bool getFrozen()
         {
             return isFrozen;
+        }
+
+        public List<string> getDelay()
+        {
+            return delay;
         }
     }
 }

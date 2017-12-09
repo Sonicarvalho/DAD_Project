@@ -128,7 +128,7 @@ namespace puppet_master
                             pid_object.Add(pid, commands);
                         }
 
-                        initializer.StartServer(s_url, msec_per_round, num_players, servers_url, isRep);
+                        initializer.StartServer(pid, s_url, msec_per_round, num_players, servers_url, isRep);
                         break;
 
                     case "StartClient":
@@ -178,11 +178,11 @@ namespace puppet_master
                             try
                             {
                                 entry.Value.GlobalStatus();
+
                             }catch(Exception e)
                             {
                                 Console.Write(entry.Key + " is presumed dead!");
                             }
-                            Console.WriteLine(entry.Key + " GlobalStatus.");
                         }
 
                         break;
@@ -237,7 +237,7 @@ namespace puppet_master
                         }
                         catch (Exception e)                                //tratar excecao
                         {
-
+                            Console.Write(parsed_cmd[1] + " is presumed dead!");
                         }
                         break;
 
@@ -253,7 +253,7 @@ namespace puppet_master
                                 }
                                 catch (Exception e)
                                 {
-                                    
+                                    Console.Write(entry.Key + " is presumed dead!");
                                 }
                             }                          
                         }
@@ -262,12 +262,18 @@ namespace puppet_master
                     case "LocalState":
 
                         if (!CheckCommand(parsed_cmd, 3)) break;
-
-                        ls = pid_object[parsed_cmd[1]].LocalState(2);
-                        foreach(LocalState st in ls)
+                        try
                         {
-                            st.ToString();
+                            ls = pid_object[parsed_cmd[1]].LocalState(2);
+                            foreach (LocalState st in ls)
+                            {
+                                st.ToString();
+                            }
                         }
+                        catch (Exception) {
+                            Console.Write(parsed_cmd[1] + " is presumed dead!");
+                        }
+
                         break;
 
                     case "Wait":
