@@ -10,8 +10,8 @@ namespace mw_client_client
     {
         void Register(string nick, string port);
 
-        bool SendMessage(string nick, string message);
+        bool SendMessage(string nick, string message, Dictionary<string, int> vecClock);
 
-        void RecvMessage(string nick, string message);
+        void RecvMessage(string nick, string message, Dictionary<string, int> vecClock);
     }
 }

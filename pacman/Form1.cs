@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
+using Excel = Microsoft.Office.Interop.Excel;       //Microsoft Excel 14 object in references-> COM tab
 using mw_client_server;
 using System.Collections;
 using System.Runtime.Remoting;
@@ -18,6 +19,7 @@ using mw_client_client;
 using Microsoft.VisualBasic;
 using pacman.ChatResources;
 using System.Net;
+using System.Runtime.InteropServices;
 
 
 namespace pacman
@@ -27,8 +29,7 @@ namespace pacman
         bool launchedWithPM;
 
         static bool TEST_OFFLINE = true;
-        List<string> delay = new List<string>();
-        List<string> servers_url = new List<string>() ;
+        List<string> servers_url = new List<string>();
         string client_url;
         string client_port;
         string round_timer;
@@ -40,7 +41,7 @@ namespace pacman
         int nmPlayers = 1;
         static int pacID = 2;
         string pm_port = "9000";
-        string server_host = "localhost";
+        string server_host = "tcp://localhost:8080/myGameServer";
         // direction player is moving in. Only one will be true
         bool goup;
         bool godown;
@@ -55,17 +56,21 @@ namespace pacman
         //Multiplayer Connection Objects
         private IRequestGame reqObj;
         private ResponseGame mo;
+
+        private Thread mainloop;
+
+        //Chat
         private CliChat cco;
         private static List<Tuple<string, CliChat>> cc = new List<Tuple<string, CliChat>>();
-        private Thread gameClient, gameServer, chatClientServer, mainloop;
-        ThrPool tpool;
+        static Dictionary<string, int> chatClientsVectorClock = new Dictionary<string, int>();
+        static List<Tuple<string, Dictionary<string, int>>> messagesVectorClock = new List<Tuple<string, Dictionary<string, int>>>();
 
 
         //Data Structures
         static Queue<GameState> gameStates = new Queue<GameState>();
         static Hashtable Clients = new Hashtable(3);
         static Dictionary<String, int> PlayersID = new Dictionary<string, int>();
-
+        static Dictionary<int, string> traceMoves = new Dictionary<int, string>();
 
 
 
@@ -81,15 +86,18 @@ namespace pacman
                 pid = args[0];
                 client_url = args[1];
                 client_port = pm_url_parsed[4];
-                Console.Write(client_url +"\n");
-                Console.Write(client_port + "\n");
+                Console.Write(client_url);
+                Console.Write(client_port);
                 round_timer = args[2];
                 nr_players = args[3];
-                for(int i = 4; i < args.Length; i++)
+
+                for (int i = 4; i < args.Length; i++)
                 {
-                    servers_url.Add(args[i]);
+                    servers_url.Add(args[i]); //  tcp://server_url:server_port/myGameServer
+                    Console.Write(args[i]);
                 }
                 launchedWithPM = true;
+                server_host = servers_url[0];
                 initClient();
                 InitChannel(client_port);
             }
@@ -97,20 +105,14 @@ namespace pacman
             {
                 client_url = "localhost";
                 client_port = "9000";
-                round_timer = "60";
+                round_timer = "20";
                 nr_players = "4";
                 launchedWithPM = false;
             }
 
-            //Starts the connection to gameServer
-
-            /*gameClient = new Thread(() => initClient());
-            gameClient.Start();*/
 
             initPMClient(client_port);
 
-            //Thread thread = new Thread(() => initPMClient(client_port));
-            //thread.Start();
 
 
             if (launchedWithPM)
@@ -134,7 +136,7 @@ namespace pacman
             reqObj = (IRequestGame)
                     Activator.GetObject(
                             typeof(IRequestGame),
-                            "tcp://"+server_host+":8080/myGameServer");
+                            server_host);
         }
 
         private void initClientServer()
@@ -142,6 +144,8 @@ namespace pacman
 
             cco = new CliChat();
             cco.addChatMessageText += addTextMessage;
+            cco.tryToDisplayMsg += tryToDisplayMsg;
+            cco.addMessageToClockVec += addMessageToClockVec;
 
             RemotingServices.Marshal(cco, "chatClientServerService",
                     typeof(CliChat));
@@ -168,6 +172,8 @@ namespace pacman
         {
             cco = new CliChat();
             cco.addChatMessageText += addTextMessage;
+            cco.tryToDisplayMsg += tryToDisplayMsg;
+            cco.addMessageToClockVec += addMessageToClockVec;
             RemotingServices.Marshal(cco, "chatClientServerService",
                     typeof(CliChat));
 
@@ -189,7 +195,7 @@ namespace pacman
         {
             IDictionary RemoteChannelProperties = new Hashtable();
 
-            RemoteChannelProperties["name"] = "" ;
+            RemoteChannelProperties["name"] = "";
 
             RemoteChannelProperties["port"] = port;
 
@@ -202,19 +208,26 @@ namespace pacman
         public class CliChat : MarshalByRefObject, ICliChat
         {
             public event EventHandler<PacEventArgs> addChatMessageText;
+            public event EventHandler<PacEventArgs> tryToDisplayMsg;
+            public event EventHandler<PacEventArgs> addMessageToClockVec;
 
             public void Register(string nick, string port)
             {
                 throw new NotImplementedException();
             }
 
-            public bool SendMessage(string nick, string message)
+            public bool SendMessage(string nick, string message, Dictionary<string, int> vecCloc)
             {
                 try
                 {
+                    chatClientsVectorClock[nick]++;
+                    //var copied = new Dictionary<string, int>(chatClientsVectorClock);
+                    addChatMessageText(this, new PacEventArgs(null, nick + " - " + message));
+                    //addMessageToClockVec(this, new PacEventArgs(nick + " - " + message, copied));
+                    //tryToDisplayMsg(this, null);
                     foreach (Tuple<string, CliChat> c in cc)
                     {
-                        c.Item2.RecvMessage(nick, message);
+                        c.Item2.RecvMessage(nick, message, chatClientsVectorClock);
                     }
                 }
                 catch (Exception e)
@@ -225,9 +238,12 @@ namespace pacman
                 return true;
             }
 
-            public void RecvMessage(string nick, string message)
+            public void RecvMessage(string nick, string message, Dictionary<string, int> vecClock)
             {
-                addChatMessageText(this, new PacEventArgs(null, nick + " - " + message));
+                addMessageToClockVec(this, new PacEventArgs(nick + " - " + message, vecClock));
+                tryToDisplayMsg(this, null);
+
+                //addChatMessageText(this, new PacEventArgs(null,nick + " - " + message));
             }
 
             public void IAmAlive()
@@ -267,11 +283,13 @@ namespace pacman
                     {
                         // If we are ourselves, do nothing
                         temp = C;
+                        chatClientsVectorClock.Add(C.name, 0);
                     }
                     else
                     {
                         //else add respective player to players list
                         PlayersID.Add(C.name, pacID++);
+                        chatClientsVectorClock.Add(C.name, 0);
                         String[] splitUrl = C.url.Split(new Char[] { ':', '/' });
                         ///  A : / / B : C / D
                         ///  0  1 2  3   4   5
@@ -289,8 +307,9 @@ namespace pacman
                     changePacmanVisibility(this, new PacEventArgs(p.Value));
 
                 }
-                running = true;
+
                 launch_mainloop(this, new PacEventArgs(0));
+                running = true;
             }
 
             public void EndGame()
@@ -367,25 +386,14 @@ namespace pacman
 
             if (e.KeyCode == Keys.S)
             {
-                /*ThreadStart ts = new ThreadStart(initChatCliServer);
-                chatClientServer = new Thread(ts);
-                //chatClientServer.Start();*/
 
-                //initChatCliServer();
-
-                /*  ThreadStart tsg = new ThreadStart(initClientServer);
-                gameServer = new Thread(tsg);
-                 gameServer.Start();*/
                 InitChannel(client_port);
                 initClientServer();
-                /* ThreadStart ts2 = new ThreadStart(initClient);
-                 gameClient = new Thread(ts2);
-                 gameClient.Start();*/
 
 
                 try
                 {
-                    if(TEST_OFFLINE) throw new Exception();
+                    if (TEST_OFFLINE) throw new Exception();
                     string myIp = new WebClient().DownloadString(@"http://icanhazip.com").Trim();
                     reqObj.Register(PlayersID.FirstOrDefault(x => x.Value == 1).Key, "tcp://" + myIp + ":" + debugPort + "/ClientService");
                 }
@@ -411,21 +419,32 @@ namespace pacman
                     MessageBox.Show(ex.Message);
                 }
 
-
-
-
-
-                // tpool = new ThrPool(Clients.Count, 6);
-
-                /*  for (int i = 0; i < Clients.Count; i++)
-                  {
-                      CCInitializer c = new CCInitializer((string)Clients[i], i.ToString());
-                      tpool.AssyncInvoke(new ThrWork(c.initChatClient));
-                  }
-                  */
             }
 
             if (e.KeyCode == Keys.D)
+            {
+                String text = "";
+                foreach (Tuple<string, CliChat> c in cc)
+                {
+                    text += c.Item1.ToString() + "\n";
+                }
+                foreach (KeyValuePair<String, int> c in chatClientsVectorClock)
+                {
+                    text += "Chat:" + c.ToString() + "\n";
+                }
+                text += "-----CLOCK-------\n";
+                foreach (Tuple<string, Dictionary<string, int>> c in messagesVectorClock)
+                {
+                    foreach (KeyValuePair<string, int> d in c.Item2)
+                    {
+                        text += "VecClock[" + d.Key + "]:" + d.Value.ToString();
+                    }
+                    text += "\n";
+                }
+
+                MessageBox.Show(text);
+            }
+            if (e.KeyCode == Keys.E)
             {
                 String text = "";
                 foreach (Tuple<string, CliChat> c in cc)
@@ -437,6 +456,52 @@ namespace pacman
                     text += c.ToString() + "\n";
                 }
                 MessageBox.Show(text);
+
+
+                Excel.Application xlApp = new Excel.Application();
+                Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\moves.xlsx"));
+                Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[1];
+                Excel.Range xlRange = xlWorksheet.UsedRange;
+
+                //excel is not zero based!!
+                ArrayList a = new ArrayList();
+                for (int i = 1; i <= 56; i++)
+                {
+                    a.Clear();
+
+                    for (int j = 1; j <= 2; j++)
+                    {
+                        //new line
+                        if (j == 1)
+                            Console.Write("\r\n");
+
+                        //write the value to the console
+                        if (xlRange.Cells[i, j] != null && xlRange.Cells[i, j].Value2 != null)
+                        {
+                            a.Add(xlRange.Cells[i, j].Value2);
+                        }
+                    }
+                    traceMoves.Add((int)Math.Floor((double)a[0]), (string)a[1]);
+
+                }
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                //release com objects to fully kill excel process from running in the background
+                Marshal.ReleaseComObject(xlRange);
+                Marshal.ReleaseComObject(xlWorksheet);
+
+                //close and release
+                xlWorkbook.Close();
+                Marshal.ReleaseComObject(xlWorkbook);
+
+                //quit and release
+                xlApp.Quit();
+                Marshal.ReleaseComObject(xlApp);
+
+                foreach (KeyValuePair<int, string> vp in traceMoves)
+                    Console.Write(vp.ToString());
+
             }
             #endregion DEBUG
 
@@ -469,7 +534,10 @@ namespace pacman
                 //tbChat.Text += "\r\n" + tbMsg.Text; tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
 
                 String myName = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
-                if(tbMsg.Text.Length != 0) cco.SendMessage(myName, tbMsg.Text); tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
+                if (tbMsg.Text.Length != 0)
+                    cco.SendMessage(myName, tbMsg.Text, null);
+
+                tbMsg.Clear(); tbMsg.Enabled = false; this.Focus();
             }
         }
 
@@ -479,8 +547,8 @@ namespace pacman
             Boolean sent = false;
             while (true)
             {
-                delay = pmc.getDelay();
-                while (pmc.getFrozen()) {
+                while (pmc.getFrozen())
+                {
                     while (gameStates.Count > 0)
                     {
                         gameStates.Dequeue();
@@ -489,7 +557,7 @@ namespace pacman
                 if (sent) Thread.Sleep(Int32.Parse(round_timer));
                 #region Ask for input and send it to the server
 
-                if (!sent && running && (goleft || goright || goup || godown))
+                if (!sent && running && (goleft || goright || goup || godown) && traceMoves.Count == 0)
                 {
 
                     List<String> dirs = new List<String>();
@@ -498,19 +566,19 @@ namespace pacman
                     if (goup) dirs.Add("UP");
                     if (godown) dirs.Add("DOWN");
 
-                  
                     reqObj.RequestMove(PlayersID.FirstOrDefault(x => x.Value == 1).Key, dirs, round);
-                    if (delay.Contains(reqObj.getName()))
-                    {
-                        Thread.Sleep(1000);
-                        while (gameStates.Count > 0)
-                        {
-                            gameStates.Dequeue();
-                        }
-                    }
                     sent = true;
 
                 }
+                else if (!sent && traceMoves.Count != 0 && running == true)
+                {
+                    List<String> dirs = new List<String>();
+                    dirs.Add(traceMoves[round]);
+                    //traceMoves.Remove(round);
+                    reqObj.RequestMove(PlayersID.FirstOrDefault(x => x.Value == 1).Key, dirs, round);
+                    sent = true;
+                }
+
                 #endregion
 
 
@@ -605,21 +673,21 @@ namespace pacman
 
         public void changePacmanVisibility(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 this.Controls.Find("pacman" + e.Pacman, true)[0].Visible = true;
             });
         }
         public void changeCoinVisibility(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 e.cnt.Visible = false;
             });
         }
         public void launch_mainloop(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 ThreadStart ts2 = new ThreadStart(main_loop);
                 mainloop = new Thread(ts2);
@@ -628,7 +696,7 @@ namespace pacman
         }
         public void changeControlPosition(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 e.cnt.Location = new Point(e.x, e.y);
             });
@@ -636,7 +704,7 @@ namespace pacman
 
         public void changePacDir(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 PictureBox pac = (PictureBox)e.cnt;
                 String direction = e.data;
@@ -649,18 +717,36 @@ namespace pacman
 
         public void addTextMessage(object sender, PacEventArgs e)
         {
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 TextBox g = (TextBox)this.Controls.Find("tbChat", true)[0];
 
                 g.Text += "\r\n" + e.data;
             });
         }
+
+        public void tryToDisplayMsg(object sender, PacEventArgs e)
+        {
+            Invoke((MethodInvoker)delegate()
+            {
+                tryToDisplayNextMsg();
+            });
+        }
+
+        public void addMessageToClockVec(object sender, PacEventArgs e)
+        {
+            Invoke((MethodInvoker)delegate()
+            {
+                addMessageClock(e.data, e.messagesVecClock);
+            });
+        }
+
+
         public void changeTxtText(object sender, PacEventArgs e)
         {
             if (!(e.cnt is Label)) return;
 
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 ((Label)e.cnt).Text = e.data;
                 ((Label)e.cnt).Visible = true;
@@ -668,9 +754,7 @@ namespace pacman
         }
         public void registerChatClients(object sender, PacEventArgs e)
         {
-
-
-            Invoke((MethodInvoker)delegate ()
+            Invoke((MethodInvoker)delegate()
             {
                 foreach (DTOPlaying player in e.players)
                 {
@@ -680,24 +764,107 @@ namespace pacman
                     ///  A : / / B : C / D
                     ///  0  1 2  3   4   5
                     string chaturl = "tcp://" + url[3] + ":" + cp + "/chatClientServerService";
-                    Thread thread = new Thread(() => initChatClient(chaturl, player.name));
-                    thread.Start();
+                    initChatClient(chaturl, player.name);
+                    /*Thread thread = new Thread(() => );
+                    thread.Start();*/
                 }
             });
         }
 
+        public void addMessageClock(string message, Dictionary<string, int> vecClock)
+        {
 
+            int mensagensNoClock = messagesVectorClock.Count;
+            String myName = PlayersID.FirstOrDefault(x => x.Value == 1).Key;
+
+            if (mensagensNoClock != 0)
+                for (int i = 0; i < mensagensNoClock; i++)
+                {
+                    Boolean applies = true;
+                    //Conditions para Display (as duas). Para meter na lista só o ≥:
+                    // Sender:    atual = recebido - 1
+                    // Restantes: atual ≥ recebido
+                    // No primeiro que nao aplicar insere-se aí
+                    Tuple<string, Dictionary<string, int>> c = messagesVectorClock[i];
+                    foreach (KeyValuePair<string, int> s in c.Item2)
+                    {
+                        //if (s.Key == myName)
+                        //{   //                             nameofclient     eventnrofclient
+                        //    applies = (chatClientsVectorClock[s.Key] != c.Item2[s.Key] - 1) ? false : true;
+                        //}
+                        //else
+                        //{
+                        applies = (chatClientsVectorClock[s.Key] < c.Item2[s.Key]) ? false : true;
+                        //}
+
+                    }
+                    if (!applies)
+                    {
+                        messagesVectorClock.Insert(i, new Tuple<string, Dictionary<string, int>>(message, vecClock));
+                        break;
+                    }
+                    if (i == mensagensNoClock - 1)
+                        messagesVectorClock.Add(new Tuple<string, Dictionary<string, int>>(message, vecClock));
+                }
+            else
+                messagesVectorClock.Add(new Tuple<string, Dictionary<string, int>>(message, vecClock));
+
+        }
+
+        public void tryToDisplayNextMsg()
+        {
+
+            int mensagensNoClock = messagesVectorClock.Count;
+            String myName = "";
+
+            for (int i = 0; i < mensagensNoClock; i++)      //Para cada mensagem pendente na queue tentamos mostra-la
+            {
+                Boolean applies = true;
+                //Conditions para Display (as duas). Para meter na lista só o ≥:
+                // Sender:    atual = recebido - 1
+                // Restantes: atual ≥ recebido
+                // No primeiro que nao aplicar insere-se aí
+                Tuple<string, Dictionary<string, int>> c = messagesVectorClock[i];
+
+                myName = c.Item1.Split(' ')[0];
+
+                foreach (KeyValuePair<string, int> s in c.Item2)
+                {
+                    if (s.Key == myName)
+                    {   //                             nameofclient     eventnrofclient
+                        applies = (chatClientsVectorClock[s.Key] != c.Item2[s.Key] - 1) ? false : true;
+                        if (!applies) break;
+                    }
+                    else
+                    {
+                        applies = (chatClientsVectorClock[s.Key] < c.Item2[s.Key]) ? false : true;
+                        if (!applies) break;
+                    }
+
+                }
+                if (applies)
+                {
+                    addTextMessage(this, new PacEventArgs(c.Item1, null));
+                    //chatClientsVectorClock[myName] += 1;
+                }
+
+            }
+        }
     }
 
 
     public class PacEventArgs : EventArgs
     {
+        public bool displayedMessage { get; set; }
+
+
         public int Pacman { get; set; }
         public int x { get; set; }
         public int y { get; set; }
         public Control cnt { get; set; }
         public String data { get; set; }
         public List<DTOPlaying> players { get; set; }
+        public Dictionary<String, int> messagesVecClock { get; set; }
 
 
         public PacEventArgs(int m)
@@ -714,10 +881,16 @@ namespace pacman
             this.cnt = name;
             this.data = data;
         }
-
+        public PacEventArgs(String data, Dictionary<string, int> messagesVecClock)
+        {
+            this.messagesVecClock = messagesVecClock;
+            this.data = data;
+        }
         public PacEventArgs(List<DTOPlaying> players)
         {
             this.players = players;
         }
+
+
     }
 }
