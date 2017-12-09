@@ -20,16 +20,32 @@ namespace pacman_server
     class Program
     {
         private static Object removePlayerLock = new Object();
+        private static Object sendStateLock = new Object();
+        private static Object playerSendLock = new Object();
+        private static Object playerStartLock = new Object();
+        private static Object playerEndLock = new Object();
 
-        private static Thread server, gc;
+        private static Thread gc, rc;
 
         private static RequestGame requestGame;
         private static Replication replication;
         private static Commands commands;
         private static List<string> serversURL;
 
+        private static GameState gameState;
+        private static IEnumerable<DTOCoin> outCoin;
+        private static IEnumerable<DTOWall> outWall;
+        private static IEnumerable<DTOGhost> outGhost;
+        private static IEnumerable<DTOPlayer> outPlayer;
+
 
         //Game Variables
+
+        private static int round = 0;
+        private static bool started = false;
+        private static bool ended = false;
+
+
         //Game Time Delay
         private static int time_delay = 50;
 
@@ -64,9 +80,6 @@ namespace pacman_server
             string round_timer;
             string nr_players;
 
-            replication = new Replication();
-
-
             if (args.Length == 3)
             {
                 string[] pm_url_parsed = args[0].Split(':','/');
@@ -94,6 +107,7 @@ namespace pacman_server
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
             
+
             requestGame = new RequestGame();
             requestGame.maxPlayers = 6;
 
@@ -109,31 +123,30 @@ namespace pacman_server
             ThreadStart gameCycle = new ThreadStart(initGameCycle);
             gc = new Thread(gameCycle);
             gc.Start();
-            
+
+            //Init the ReplicationCycle
+            ThreadStart replicationCycle = new ThreadStart(initReplicationCycle);
+            rc = new Thread(replicationCycle);
+            rc.Start();
+
 
             System.Console.WriteLine("--==SERVER==--");
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
 
             gc.Abort();
-            
+
         }
+
+
+        private static void initReplicationCycle() { }
 
         private static void initGameCycle() {
             #region Init
             
             Object moveRequestLock = new Object();
             Object playersCountLock = new Object();
-
-            int round = 0;
-            bool started = false;
-            bool ended = false;
-
-            GameState gameState;
-            IEnumerable<DTOCoin> outCoin;
-            IEnumerable<DTOWall> outWall;
-            IEnumerable<DTOGhost> outGhost;
-
+            
             IList<Coin> coins = initCoins();
             
             Ghost red = new Ghost(false, "red", 180, 73, 0, speed, 0);
@@ -193,12 +206,13 @@ namespace pacman_server
                     new DTOGhost(pink.hitbox.X, pink.hitbox.Y, pink.posZ, pink.color )
                 };
 
+
+
             gameState = new GameState(round, started, ended);
 
             gameState.coins = outCoin.ToList();
             gameState.walls = outWall.ToList();
             gameState.ghosts = outGhost.ToList();
-
 
             int i = 1;
             foreach (Player player in   RequestGame.players.Where(p => p.playing)) {
@@ -209,19 +223,35 @@ namespace pacman_server
 
                 i++;
 
-                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d =>d.playing).Select(p => 
-                    new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ,player.playing)
-                );
+
+                outPlayer = RequestGame.players.ToArray().Where(d => d.playing).Select(p =>
+                {
+
+                    if (p.name.Equals(player.name))
+                    {
+                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, 10, p.playing);
+                    }
+                    return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ, p.playing);
+
+                });
 
                 gameState.players = outPlayer.ToList();
 
-                Thread client = new Thread(() => sendStateAndStart(player, gameState));
+                Thread client = new Thread(() => sendState(player));
                 client.Start();
-                
+                lock (playerStartLock)
+                {
+                    player.start = true;
+                }
+                lock (playerSendLock)
+                {
+                    player.send = true;
+                }
+
             }
 
             #endregion
-            
+
             #region GameCycle
             while (true) {
                 while (commands.getFrozen()){
@@ -376,6 +406,8 @@ namespace pacman_server
                     new DTOGhost(pink.hitbox.X, pink.hitbox.Y, pink.posZ, pink.color )
                 };
 
+
+
                 gameState = new GameState(round, started, ended);
 
                 gameState.coins = outCoin.ToList();
@@ -384,17 +416,25 @@ namespace pacman_server
 
                 foreach (Player player in RequestGame.players.Where(p => p.playing))
                 {
-                    IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d =>d.playing).Select(p => 
-                        new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ,player.playing)
-                    );
+                    outPlayer = RequestGame.players.ToArray().Where(d => d.playing).Select(p =>
+                    {
 
-                    gameState.players = outPlayer.ToList() ;
+                        if (p.name.Equals(player.name))
+                        {
+                            return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, 10, p.playing);
+                        }
+                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ, p.playing);
 
-                    Thread client = new Thread(() => sendState(player, gameState));
-                    client.Start();
+                    });
+
+                    gameState.players = outPlayer.ToList();
+
+                    lock (playerSendLock)
+                    {
+                        player.send = true;
+                    }
                 }
-
-
+                
             }
             #endregion
             
@@ -418,6 +458,8 @@ namespace pacman_server
                     new DTOGhost(pink.hitbox.X, pink.hitbox.Y, pink.posZ, pink.color )
                 };
 
+
+
             gameState = new GameState(round, started, ended);
 
             gameState.coins = outCoin.ToList();
@@ -426,88 +468,93 @@ namespace pacman_server
 
             foreach (Player player in RequestGame.players.Where(p => p.playing))
             {
-                IEnumerable<DTOPlayer> outPlayer = RequestGame.players.ToArray().Where(d =>d.playing).Select(p =>
+                outPlayer = RequestGame.players.ToArray().Where(d => d.playing).Select(p =>
                 {
 
                     if (p.name.Equals(player.name))
                     {
-                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, 10,p.playing);
+                        return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, 10, p.playing);
                     }
-                    return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ,p.playing);
+                    return new DTOPlayer(p.name, p.score, p.dead, p.won, p.faceDirection, p.hitbox.X, p.hitbox.Y, player.posZ, p.playing);
 
                 });
 
                 gameState.players = outPlayer.ToList();
 
-                Thread client = new Thread(() => sendStateAndEnd(player, gameState));
-                client.Start();
-               
 
+                lock (playerEndLock)
+                {
+                    player.end = true;
+                }
+
+                lock (playerSendLock)
+                {
+                    player.send = true;
+                }
             }
 
             #endregion
+
+            Thread.CurrentThread.Abort();
         }
 
-        private static void sendState(Player player, GameState gameState)
+        private static void sendState(Player player)
         {
-            try
+            while (true)
             {
-                if (player.obj != null)
-                    player.obj.SendGameState(gameState);
-
-            }
-            catch (Exception e)
-            {
-                lock (removePlayerLock)
-                {
-                    player.obj = null;
+                while (!player.send) {
+                    Thread.Sleep(time_delay/3);
                 }
-            }
 
-            //Thread.CurrentThread.Abort();
+                lock (playerSendLock)
+                {
+                    player.send = false;
+                }
+
+                try
+                {
+                    if (player.obj != null)
+                    {
+                        player.obj.SendGameState(gameState);
+
+                        if (player.start)
+                        {
+                            lock (playerStartLock)
+                            {
+                                player.start = false;
+                            }
+                            player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
+                        }
+
+                        if (player.end)
+                        {
+                            lock (playerEndLock)
+                            {
+                                player.end = false;
+                            }
+                            player.obj.EndGame();
+                            goto closeSend;
+                        }
+
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    lock (removePlayerLock)
+                    {
+                        player.obj = null;
+                    }
+                }
+
+                
+
+                
+            }
+            closeSend:
+            Thread.CurrentThread.Abort();
         }
-
-        private static void sendStateAndStart(Player player, GameState gameState)
-        {
-            try
-            {
-                if (player.obj != null)
-                {
-                    player.obj.SendGameState(gameState);
-
-                    player.obj.StartGame(RequestGame.players.Where(p => p.playing).Select(c => new DTOPlaying(c.name, c.url)).ToList());
-                }
-            }
-            catch (Exception e)
-            {
-                lock (removePlayerLock)
-                {
-                    player.obj = null;
-                }
-            }
-            //Thread.CurrentThread.Abort();
-        }
-
-        private static void sendStateAndEnd(Player player, GameState gameState)
-        {
-            try
-            {
-                if (player.obj != null)
-                {
-                    player.obj.SendGameState(gameState);
-                    player.obj.EndGame();
-                }
-            }
-            catch (Exception e)
-            {
-                lock (removePlayerLock)
-                {
-                    player.obj = null;
-                }
-            }
-            //Thread.CurrentThread.Abort();
-        }
-
 
         private static IList<Coin> initCoins() {
             IList<Coin> coins = new List<Coin>();

@@ -25,6 +25,10 @@ namespace pacman_server.Entities
 
         public Rectangle hitbox { get; set; }
         public int posZ { get; set; }
+        
+        public bool send { get; set; }
+        public bool start { get; set; }
+        public bool end { get; set; }
 
         public Player(string Name, string URL)
         {
@@ -40,7 +44,11 @@ namespace pacman_server.Entities
             won = false;
 
             faceDirection = "RIGHT";
-        }
+
+            send = false;
+            start = false;
+            end = false;
+    }
 
     }
 }

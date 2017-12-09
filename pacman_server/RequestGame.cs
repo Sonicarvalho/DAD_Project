@@ -54,6 +54,8 @@ namespace pacman_server
             IDictionary RemoteChannelProperties = new Hashtable();
 
             RemoteChannelProperties["name"] = player.name;
+            //RemoteChannelProperties["retryCount"] = 0;
+            //RemoteChannelProperties["timeout"] = 1;
 
 
             TcpChannel channel = new TcpChannel(RemoteChannelProperties, null, null);
