@@ -1,4 +1,4 @@
-﻿using mw_pm_pcs;
+﻿using mw_pm_pcs; 
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -20,12 +20,12 @@ namespace pcs
             Process.Start(info);
         }
 
-        public void StartServer(string url, string round_timer, string nr_players, List<string> server_url)
+        public void StartServer(string url, string round_timer, string nr_players, List<string> server_url, string isRep)
         {
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\pacman_server\\bin\\Debug\\pacman_server.exe");
             ProcessStartInfo info = new ProcessStartInfo(path);
             string server_url_parsed = String.Join(" ", server_url);
-            info.Arguments = url + " " + round_timer + " " + nr_players + " " + server_url_parsed;
+            info.Arguments = url + " " + round_timer + " " + nr_players + " " + server_url_parsed + " " + isRep;
             Process.Start(info);
         }
     }

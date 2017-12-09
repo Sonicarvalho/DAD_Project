@@ -31,6 +31,7 @@ namespace pacman_server
         private static Replication replication;
         private static Commands commands;
         private static List<string> serversURL;
+        private static List<string> delay;
 
         private static GameState gameState;
         private static IEnumerable<DTOCoin> outCoin;
@@ -48,6 +49,7 @@ namespace pacman_server
 
         //Game Time Delay
         private static int time_delay = 50;
+        private static int injected_delay = 500;
 
         //Game Speed
         private static int speed = 5;
@@ -79,6 +81,7 @@ namespace pacman_server
             string server_port;
             string round_timer;
             string nr_players;
+            string isRep;
 
             if (args.Length == 3)
             {
@@ -87,10 +90,11 @@ namespace pacman_server
                 Console.Write(server_port);
                 round_timer = args[1];
                 nr_players = args[2];
-                for (int i = 3; i < args.Length; i++)
+                for (int i = 3; i < args.Length-1; i++)
                 {
                     serversURL.Add(args[i]);
                 }
+                isRep = args[args.Length - 1];
             }
             else
             {
@@ -254,6 +258,7 @@ namespace pacman_server
 
             #region GameCycle
             while (true) {
+                delay = commands.getDelay();
                 while (commands.getFrozen()){
                 }
 
@@ -515,6 +520,10 @@ namespace pacman_server
                 {
                     if (player.obj != null)
                     {
+                        /*if (delay.Contains(player.name))
+                        {
+                            Thread.Sleep(50);
+                        }*/
                         player.obj.SendGameState(gameState);
 
                         if (player.start)

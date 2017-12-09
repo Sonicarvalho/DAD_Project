@@ -80,8 +80,8 @@ namespace pacman
                 pid = args[0];
                 client_url = args[1];
                 client_port = pm_url_parsed[4];
-                Console.Write(client_url);
-                Console.Write(client_port);
+                Console.Write(client_url +"\n");
+                Console.Write(client_port + "\n");
                 round_timer = args[2];
                 nr_players = args[3];
 

@@ -34,6 +34,7 @@ namespace puppet_master
             Queue<string> queueCmd = new Queue<string>();
 
             string console_command = null;
+            string isRep = "M";
             string pid;
             string pcs_url;
             string server_url;
@@ -66,15 +67,16 @@ namespace puppet_master
                 else { console_command = Console.ReadLine(); }
 
                 parsed_cmd = ProcessCommand(console_command);
-
-                foreach(string i in parsed_cmd)
-                {
-                    Console.Write(i+"\n");
-                }
                
                 switch (parsed_cmd.ElementAt(0))
                 {
                     case "StartServer":
+
+                        if ((parsed_cmd.Count == 7) && (parsed_cmd[6] == "R"))
+                        {
+                            isRep = parsed_cmd[6];
+                            parsed_cmd.RemoveAt(6);
+                        }
 
                         if (!CheckCommand(parsed_cmd, 6)) break;
 
@@ -126,7 +128,7 @@ namespace puppet_master
                             pid_object.Add(pid, commands);
                         }
 
-                        initializer.StartServer(s_url, msec_per_round, num_players, servers_url);
+                        initializer.StartServer(s_url, msec_per_round, num_players, servers_url, isRep);
                         break;
 
                     case "StartClient":
@@ -242,7 +244,19 @@ namespace puppet_master
                     case "InjectDelay":
 
                         if (!CheckCommand(parsed_cmd, 3)) break;
-                        pid_object[parsed_cmd[1]].InjectDelay(parsed_cmd[2]);
+                        foreach (KeyValuePair<string, ICommands> entry in pid_object)
+                        {
+                            if(entry.Key == parsed_cmd[1]) {
+                                try
+                                {
+                                    entry.Value.InjectDelay(parsed_cmd[2]);
+                                }
+                                catch (Exception e)
+                                {
+                                    
+                                }
+                            }                          
+                        }
                         break;
 
                     case "LocalState":

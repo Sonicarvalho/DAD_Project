@@ -16,13 +16,12 @@ namespace pacman_server
         public static IList<Coin> coins = new List<Coin>();
         public static IList<Player> players = new List<Player>();
         public bool frozen = false;
-        public bool delay = false;
+        public List<string> delay;
 
 
         public void InjectDelay(string dstID)
         {
-            delay = true;
-            Console.WriteLine("Puppet Master Connected");
+            delay.Add(dstID);
         }
 
         public void Crash()
@@ -118,7 +117,7 @@ namespace pacman_server
             return frozen;
         }
 
-        public bool getDelay()
+        public List<string> getDelay()
         {
             return delay;
         }
